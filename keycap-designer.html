@@ -1,0 +1,2308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Keycap Designer</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #d7dde5;
+      --accent: #1f7a8c;
+      --accent-strong: #14596a;
+      --danger: #b42318;
+      --key: #fbfcfe;
+      --key-edge: #b9c2ce;
+      --shadow: rgba(23, 32, 42, 0.12);
+      --unit: 54px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 180px;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--key-edge);
+      border-radius: 7px;
+      background: linear-gradient(#ffffff, #e7ebf0);
+      box-shadow: inset 0 -3px 0 rgba(23, 32, 42, 0.08);
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .top-actions,
+    .segmented {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .layout-tabs {
+      display: flex;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #eef2f6;
+    }
+
+    .layout-tabs button {
+      border: 0;
+      border-right: 1px solid var(--line);
+      padding: 8px 13px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      min-width: 64px;
+    }
+
+    .layout-tabs button:last-child {
+      border-right: 0;
+    }
+
+    .layout-tabs button.active {
+      color: #ffffff;
+      background: var(--accent);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 38px;
+      min-width: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      color: var(--ink);
+      background: var(--panel);
+      cursor: pointer;
+    }
+
+    .button.icon {
+      padding: 0;
+    }
+
+    .button.primary {
+      color: #ffffff;
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .button.primary:hover {
+      background: var(--accent-strong);
+    }
+
+    .button.danger {
+      color: var(--danger);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 326px;
+      height: calc(100vh - 63px);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .stage-wrap {
+      min-width: 0;
+      min-height: 0;
+      overflow: auto;
+      padding: 22px;
+    }
+
+    .keyboard-stage {
+      width: max-content;
+      min-width: 100%;
+      padding: 18px 0 28px;
+    }
+
+    .stage-wrap.dragging-image .keyboard {
+      outline: 2px dashed var(--accent);
+      outline-offset: 14px;
+    }
+
+    .keyboard {
+      position: relative;
+      width: calc(var(--layout-w) * var(--unit));
+      height: calc(var(--layout-h) * var(--unit));
+      transform-origin: top left;
+      margin: 0 auto;
+    }
+
+    .key {
+      position: absolute;
+      left: calc(var(--x) * var(--unit));
+      top: calc(var(--y) * var(--unit));
+      width: calc(var(--w) * var(--unit) - 6px);
+      height: calc(var(--h) * var(--unit) - 6px);
+      border: 1px solid var(--key-edge);
+      border-radius: 8px;
+      background: var(--key);
+      box-shadow: 0 8px 18px var(--shadow), inset 0 -5px 0 rgba(23, 32, 42, 0.08);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .key.transparent-cap {
+      background-color: transparent;
+      background-image:
+        linear-gradient(45deg, rgba(102, 112, 133, 0.16) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(102, 112, 133, 0.16) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(102, 112, 133, 0.16) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(102, 112, 133, 0.16) 75%);
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      background-size: 16px 16px;
+    }
+
+    .key:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .key.selected {
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 0 3px rgba(31, 122, 140, 0.18), 0 10px 22px var(--shadow), inset 0 -5px 0 rgba(23, 32, 42, 0.08);
+    }
+
+    .key.iso-enter {
+      clip-path: none;
+      overflow: visible;
+      border: 0;
+      background: transparent !important;
+      background-image: none !important;
+      box-shadow: none !important;
+    }
+
+    .key.iso-enter.transparent-cap {
+      background: transparent !important;
+      background-image: none !important;
+      box-shadow: none !important;
+    }
+
+    .key.iso-enter:hover {
+      transform: none;
+      border-color: transparent;
+    }
+
+    .key.iso-enter.selected {
+      border: 0;
+      box-shadow: none;
+    }
+
+    .key.iso-enter .board-slice,
+    .key.iso-enter .legend {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 16.67% 100%, 16.67% 50%, 0 50%);
+    }
+
+    .iso-checker {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(45deg, rgba(102, 112, 133, 0.16) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(102, 112, 133, 0.16) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(102, 112, 133, 0.16) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(102, 112, 133, 0.16) 75%);
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      background-size: 16px 16px;
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 100' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 33 Q 26 99 26 92 V 58 Q 26 51 19 51 H 8 Q 1 51 1 43 V 8 Q 1 1 8 1 Z'/%3E%3C/svg%3E");
+      -webkit-mask-size: 100% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 100' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 33 Q 26 99 26 92 V 58 Q 26 51 19 51 H 8 Q 1 51 1 43 V 8 Q 1 1 8 1 Z'/%3E%3C/svg%3E");
+      mask-size: 100% 100%;
+      mask-repeat: no-repeat;
+      pointer-events: none;
+    }
+
+    .key.iso-enter:not(.transparent-cap) .iso-checker {
+      display: none;
+    }
+
+    .key.iso-enter .key-id {
+      left: 22%;
+      bottom: 6px;
+      z-index: 3;
+    }
+
+    .iso-outline {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      filter: drop-shadow(0 8px 12px var(--shadow));
+    }
+
+    .iso-outline .iso-fill {
+      fill: var(--cap-color, var(--key));
+    }
+
+    .key.iso-enter.transparent-cap .iso-outline .iso-fill {
+      fill: transparent;
+    }
+
+    .iso-outline path {
+      stroke: var(--key-edge);
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .key.iso-enter.selected .iso-outline path {
+      stroke: var(--accent);
+      stroke-width: 3;
+    }
+
+
+    .legend {
+      position: absolute;
+      inset: 6px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .legend img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      max-width: none;
+      max-height: none;
+      object-fit: contain;
+      transform: translate(-50%, -50%);
+    }
+
+    .board-slice {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: var(--board-opacity, 1);
+      z-index: 1;
+    }
+
+    .board-slice img {
+      position: absolute;
+      max-width: none;
+      max-height: none;
+      pointer-events: none;
+    }
+
+    .legend-text {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      padding: 3px;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      font-weight: 700;
+      z-index: 2;
+    }
+
+    .key-id {
+      position: absolute;
+      left: 7px;
+      bottom: 6px;
+      font-size: 10px;
+      color: rgba(23, 32, 42, 0.42);
+      pointer-events: none;
+    }
+
+    .side {
+      overflow: auto;
+      min-height: 0;
+      max-height: calc(100vh - 63px);
+      border-left: 1px solid var(--line);
+      background: var(--panel);
+      padding: 16px;
+    }
+
+    .section {
+      padding: 0 0 18px;
+      margin: 0 0 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section:last-child {
+      border-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin: 12px 0;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      height: 38px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #ffffff;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 82px;
+      resize: vertical;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #ffffff;
+      font: inherit;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .range-pair {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 68px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .range-pair input[type="number"] {
+      height: 32px;
+      padding: 5px 7px;
+      text-align: right;
+    }
+
+    .inline {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 34px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .swatches {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .swatch.active {
+      box-shadow: 0 0 0 3px rgba(31, 122, 140, 0.22);
+      border-color: var(--accent);
+    }
+
+    .key-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 38px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .hidden-file {
+      display: none;
+    }
+
+    @media (max-width: 980px) {
+      .workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+      }
+
+      .side {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        max-height: none;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 680px) {
+      :root {
+        --unit: 42px;
+      }
+
+      .stage-wrap {
+        padding: 14px;
+      }
+
+      .button span.label {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">K</div>
+        <h1>Keycap Designer</h1>
+      </div>
+      <div class="top-actions">
+        <div class="layout-tabs" role="tablist" aria-label="Layout">
+          <button class="active" type="button" data-layout="ansi">ANSI</button>
+          <button type="button" data-layout="iso">ISO</button>
+        </div>
+        <select id="spaceVariant" title="Spacebar row">
+          <option value="standard">6.25u space</option>
+          <option value="tsangan">7u space</option>
+          <option value="split">Split space</option>
+        </select>
+        <select id="formFactor" title="Keyboard size">
+          <option value="full">Full</option>
+          <option value="tkl">TKL</option>
+          <option value="75">75%</option>
+          <option value="lemokey-p1-pro-iso">Lemokey P1 Pro ISO</option>
+          <option value="65">65%</option>
+          <option value="60">60%</option>
+          <option value="60arrows">60% arrows</option>
+          <option value="40">40%</option>
+        </select>
+        <button class="button" id="fitButton" type="button" title="Fit view">[]</button>
+        <button class="button" id="clearAllButton" type="button" title="Clear all keys">Clear</button>
+        <input class="hidden-file" id="zipInput" type="file" accept=".zip,application/zip">
+        <button class="button" id="importZipButton" type="button" title="Load exported ZIP">Load ZIP</button>
+        <button class="button primary" id="exportSelectedButton" type="button" title="Export selected key">PNG</button>
+        <button class="button primary" id="exportAllButton" type="button" title="Export every key">ZIP</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="stage-wrap" id="stageWrap">
+        <div class="keyboard-stage">
+          <div class="keyboard" id="keyboard" aria-label="Keyboard keycaps"></div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="section">
+          <h2>Selected Key</h2>
+          <div class="key-meta">
+            <span id="selectedName">Esc</span>
+            <span id="selectedSize">1u</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Legend</h2>
+          <div class="field">
+            <label for="legendText">Text</label>
+            <textarea id="legendText" spellcheck="false"></textarea>
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="fontFamily">Font</label>
+              <select id="fontFamily">
+              </select>
+            </div>
+            <div class="field">
+              <label for="fontWeight">Weight</label>
+              <select id="fontWeight">
+                <option value="400">Regular</option>
+                <option value="600">Semi</option>
+                <option value="700" selected>Bold</option>
+                <option value="900">Black</option>
+              </select>
+            </div>
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="textScale">Text Z / Scale</label>
+              <input id="textScale" type="range" min="25" max="130" value="82">
+            </div>
+            <div class="field">
+              <label for="textColor">Color</label>
+              <input id="textColor" type="color" value="#17202a">
+            </div>
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="textX">Text X</label>
+              <input id="textX" type="range" min="-50" max="50" value="0">
+            </div>
+            <div class="field">
+              <label for="textY">Text Y</label>
+              <input id="textY" type="range" min="-50" max="50" value="0">
+            </div>
+          </div>
+          <div class="field">
+            <label for="textGap">Legend Gap</label>
+            <input id="textGap" type="range" min="0" max="120" value="10">
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="textAlign">Align</label>
+              <select id="textAlign">
+                <option value="left">Left</option>
+                <option value="center" selected>Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="textVAlign">Vertical</label>
+              <select id="textVAlign">
+                <option value="top">Top</option>
+                <option value="middle" selected>Middle</option>
+                <option value="bottom">Bottom</option>
+              </select>
+            </div>
+          </div>
+          <div class="check-row">
+            <span>Auto fit text</span>
+            <input id="autoText" type="checkbox" checked>
+          </div>
+          <div class="field">
+            <label for="customFont">Custom font name</label>
+            <input id="customFont" type="text" placeholder="Paste installed font name">
+          </div>
+          <div class="row">
+            <button class="button" id="loadFontsButton" type="button" title="Load local fonts">Load Fonts</button>
+            <button class="button primary" id="autoFillButton" type="button" title="Fill keys with normal legends and selected styling">Auto Fill</button>
+            <button class="button" id="applyStyleButton" type="button" title="Apply selected key style to all keys">Style All</button>
+            <button class="button" id="addShiftLegendsButton" type="button" title="Add shifted symbols to matching keys">Shift Legends</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Image</h2>
+          <input class="hidden-file" id="imageInput" type="file" accept="image/*">
+          <div class="row">
+            <button class="button" id="pickImageButton" type="button" title="Choose image">Image</button>
+            <button class="button danger" id="removeImageButton" type="button" title="Remove image">Remove</button>
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="imageScale">Scale</label>
+              <input id="imageScale" type="range" min="20" max="500" value="100">
+            </div>
+            <div class="field">
+              <label for="imageOpacity">Opacity</label>
+              <input id="imageOpacity" type="range" min="5" max="100" value="100">
+            </div>
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="imageX">X</label>
+              <input id="imageX" type="range" min="-100" max="100" value="0">
+            </div>
+            <div class="field">
+              <label for="imageY">Y</label>
+              <input id="imageY" type="range" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="check-row">
+            <span>Contain image</span>
+            <input id="imageContain" type="checkbox" checked>
+          </div>
+          <div class="field">
+            <label for="imageFit">Fit</label>
+            <select id="imageFit">
+              <option value="contain">Contain</option>
+              <option value="cover">Fill</option>
+              <option value="stretch">Stretch</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Board Image</h2>
+          <input class="hidden-file" id="boardImageInput" type="file" accept="image/*">
+          <div class="row">
+            <button class="button" id="pickBoardImageButton" type="button" title="Choose board image">Image</button>
+            <button class="button danger" id="removeBoardImageButton" type="button" title="Remove board image">Remove</button>
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="boardImageScale">Scale</label>
+              <input id="boardImageScale" type="range" min="25" max="500" value="100">
+            </div>
+            <div class="field">
+              <label for="boardImageOpacity">Opacity</label>
+              <input id="boardImageOpacity" type="range" min="5" max="100" value="100">
+            </div>
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="boardImageX">X</label>
+              <input id="boardImageX" type="range" min="-100" max="100" value="0">
+            </div>
+            <div class="field">
+              <label for="boardImageY">Y</label>
+              <input id="boardImageY" type="range" min="-100" max="100" value="0">
+            </div>
+          </div>
+          <div class="check-row">
+            <span>Use in exports</span>
+            <input id="boardImageExport" type="checkbox" checked>
+          </div>
+          <div class="field">
+            <label for="boardImageFit">Fit</label>
+            <select id="boardImageFit">
+              <option value="cover">Fill keyboard</option>
+              <option value="contain">Contain</option>
+              <option value="stretch">Stretch across keys</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Keycap</h2>
+          <div class="swatches" id="swatches"></div>
+          <div class="inline">
+            <div class="field">
+              <label for="capBackground">Background</label>
+              <select id="capBackground">
+                <option value="transparent" selected>Transparent</option>
+                <option value="color">Color</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="capColor">Color</label>
+              <input id="capColor" type="color" value="#fbfcfe">
+            </div>
+          </div>
+          <div class="inline">
+            <div class="field">
+              <label for="exportScale">Export scale</label>
+              <select id="exportScale">
+                <option value="2">2x</option>
+                <option value="3" selected>3x</option>
+                <option value="4">4x</option>
+                <option value="6">6x</option>
+              </select>
+            </div>
+          </div>
+            <div class="field">
+              <label for="outlineExport">Outline</label>
+              <select id="outlineExport">
+                <option value="none" selected>No outline</option>
+                <option value="stroke">Stroke</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <button class="button" id="copyButton" type="button" title="Copy style">Copy</button>
+            <button class="button" id="pasteButton" type="button" title="Paste style">Paste</button>
+            <button class="button danger" id="clearKeyButton" type="button" title="Clear selected key">Clear Key</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const UNIT = 54;
+    const fullBlockKeys = [
+      ["Esc", 0, 0, 1], ["F1", 2, 0, 1], ["F2", 3, 0, 1], ["F3", 4, 0, 1], ["F4", 5, 0, 1], ["F5", 6.5, 0, 1], ["F6", 7.5, 0, 1], ["F7", 8.5, 0, 1], ["F8", 9.5, 0, 1], ["F9", 11, 0, 1], ["F10", 12, 0, 1], ["F11", 13, 0, 1], ["F12", 14, 0, 1],
+      ["Print", 15.5, 0, 1], ["Scroll", 16.5, 0, 1], ["Pause", 17.5, 0, 1],
+      ["NumLock", 19.25, 1.25, 1], ["NumSlash", 20.25, 1.25, 1], ["NumStar", 21.25, 1.25, 1], ["NumMinus", 22.25, 1.25, 1],
+      ["Insert", 15.5, 1.25, 1], ["Home", 16.5, 1.25, 1], ["PageUp", 17.5, 1.25, 1],
+      ["Delete", 15.5, 2.25, 1], ["End", 16.5, 2.25, 1], ["PageDown", 17.5, 2.25, 1],
+      ["Num7", 19.25, 2.25, 1], ["Num8", 20.25, 2.25, 1], ["Num9", 21.25, 2.25, 1], ["NumPlus", 22.25, 2.25, 1, 2],
+      ["Num4", 19.25, 3.25, 1], ["Num5", 20.25, 3.25, 1], ["Num6", 21.25, 3.25, 1],
+      ["Num1", 19.25, 4.25, 1], ["Num2", 20.25, 4.25, 1], ["Num3", 21.25, 4.25, 1], ["NumEnter", 22.25, 4.25, 1, 2],
+      ["Up", 16.5, 4.25, 1], ["Left", 15.5, 5.25, 1], ["Down", 16.5, 5.25, 1], ["Right", 17.5, 5.25, 1],
+      ["Num0", 19.25, 5.25, 2], ["NumDot", 21.25, 5.25, 1]
+    ];
+
+    function spaceRow(y, spaceVariant, compact = false) {
+      if (compact) {
+        return [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space", 3.75, y, 6.25], ["RAlt", 10, y, 1.25], ["Fn", 11.25, y, 1.25], ["RCtrl", 12.5, y, 2.5]];
+      }
+      const rows = {
+        standard: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space", 3.75, y, 6.25], ["RAlt", 10, y, 1.25], ["Fn", 11.25, y, 1.25], ["RCtrl", 12.5, y, 2.5]],
+        tsangan: [["LCtrl", 0, y, 1.5], ["LWin", 1.5, y, 1], ["LAlt", 2.5, y, 1.5], ["Space7u", 4, y, 7], ["RAlt", 11, y, 1.5], ["Fn", 12.5, y, 1], ["RCtrl", 13.5, y, 1.5]],
+        split: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["SpaceL", 3.75, y, 2.25], ["SpaceM", 6, y, 1.25], ["SpaceR", 7.25, y, 2.75], ["RAlt", 10, y, 1.25], ["Fn", 11.25, y, 1.25], ["RCtrl", 12.5, y, 2.5]]
+      };
+      return rows[spaceVariant] || rows.standard;
+    }
+
+    function alphaKeys(type, topY = 0, bottomY = 4, backspace = 2, rightShift = 2.75) {
+      const base = [
+        ["Grave", 0, topY, 1], ["1", 1, topY, 1], ["2", 2, topY, 1], ["3", 3, topY, 1], ["4", 4, topY, 1], ["5", 5, topY, 1], ["6", 6, topY, 1], ["7", 7, topY, 1], ["8", 8, topY, 1], ["9", 9, topY, 1], ["0", 10, topY, 1], ["Minus", 11, topY, 1], ["Equals", 12, topY, 1], ["Backspace", 13, topY, backspace],
+        ["Tab", 0, topY + 1, 1.5], ["Q", 1.5, topY + 1, 1], ["W", 2.5, topY + 1, 1], ["E", 3.5, topY + 1, 1], ["R", 4.5, topY + 1, 1], ["T", 5.5, topY + 1, 1], ["Y", 6.5, topY + 1, 1], ["U", 7.5, topY + 1, 1], ["I", 8.5, topY + 1, 1], ["O", 9.5, topY + 1, 1], ["P", 10.5, topY + 1, 1], ["LBracket", 11.5, topY + 1, 1], ["RBracket", 12.5, topY + 1, 1],
+        ["Caps", 0, topY + 2, 1.75], ["A", 1.75, topY + 2, 1], ["S", 2.75, topY + 2, 1], ["D", 3.75, topY + 2, 1], ["F", 4.75, topY + 2, 1], ["G", 5.75, topY + 2, 1], ["H", 6.75, topY + 2, 1], ["J", 7.75, topY + 2, 1], ["K", 8.75, topY + 2, 1], ["L", 9.75, topY + 2, 1], ["Semicolon", 10.75, topY + 2, 1], ["Quote", 11.75, topY + 2, 1],
+        ...(type === "iso" ? [["ISOHash", 12.75, topY + 2, 1], ["ISOEnter", 13.5, topY + 1, 1.5, 2], ["LShift", 0, topY + 3, 1.25], ["ISOExtra", 1.25, topY + 3, 1], ["Z", 2.25, topY + 3, 1]] : [["Backslash", 13.5, topY + 1, 1.5], ["Enter", 12.75, topY + 2, 2.25], ["LShift", 0, topY + 3, 2.25], ["Z", 2.25, topY + 3, 1]]),
+        ["X", 3.25, topY + 3, 1], ["C", 4.25, topY + 3, 1], ["V", 5.25, topY + 3, 1], ["B", 6.25, topY + 3, 1], ["N", 7.25, topY + 3, 1], ["M", 8.25, topY + 3, 1], ["Comma", 9.25, topY + 3, 1], ["Period", 10.25, topY + 3, 1], ["Slash", 11.25, topY + 3, 1], ["RShift", 12.25, topY + 3, rightShift]
+      ];
+      return base;
+    }
+
+    function buildLayout(type, spaceVariant, formFactor) {
+      if (formFactor === "40") {
+        return { w: 12.75, h: 4, keys: [
+          ["Tab", 0, 0, 1.25], ["Q", 1.25, 0, 1], ["W", 2.25, 0, 1], ["E", 3.25, 0, 1], ["R", 4.25, 0, 1], ["T", 5.25, 0, 1], ["Y", 6.25, 0, 1], ["U", 7.25, 0, 1], ["I", 8.25, 0, 1], ["O", 9.25, 0, 1], ["P", 10.25, 0, 1], ["Backspace", 11.25, 0, 1.5],
+          ["Esc", 0, 1, 1.5], ["A", 1.5, 1, 1], ["S", 2.5, 1, 1], ["D", 3.5, 1, 1], ["F", 4.5, 1, 1], ["G", 5.5, 1, 1], ["H", 6.5, 1, 1], ["J", 7.5, 1, 1], ["K", 8.5, 1, 1], ["L", 9.5, 1, 1], ["Semicolon", 10.5, 1, 1], ["Enter", 11.5, 1, 1.25],
+          ["LShift", 0, 2, 1.75], ["Z", 1.75, 2, 1], ["X", 2.75, 2, 1], ["C", 3.75, 2, 1], ["V", 4.75, 2, 1], ["B", 5.75, 2, 1], ["N", 6.75, 2, 1], ["M", 7.75, 2, 1], ["Comma", 8.75, 2, 1], ["Period", 9.75, 2, 1], ["Slash", 10.75, 2, 1], ["RShift", 11.75, 2, 1],
+          ["LCtrl", 0, 3, 1.25], ["Lower", 1.25, 3, 1.25], ["LAlt", 2.5, 3, 1.25], ["Space", 3.75, 3, 3], ["SpaceR", 6.75, 3, 2.25], ["RAlt", 9, 3, 1.25], ["Raise", 10.25, 3, 1.25], ["RCtrl", 11.5, 3, 1.25]
+        ] };
+      }
+
+      if (formFactor === "lemokey-p1-pro-iso") {
+        const topY = 1.25;
+        const keys = [
+          ["Esc", 0, 0, 1], ["F1", 2, 0, 1], ["F2", 3, 0, 1], ["F3", 4, 0, 1], ["F4", 5, 0, 1], ["F5", 6.25, 0, 1], ["F6", 7.25, 0, 1], ["F7", 8.25, 0, 1], ["F8", 9.25, 0, 1], ["F9", 10.5, 0, 1], ["F10", 11.5, 0, 1], ["F11", 12.5, 0, 1], ["F12", 13.5, 0, 1], ["Delete", 15.25, 0, 1],
+          ...alphaKeys("iso", topY, 5.25, 2, 1.75),
+          ["LCtrl", 0, 5.25, 1.25], ["LWin", 1.25, 5.25, 1.25], ["LAlt", 2.5, 5.25, 1.25], ["Space", 3.75, 5.25, 6.25], ["RAlt", 10, 5.25, 1.25], ["Fn", 11.25, 5.25, 1.25], ["RCtrl", 12.5, 5.25, 1.25],
+          ["PageUp", 15.25, 1.25, 1], ["PageDown", 15.25, 2.25, 1], ["Home", 15.25, 3.25, 1],
+          ["Left", 14.25, 5.25, 1], ["Down", 15.25, 5.25, 1], ["Right", 16.25, 5.25, 1], ["Up", 15.25, 4.25, 1]
+        ];
+        return { w: 17.25, h: 6.25, keys };
+      }
+
+      const hasFunctionRowSpace = formFactor === "full" || formFactor === "tkl" || formFactor === "75";
+      const alphaTop = hasFunctionRowSpace ? 1.25 : 0;
+      const bottomY = hasFunctionRowSpace ? 5.25 : 4;
+      const keys = [...alphaKeys(type, alphaTop, bottomY)];
+      keys.push(...spaceRow(bottomY, spaceVariant, formFactor !== "full" && formFactor !== "tkl"));
+
+      if (formFactor === "60arrows") {
+        keys.splice(keys.findIndex((key) => key[0] === "RShift"), 1, ["RShift", 12.25, 3, 1.75], ["Up", 14, 3, 1]);
+        ["RAlt", "Fn", "RCtrl", "Menu"].forEach((name) => {
+          const index = keys.findIndex((key) => key[0] === name);
+          if (index >= 0) keys.splice(index, 1);
+        });
+        keys.push(["RAlt", 10, 4, 1], ["Fn", 11, 4, 1]);
+        keys.push(["Left", 12, 4, 1], ["Down", 13, 4, 1], ["Right", 14, 4, 1]);
+        return { w: 15, h: 5, keys };
+      }
+
+      if (formFactor === "65") {
+        const shiftIndex = keys.findIndex((key) => key[0] === "RShift");
+        if (shiftIndex >= 0) keys.splice(shiftIndex, 1, ["RShift", 12.25, 3, 1.75]);
+        ["Fn", "RCtrl", "Menu"].forEach((name) => {
+          const index = keys.findIndex((key) => key[0] === name);
+          if (index >= 0) keys.splice(index, 1);
+        });
+        keys.push(["Fn", 11.25, 4, 0.75]);
+        keys.push(["Home", 15, 0, 1], ["PageUp", 15, 1, 1], ["PageDown", 15, 2, 1], ["End", 15, 3, 1], ["Right", 15, 4, 1]);
+        keys.push(["Left", 12, 4, 1], ["Down", 13, 4, 1], ["Up", 14, 4, 1]);
+        return { w: 16, h: 5, keys };
+      }
+
+      if (formFactor === "75") {
+        keys.push(["Esc", 0, 0, 1], ["F1", 2, 0, 1], ["F2", 3, 0, 1], ["F3", 4, 0, 1], ["F4", 5, 0, 1], ["F5", 6.25, 0, 1], ["F6", 7.25, 0, 1], ["F7", 8.25, 0, 1], ["F8", 9.25, 0, 1], ["F9", 10.5, 0, 1], ["F10", 11.5, 0, 1], ["F11", 12.5, 0, 1], ["F12", 13.5, 0, 1], ["Delete", 15, 0, 1], ["PageUp", 15, 1.25, 1], ["PageDown", 15, 2.25, 1], ["Home", 15, 3.25, 1], ["End", 15, 4.25, 1]);
+        return { w: 16, h: 6.25, keys };
+      }
+
+      if (formFactor === "tkl") return { w: 18.5, h: 6.25, keys: [...keys, ...fullBlockKeys.filter((key) => key[1] < 19)] };
+      if (formFactor === "full") return { w: 23.25, h: 6.25, keys: [...keys, ...fullBlockKeys] };
+      return { w: 15, h: 5, keys };
+    }
+
+    const defaults = {
+      text: "",
+      fontFamily: "Inter, Arial, sans-serif",
+      fontWeight: "700",
+      textScale: 82,
+      textX: 0,
+      textY: 0,
+      textGap: 10,
+      textColor: "#17202a",
+      textVisible: true,
+      textAlign: "center",
+      textVAlign: "middle",
+      autoText: true,
+      image: "",
+      imageScale: 90,
+      imageOpacity: 100,
+      imageX: 0,
+      imageY: 0,
+      imageContain: true,
+      imageFit: "contain",
+      capBackground: "transparent",
+      capColor: "#ffffff"
+    };
+
+    const fontOptions = [
+      "Inter", "Arial", "Arial Black", "Aptos", "Calibri", "Cambria", "Candara", "Century Gothic",
+      "Comic Sans MS", "Consolas", "Constantia", "Corbel", "Courier New", "Franklin Gothic Medium",
+      "Garamond", "Georgia", "Helvetica", "Impact", "Lucida Console", "Lucida Sans Unicode",
+      "Microsoft Sans Serif", "Segoe UI", "Segoe UI Black", "Segoe UI Emoji", "Segoe UI Symbol",
+      "Tahoma", "Times New Roman", "Trebuchet MS", "Verdana", "Bahnschrift", "Book Antiqua",
+      "Bookman Old Style", "Bradley Hand ITC", "Brush Script MT", "Copperplate Gothic Light",
+      "Dubai", "Ebrima", "Gabriola", "Gadugi", "Gill Sans", "Ink Free", "Javanese Text",
+      "Leelawadee UI", "Malgun Gothic", "Marlett", "Mongolian Baiti", "MS Gothic", "MV Boli",
+      "Nirmala UI", "Palatino Linotype", "Rockwell", "Sitka Text", "Sylfaen", "Symbol",
+      "Yu Gothic", "system-ui", "serif", "sans-serif", "monospace", "cursive", "fantasy"
+    ];
+
+    const colors = ["#fbfcfe", "#f4eee2", "#ece7ff", "#d9f3ef", "#ffe4df", "#222831", "#254e58", "#9a3412"];
+    const keyboard = document.getElementById("keyboard");
+    const stageWrap = document.getElementById("stageWrap");
+    const selectedName = document.getElementById("selectedName");
+    const selectedSize = document.getElementById("selectedSize");
+    const legendText = document.getElementById("legendText");
+    const fontFamily = document.getElementById("fontFamily");
+    const fontWeight = document.getElementById("fontWeight");
+    const customFont = document.getElementById("customFont");
+    const textScale = document.getElementById("textScale");
+    const textX = document.getElementById("textX");
+    const textY = document.getElementById("textY");
+    const textGap = document.getElementById("textGap");
+    const textColor = document.getElementById("textColor");
+    const textAlign = document.getElementById("textAlign");
+    const textVAlign = document.getElementById("textVAlign");
+    const autoText = document.getElementById("autoText");
+    const imageInput = document.getElementById("imageInput");
+    const imageScale = document.getElementById("imageScale");
+    const imageOpacity = document.getElementById("imageOpacity");
+    const imageX = document.getElementById("imageX");
+    const imageY = document.getElementById("imageY");
+    const imageContain = document.getElementById("imageContain");
+    const imageFit = document.getElementById("imageFit");
+    const boardImageInput = document.getElementById("boardImageInput");
+    const boardImageScale = document.getElementById("boardImageScale");
+    const boardImageOpacity = document.getElementById("boardImageOpacity");
+    const boardImageX = document.getElementById("boardImageX");
+    const boardImageY = document.getElementById("boardImageY");
+    const boardImageExport = document.getElementById("boardImageExport");
+    const boardImageFit = document.getElementById("boardImageFit");
+    const capColor = document.getElementById("capColor");
+    const capBackground = document.getElementById("capBackground");
+    const exportScale = document.getElementById("exportScale");
+    const outlineExport = document.getElementById("outlineExport");
+    const swatches = document.getElementById("swatches");
+    const spaceVariant = document.getElementById("spaceVariant");
+    const formFactor = document.getElementById("formFactor");
+    const zipInput = document.getElementById("zipInput");
+
+    let currentLayout = "ansi";
+    let currentSpace = "standard";
+    let currentForm = "full";
+    let selectedId = "";
+    let clipboardStyle = null;
+    const state = {};
+    const boardImage = { src: "", width: 0, height: 0, scale: 100, opacity: 100, x: 0, y: 0, export: true, fit: "cover", blob: null, mime: "", sourceName: "" };
+    const imageCache = new Map();
+    const rangeNumberMap = new Map();
+
+    function setupRangeNumber(range) {
+      const number = document.createElement("input");
+      number.type = "number";
+      number.min = range.min;
+      number.max = range.max;
+      number.step = range.step || "1";
+      number.value = range.value;
+      number.setAttribute("aria-label", `${range.id} value`);
+
+      const wrap = document.createElement("div");
+      wrap.className = "range-pair";
+      range.parentNode.insertBefore(wrap, range);
+      wrap.appendChild(range);
+      wrap.appendChild(number);
+      rangeNumberMap.set(range, number);
+
+      range.addEventListener("input", () => {
+        number.value = range.value;
+      });
+      number.addEventListener("input", () => {
+        const min = Number(range.min);
+        const max = Number(range.max);
+        const next = Math.max(min, Math.min(max, Number(number.value || 0)));
+        range.value = next;
+        number.value = next;
+        range.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    }
+
+    function setupRangeNumbers() {
+      [textScale, textX, textY, textGap, imageScale, imageOpacity, imageX, imageY, boardImageScale, boardImageOpacity, boardImageX, boardImageY].forEach(setupRangeNumber);
+    }
+
+    function syncRangeNumbers() {
+      rangeNumberMap.forEach((number, range) => {
+        number.value = range.value;
+      });
+    }
+
+    function syncBoardPanel() {
+      boardImageScale.value = boardImage.scale;
+      boardImageOpacity.value = boardImage.opacity;
+      boardImageX.value = boardImage.x;
+      boardImageY.value = boardImage.y;
+      boardImageExport.checked = boardImage.export;
+      boardImageFit.value = boardImage.fit;
+      syncRangeNumbers();
+    }
+
+    function layoutKey() {
+      return `${currentForm}-${currentLayout}-${currentSpace}`;
+    }
+
+    function currentLayoutData() {
+      return buildLayout(currentLayout, currentSpace, currentForm);
+    }
+
+    function firstKey() {
+      return currentLayoutData().keys[0] || null;
+    }
+
+    function keyId(layoutName, key) {
+      if (!key) return "";
+      return `${layoutName}-${key[0]}`;
+    }
+
+    function keyState(id) {
+      const bucket = layoutKey();
+      if (!state[bucket]) state[bucket] = {};
+      if (!state[bucket][id]) state[bucket][id] = { ...defaults };
+      return state[bucket][id];
+    }
+
+    function getKeyData(id) {
+      return currentLayoutData().keys.find((key) => keyId(layoutKey(), key) === id) || null;
+    }
+
+    function ensureSelectedKey() {
+      if (getKeyData(selectedId)) return getKeyData(selectedId);
+      const key = firstKey();
+      selectedId = keyId(layoutKey(), key);
+      return key;
+    }
+
+    function keyLabel(name) {
+      const labels = {
+        Minus: "-",
+        Equals: "=",
+        LBracket: "[",
+        RBracket: "]",
+        Backslash: "\\",
+        Semicolon: ";",
+        Quote: "'",
+        Comma: ",",
+        Period: ".",
+        Slash: "/",
+        Grave: "`",
+        Print: "Prt",
+        Scroll: "Scr",
+        Pause: "Pause",
+        PageUp: "PgUp",
+        PageDown: "PgDn",
+        NumLock: "Num",
+        NumSlash: "/",
+        NumStar: "*",
+        NumMinus: "-",
+        NumPlus: "+",
+        NumEnter: "Enter",
+        NumDot: ".",
+        Num0: "0",
+        Num1: "1",
+        Num2: "2",
+        Num3: "3",
+        Num4: "4",
+        Num5: "5",
+        Num6: "6",
+        Num7: "7",
+        Num8: "8",
+        Num9: "9",
+        Up: "^",
+        Down: "v",
+        Left: "<",
+        Right: ">",
+        LCtrl: "Ctrl",
+        RCtrl: "Ctrl",
+        LWin: "Win",
+        LAlt: "Alt",
+        RAlt: "Alt",
+        LShift: "Shift",
+        RShift: "Shift",
+        ISOExtra: "\\ |",
+        ISOHash: "# ~",
+        ISOEnter: "Enter",
+        Space7u: "Space",
+        SpaceL: "Space",
+        SpaceM: "Space",
+        SpaceR: "Space",
+        Lower: "Lower",
+        Raise: "Raise"
+      };
+      return labels[name] || name;
+    }
+
+    function legendForKey(name) {
+      return keyLabel(name);
+    }
+
+    function fontValue(name) {
+      if (["serif", "sans-serif", "monospace", "cursive", "fantasy", "system-ui"].includes(name)) return name;
+      return `"${name}", ${name.includes("Mono") || name.includes("Console") || name.includes("Courier") ? "monospace" : "sans-serif"}`;
+    }
+
+    function fillFontSelect(extraFonts = []) {
+      const current = fontFamily.value || defaults.fontFamily;
+      const allFonts = [...new Set([...fontOptions, ...extraFonts])].sort((a, b) => a.localeCompare(b));
+      fontFamily.innerHTML = "";
+      allFonts.forEach((name) => {
+        const option = document.createElement("option");
+        option.value = fontValue(name);
+        option.textContent = name;
+        option.style.fontFamily = option.value;
+        fontFamily.appendChild(option);
+      });
+      if ([...fontFamily.options].some((option) => option.value === current)) fontFamily.value = current;
+    }
+
+    function selectedLegendStyle() {
+      ensureSelectedKey();
+      const data = keyState(selectedId);
+      return {
+        fontFamily: data.fontFamily,
+        fontWeight: data.fontWeight,
+        textScale: data.textScale,
+        textX: data.textX,
+        textY: data.textY,
+        textGap: data.textGap,
+        textColor: data.textColor,
+        textVisible: true,
+        autoText: data.autoText,
+        textAlign: data.textAlign,
+        textVAlign: data.textVAlign,
+        capBackground: data.capBackground,
+        capColor: data.capColor,
+        imageFit: data.imageFit,
+        imageContain: data.imageContain,
+        imageScale: data.imageScale,
+        imageOpacity: data.imageOpacity,
+        imageX: data.imageX,
+        imageY: data.imageY
+      };
+    }
+
+    function applyStyleToAll(fillLegends) {
+      const style = selectedLegendStyle();
+      currentLayoutData().keys.forEach((key) => {
+        const id = keyId(layoutKey(), key);
+        const data = keyState(id);
+        Object.assign(data, style);
+        if (fillLegends && !data.text.trim()) data.text = legendForKey(key[0]);
+      });
+      syncPanel();
+      renderKeyboard();
+    }
+
+    function autoFillEmptyKeys() {
+      applyStyleToAll(true);
+    }
+
+    const shiftedLegends = {
+      Grave: ["¬", "`"],
+      1: ["!", "1"],
+      2: ["\"", "2"],
+      3: ["£", "3"],
+      4: ["$", "4"],
+      5: ["%", "5"],
+      6: ["^", "6"],
+      7: ["&", "7"],
+      8: ["*", "8"],
+      9: ["(", "9"],
+      0: [")", "0"],
+      Minus: ["_", "-"],
+      Equals: ["+", "="],
+      LBracket: ["{", "["],
+      RBracket: ["}", "]"],
+      Backslash: ["|", "\\"],
+      ISOHash: ["~", "#"],
+      Semicolon: [":", ";"],
+      Quote: ["@", "'"],
+      Comma: ["<", ","],
+      Period: [">", "."],
+      Slash: ["?", "/"],
+      NumSlash: ["/", "/"],
+      NumStar: ["*", "*"],
+      NumMinus: ["-", "-"],
+      NumPlus: ["+", "+"],
+      NumDot: [".", "."]
+    };
+
+    function mergeShiftLegend(existing, shifted, base) {
+      const lines = String(existing || "").split("\n").filter((line) => line.trim());
+      const hasShift = lines.includes(shifted);
+      const hasBase = lines.includes(base);
+      const next = [];
+      if (!hasShift) next.push(shifted);
+      if (lines.length) next.push(...lines);
+      if (!hasBase && !lines.includes(base)) next.push(base);
+      return [...new Set(next)].join("\n");
+    }
+
+    function addShiftLegends() {
+      const style = selectedLegendStyle();
+      const referenceKey = currentLayoutData().keys.find((key) => key[0] === "1") || getKeyData(selectedId) || firstKey();
+      if (!referenceKey) return;
+      const referenceData = keyState(keyId(layoutKey(), referenceKey));
+      const referenceText = shiftedLegends[referenceKey[0]]
+        ? mergeShiftLegend(referenceData.text || legendForKey(referenceKey[0]), shiftedLegends[referenceKey[0]][0], shiftedLegends[referenceKey[0]][1])
+        : referenceData.text || legendForKey(referenceKey[0]);
+      const referencePx = autoFontSize(referenceText, referenceKey[3], referenceKey[4] || 1, style.textScale, true, style.textGap);
+      const lockedScale = Math.max(35, Math.min(130, Math.round((referencePx / 20) * 100)));
+      currentLayoutData().keys.forEach((key) => {
+        const id = keyId(layoutKey(), key);
+        const data = keyState(id);
+        data.fontFamily = style.fontFamily;
+        data.fontWeight = style.fontWeight;
+        data.textScale = lockedScale;
+        data.textX = style.textX;
+        data.textY = style.textY;
+        data.textGap = style.textGap;
+        data.textColor = style.textColor;
+        data.textAlign = style.textAlign;
+        data.textVAlign = style.textVAlign;
+        data.autoText = false;
+        data.textVisible = true;
+        const legends = shiftedLegends[key[0]];
+        if (!legends) return;
+        data.text = mergeShiftLegend(data.text || legendForKey(key[0]), legends[0], legends[1]);
+      });
+      syncPanel();
+      renderKeyboard();
+    }
+
+    function renderKeyboard() {
+      const layout = currentLayoutData();
+      keyboard.style.setProperty("--layout-w", layout.w);
+      keyboard.style.setProperty("--layout-h", layout.h);
+      keyboard.innerHTML = "";
+
+      layout.keys.forEach((key) => {
+        const [name, x, y, w, h = 1] = key;
+        const id = keyId(layoutKey(), key);
+        const data = keyState(id);
+        const el = document.createElement("button");
+        el.className = "key";
+        if (name === "ISOEnter") el.classList.add("iso-enter");
+        if (data.capBackground === "transparent") el.classList.add("transparent-cap");
+        el.type = "button";
+        el.dataset.id = id;
+        el.style.setProperty("--x", x);
+        el.style.setProperty("--y", y);
+        el.style.setProperty("--w", w);
+        el.style.setProperty("--h", h);
+        el.style.setProperty("--cap-color", data.capColor);
+        if (data.capBackground === "color") el.style.background = data.capColor;
+        applyBoardSlice(el, key);
+        el.setAttribute("aria-label", keyLabel(name));
+        if (id === selectedId) el.classList.add("selected");
+        const showKeyId = !String(data.text || "").trim();
+        el.innerHTML = `
+          ${name === "ISOEnter" ? "<div class=\"iso-checker\"></div><svg class=\"iso-outline\" viewBox=\"0 0 150 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"iso-fill\" d=\"M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 33 Q 26 99 26 92 V 58 Q 26 51 19 51 H 8 Q 1 51 1 43 V 8 Q 1 1 8 1 Z\"></path></svg>" : ""}
+          ${boardImage.src ? `<div class="board-slice"><img src="${boardImage.src}" alt=""></div>` : ""}
+          <div class="legend">
+            ${data.image ? `<img src="${data.image}" alt="">` : ""}
+            <div class="legend-text"></div>
+          </div>
+          ${showKeyId ? `<div class="key-id">${keyLabel(name)}</div>` : ""}
+        `;
+        const textEl = el.querySelector(".legend-text");
+        textEl.textContent = data.textVisible === false ? "" : data.text;
+        textEl.style.color = data.textColor;
+        textEl.style.fontFamily = data.fontFamily;
+        textEl.style.fontWeight = data.fontWeight;
+        textEl.style.fontSize = `${autoFontSize(data.text, w, h, data.textScale, data.autoText, data.textGap)}px`;
+        textEl.style.lineHeight = `${1.06 + ((data.textGap || 0) / 100)}`;
+        textEl.style.textAlign = data.textAlign;
+        textEl.style.justifyItems = data.textAlign === "left" ? "start" : data.textAlign === "right" ? "end" : "center";
+        textEl.style.alignItems = data.textVAlign === "top" ? "start" : data.textVAlign === "bottom" ? "end" : "center";
+        textEl.style.transform = `translate(${data.textX || 0}%, ${data.textY || 0}%)`;
+
+        const legendImg = el.querySelector(".legend img");
+        if (legendImg) {
+          const fit = data.imageFit || (data.imageContain ? "contain" : "cover");
+          const innerW = Math.max(1, w * UNIT - 18);
+          const innerH = Math.max(1, h * UNIT - 18);
+          legendImg.style.width = fit === "stretch" ? `${innerW}px` : `${innerW * (data.imageScale / 100)}px`;
+          legendImg.style.height = fit === "stretch" ? `${innerH}px` : `${innerH * (data.imageScale / 100)}px`;
+          legendImg.style.opacity = data.imageOpacity / 100;
+          legendImg.style.objectFit = fit === "stretch" ? "fill" : fit;
+          legendImg.style.transform = `translate(calc(-50% + ${(data.imageX / 100) * innerW}px), calc(-50% + ${(data.imageY / 100) * innerH}px))`;
+        }
+
+        const boardImg = el.querySelector(".board-slice img");
+        if (boardImg) positionBoardImage(boardImg, key);
+
+        el.addEventListener("click", () => selectKey(id));
+        keyboard.appendChild(el);
+      });
+    }
+
+    function applyBoardSlice(el, key) {
+      if (!boardImage.src) return;
+      el.style.setProperty("--board-opacity", boardImage.opacity / 100);
+    }
+
+    function boardImageRect() {
+      const layout = currentLayoutData();
+      const boardW = layout.w * UNIT;
+      const boardH = layout.h * UNIT;
+      const sourceW = boardImage.width || boardW;
+      const sourceH = boardImage.height || boardH;
+      let bgW = boardW * (boardImage.scale / 100);
+      let bgH = boardH * (boardImage.scale / 100);
+      if (boardImage.fit !== "stretch") {
+        const fit = boardImage.fit === "contain" ? Math.min(boardW / sourceW, boardH / sourceH) : Math.max(boardW / sourceW, boardH / sourceH);
+        bgW = sourceW * fit * (boardImage.scale / 100);
+        bgH = sourceH * fit * (boardImage.scale / 100);
+      }
+      const offsetX = (boardW - bgW) / 2 + (boardImage.x / 100) * boardW;
+      const offsetY = (boardH - bgH) / 2 + (boardImage.y / 100) * boardH;
+      return { bgW, bgH, offsetX, offsetY };
+    }
+
+    function positionBoardImage(img, key) {
+      const [, x, y] = key;
+      const rect = boardImageRect();
+      img.style.width = `${rect.bgW}px`;
+      img.style.height = `${rect.bgH}px`;
+      img.style.left = `${rect.offsetX - x * UNIT}px`;
+      img.style.top = `${rect.offsetY - y * UNIT}px`;
+      img.style.opacity = boardImage.opacity / 100;
+    }
+
+    function autoFontSize(text, w, h, scale, auto, gap = 0) {
+      const lines = String(text || "").split("\n");
+      const longest = lines.reduce((max, line) => Math.max(max, line.length), 1);
+      const capW = w * UNIT - 18;
+      const capH = h * UNIT - 18;
+      const lineUnits = Math.max(1, 1 + (lines.length - 1) * (1 + (gap / 100)));
+      const base = auto ? Math.min(capH / lineUnits, capW / (longest * 0.62)) : 20;
+      return Math.max(7, Math.min(42, base * (scale / 100)));
+    }
+
+    function selectKey(id) {
+      selectedId = id;
+      syncPanel();
+      renderKeyboard();
+    }
+
+    function syncPanel() {
+      const key = ensureSelectedKey();
+      if (!key) return;
+      const data = keyState(selectedId);
+      selectedName.textContent = keyLabel(key[0]);
+      selectedSize.textContent = `${key[3]}u${key[4] ? ` x ${key[4]}u` : ""}`;
+      legendText.value = data.text;
+      if (![...fontFamily.options].some((option) => option.value === data.fontFamily)) {
+        const option = document.createElement("option");
+        option.value = data.fontFamily;
+        option.textContent = data.fontFamily.replaceAll("\"", "").split(",")[0];
+        option.style.fontFamily = data.fontFamily;
+        fontFamily.appendChild(option);
+      }
+      fontFamily.value = data.fontFamily;
+      fontWeight.value = data.fontWeight;
+      textScale.value = data.textScale;
+      textX.value = data.textX || 0;
+      textY.value = data.textY || 0;
+      textGap.value = data.textGap ?? 10;
+      textColor.value = data.textColor;
+      textAlign.value = data.textAlign || "center";
+      textVAlign.value = data.textVAlign || "middle";
+      autoText.checked = data.autoText;
+      imageScale.value = data.imageScale;
+      imageOpacity.value = data.imageOpacity;
+      imageX.value = data.imageX;
+      imageY.value = data.imageY;
+      imageContain.checked = data.imageContain;
+      imageFit.value = data.imageFit || (data.imageContain ? "contain" : "cover");
+      capBackground.value = data.capBackground || "transparent";
+      capColor.value = data.capColor;
+      updateSwatches(data.capColor);
+      syncRangeNumbers();
+    }
+
+    function updateSelected(prop, value) {
+      keyState(selectedId)[prop] = value;
+      if (prop === "capBackground") syncPanel();
+      renderKeyboard();
+    }
+
+    function activateEditableText() {
+      const data = keyState(selectedId);
+      data.textVisible = true;
+      if (data.importedRender) {
+        data.image = "";
+        data.importedRender = false;
+      }
+    }
+
+    async function applyImageToSelectedKey(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      ensureSelectedKey();
+      const src = await readImage(file);
+      const data = keyState(selectedId);
+      data.imageScale = 100;
+      data.imageX = 0;
+      data.imageY = 0;
+      data.imageContain = true;
+      data.imageFit = "contain";
+      data.importedRender = false;
+      data.image = src;
+      syncPanel();
+      renderKeyboard();
+    }
+
+    function updateSwatches(activeColor) {
+      swatches.innerHTML = "";
+      colors.forEach((color) => {
+        const button = document.createElement("button");
+        button.className = `swatch${color.toLowerCase() === activeColor.toLowerCase() ? " active" : ""}`;
+        button.type = "button";
+        button.title = color;
+        button.style.background = color;
+        button.addEventListener("click", () => {
+          capColor.value = color;
+          updateSelected("capColor", color);
+          updateSwatches(color);
+        });
+        swatches.appendChild(button);
+      });
+    }
+
+    function readImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function readOptimizedImage(file, maxSide = 1800) {
+      const src = await readImage(file);
+      const img = await loadImage(src);
+      const longest = Math.max(img.width, img.height);
+      if (longest <= maxSide) return { src, width: img.width, height: img.height };
+
+      const scale = maxSide / longest;
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      return { src: canvas.toDataURL("image/jpeg", 0.86), width: canvas.width, height: canvas.height };
+    }
+
+    function dataUrlToBlob(dataUrl) {
+      const [meta, data] = dataUrl.split(",");
+      const mime = (meta.match(/data:([^;]+)/) || [])[1] || "application/octet-stream";
+      const binary = atob(data);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      return new Blob([bytes], { type: mime });
+    }
+
+    function imageExtension(mime) {
+      if (mime === "image/jpeg") return "jpg";
+      if (mime === "image/webp") return "webp";
+      if (mime === "image/gif") return "gif";
+      return "png";
+    }
+
+    function boardImageFilename() {
+      return `board-image.${imageExtension(boardImage.mime || boardImage.blob?.type || "image/png")}`;
+    }
+
+    function imageMime(src) {
+      if (!src || !src.startsWith("data:")) return "image/png";
+      return (src.match(/^data:([^;]+)/) || [])[1] || "image/png";
+    }
+
+    function safeFilePart(value) {
+      return String(value).replace(/[^a-z0-9_-]+/gi, "_");
+    }
+
+    function keyImageFilename(key, data) {
+      return `key-images/${safeFilePart(key[0])}.${imageExtension(data.imageMime || imageMime(data.image))}`;
+    }
+
+    async function imageSourceBlob(src) {
+      if (!src) return null;
+      if (src.startsWith("data:")) return dataUrlToBlob(src);
+      const response = await fetch(src);
+      return response.blob();
+    }
+
+    function loadImage(src) {
+      if (!src) return Promise.resolve(null);
+      if (imageCache.has(src)) return imageCache.get(src);
+      const promise = new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+      imageCache.set(src, promise);
+      return promise;
+    }
+
+    function roundedRect(ctx, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + width, y, x + width, y + height, r);
+      ctx.arcTo(x + width, y + height, x, y + height, r);
+      ctx.arcTo(x, y + height, x, y, r);
+      ctx.arcTo(x, y, x + width, y, r);
+      ctx.closePath();
+    }
+
+    function keyPath(ctx, keyName, x, y, width, height) {
+      if (keyName !== "ISOEnter") {
+        roundedRect(ctx, x, y, width, height, 8);
+        return;
+      }
+
+      const notchX = x + width * 0.1667;
+      const notchY = y + height * 0.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + width, y);
+      ctx.lineTo(x + width, y + height);
+      ctx.lineTo(notchX, y + height);
+      ctx.lineTo(notchX, notchY);
+      ctx.lineTo(x, notchY);
+      ctx.closePath();
+    }
+
+    function wrapLines(ctx, text, maxWidth) {
+      const sourceLines = String(text || "").split("\n");
+      const lines = [];
+      sourceLines.forEach((sourceLine) => {
+        const words = sourceLine.split(" ");
+        let line = "";
+        words.forEach((word) => {
+          const next = line ? `${line} ${word}` : word;
+          if (ctx.measureText(next).width <= maxWidth || !line) {
+            line = next;
+          } else {
+            lines.push(line);
+            line = word;
+          }
+        });
+        lines.push(line);
+      });
+      return lines;
+    }
+
+    async function drawKeyToCanvas(key, data, scale) {
+      const [name, keyX, keyY, w, h = 1] = key;
+      const width = Math.round((w * UNIT - 6) * scale);
+      const height = Math.round((h * UNIT - 6) * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(scale, scale);
+
+      if (data.capBackground === "color") {
+        keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1);
+        ctx.fillStyle = data.capColor;
+        ctx.fill();
+      }
+
+      if (outlineExport.value === "stroke") {
+        keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1);
+        ctx.strokeStyle = "#9aa5b1";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      keyPath(ctx, name, 5, 5, width / scale - 10, height / scale - 10);
+      ctx.save();
+      ctx.clip();
+
+      const innerW = width / scale - 18;
+      const innerH = height / scale - 18;
+      const cx = width / scale / 2;
+      const cy = height / scale / 2;
+
+      if (boardImage.src && boardImage.export) {
+        const img = await loadImage(boardImage.src);
+        if (img) {
+          const layout = currentLayoutData();
+          const boardW = layout.w * UNIT;
+          const boardH = layout.h * UNIT;
+          let drawW = boardW * (boardImage.scale / 100);
+          let drawH = boardH * (boardImage.scale / 100);
+          if (boardImage.fit !== "stretch") {
+            const fit = boardImage.fit === "contain" ? Math.min(boardW / img.width, boardH / img.height) : Math.max(boardW / img.width, boardH / img.height);
+            const drawScale = fit * (boardImage.scale / 100);
+            drawW = img.width * drawScale;
+            drawH = img.height * drawScale;
+          }
+          const boardX = (boardW - drawW) / 2 + (boardImage.x / 100) * boardW;
+          const boardY = (boardH - drawH) / 2 + (boardImage.y / 100) * boardH;
+          ctx.globalAlpha = boardImage.opacity / 100;
+          ctx.drawImage(img, boardX - keyX * UNIT, boardY - keyY * UNIT, drawW, drawH);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      if (data.image) {
+        const img = await loadImage(data.image);
+        if (img) {
+          const imageMode = data.imageFit || (data.imageContain ? "contain" : "cover");
+          let drawW = innerW * (data.imageScale / 100);
+          let drawH = innerH * (data.imageScale / 100);
+          if (imageMode !== "stretch") {
+            const fit = imageMode === "contain" ? Math.min(innerW / img.width, innerH / img.height) : Math.max(innerW / img.width, innerH / img.height);
+            const drawScale = fit * (data.imageScale / 100);
+            drawW = img.width * drawScale;
+            drawH = img.height * drawScale;
+          }
+          const dx = cx - drawW / 2 + (data.imageX / 100) * innerW;
+          const dy = cy - drawH / 2 + (data.imageY / 100) * innerH;
+          ctx.globalAlpha = data.imageOpacity / 100;
+          ctx.drawImage(img, dx, dy, drawW, drawH);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      if (data.text && data.textVisible !== false) {
+        const fontSize = autoFontSize(data.text, w, h, data.textScale, data.autoText, data.textGap);
+        ctx.fillStyle = data.textColor;
+        ctx.textAlign = data.textAlign || "center";
+        ctx.textBaseline = "middle";
+        ctx.font = `${data.fontWeight} ${fontSize}px ${data.fontFamily}`;
+        const textBox = { left: 9, right: width / scale - 9, top: 9, bottom: height / scale - 9 };
+        const lines = wrapLines(ctx, data.text, textBox.right - textBox.left);
+        const lineHeight = fontSize * (1.06 + ((data.textGap || 0) / 100));
+        const total = (lines.length - 1) * lineHeight;
+        const textX = data.textAlign === "left" ? textBox.left : data.textAlign === "right" ? textBox.right : (textBox.left + textBox.right) / 2;
+        const textY = data.textVAlign === "top" ? textBox.top + total / 2 : data.textVAlign === "bottom" ? textBox.bottom - total / 2 : (textBox.top + textBox.bottom) / 2;
+        const moveX = ((data.textX || 0) / 100) * (textBox.right - textBox.left);
+        const moveY = ((data.textY || 0) / 100) * (textBox.bottom - textBox.top);
+        lines.forEach((line, index) => {
+          ctx.fillText(line, textX + moveX, textY + moveY - total / 2 + index * lineHeight);
+        });
+      }
+
+      ctx.restore();
+      return canvas;
+    }
+
+    function downloadBlob(blob, filename) {
+      const link = document.createElement("a");
+      link.download = filename;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function canvasBlob(canvas) {
+      return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    }
+
+    function settingsBlob() {
+      const keys = {};
+      currentLayoutData().keys.forEach((key) => {
+        const id = keyId(layoutKey(), key);
+        const data = keyState(id);
+        const { image, ...settings } = data;
+        if (image) {
+          settings.imageSourceFile = keyImageFilename(key, data);
+          settings.imageMime = imageMime(image);
+        }
+        keys[key[0]] = { ...settings };
+      });
+
+      return new Blob([JSON.stringify({
+        type: "keycap-designer-settings",
+        version: 1,
+        layoutKey: layoutKey(),
+        formFactor: currentForm,
+        layout: currentLayout,
+        spaceVariant: currentSpace,
+        boardImage: boardImage.src ? {
+          sourceFile: boardImageFilename(),
+          width: boardImage.width,
+          height: boardImage.height,
+          scale: boardImage.scale,
+          opacity: boardImage.opacity,
+          x: boardImage.x,
+          y: boardImage.y,
+          export: boardImage.export,
+          fit: boardImage.fit,
+          mime: boardImage.mime || boardImage.blob?.type || "image/png"
+        } : null,
+        keys
+      }, null, 2)], { type: "text/plain" });
+    }
+
+    function crc32(bytes) {
+      let crc = -1;
+      for (let i = 0; i < bytes.length; i += 1) {
+        crc ^= bytes[i];
+        for (let j = 0; j < 8; j += 1) {
+          crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+        }
+      }
+      return (crc ^ -1) >>> 0;
+    }
+
+    function dosDateTime(date) {
+      const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+      const day = ((date.getFullYear() - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate();
+      return { time, day };
+    }
+
+    function writeUint32(value, out) {
+      out.push(value & 255, (value >>> 8) & 255, (value >>> 16) & 255, (value >>> 24) & 255);
+    }
+
+    function writeUint16(value, out) {
+      out.push(value & 255, (value >>> 8) & 255);
+    }
+
+    function textBytes(text) {
+      return new TextEncoder().encode(text);
+    }
+
+    async function makeZip(files) {
+      const chunks = [];
+      const centralChunks = [];
+      let offset = 0;
+      let centralLength = 0;
+      const stamp = dosDateTime(new Date());
+
+      for (const file of files) {
+        const name = textBytes(file.name);
+        const data = new Uint8Array(await file.blob.arrayBuffer());
+        const crc = crc32(data);
+
+        const localHeader = [];
+        writeUint32(0x04034b50, localHeader);
+        writeUint16(20, localHeader);
+        writeUint16(0, localHeader);
+        writeUint16(0, localHeader);
+        writeUint16(stamp.time, localHeader);
+        writeUint16(stamp.day, localHeader);
+        writeUint32(crc, localHeader);
+        writeUint32(data.length, localHeader);
+        writeUint32(data.length, localHeader);
+        writeUint16(name.length, localHeader);
+        writeUint16(0, localHeader);
+        chunks.push(new Uint8Array(localHeader), name, data);
+
+        const centralHeader = [];
+        writeUint32(0x02014b50, centralHeader);
+        writeUint16(20, centralHeader);
+        writeUint16(20, centralHeader);
+        writeUint16(0, centralHeader);
+        writeUint16(0, centralHeader);
+        writeUint16(stamp.time, centralHeader);
+        writeUint16(stamp.day, centralHeader);
+        writeUint32(crc, centralHeader);
+        writeUint32(data.length, centralHeader);
+        writeUint32(data.length, centralHeader);
+        writeUint16(name.length, centralHeader);
+        writeUint16(0, centralHeader);
+        writeUint16(0, centralHeader);
+        writeUint16(0, centralHeader);
+        writeUint16(0, centralHeader);
+        writeUint32(0, centralHeader);
+        writeUint32(offset, centralHeader);
+        centralChunks.push(new Uint8Array(centralHeader), name);
+        centralLength += centralHeader.length + name.length;
+
+        offset += localHeader.length + name.length + data.length;
+      }
+
+      const centralOffset = offset;
+      chunks.push(...centralChunks);
+
+      const endRecord = [];
+      writeUint32(0x06054b50, endRecord);
+      writeUint16(0, endRecord);
+      writeUint16(0, endRecord);
+      writeUint16(files.length, endRecord);
+      writeUint16(files.length, endRecord);
+      writeUint32(centralLength, endRecord);
+      writeUint32(centralOffset, endRecord);
+      writeUint16(0, endRecord);
+      chunks.push(new Uint8Array(endRecord));
+      return new Blob(chunks, { type: "application/zip" });
+    }
+
+    async function exportKey(id) {
+      const key = getKeyData(id);
+      if (!key) return;
+      const data = keyState(id);
+      const canvas = await drawKeyToCanvas(key, data, Number(exportScale.value));
+      downloadBlob(await canvasBlob(canvas), `${exportFilename(key)}`);
+    }
+
+    function keySizeLabel(key) {
+      const [, , , w, h = 1] = key;
+      return h === 1 ? `${w}u` : `${w}ux${h}u`;
+    }
+
+    function exportFilename(key) {
+      return `${keySizeLabel(key)}-${layoutKey()}-${key[0]}.png`;
+    }
+
+    function keyNameFromExport(name) {
+      const clean = name.split("/").pop().replace(/\.png$/i, "");
+      const matchingKey = currentLayoutData().keys
+        .map((key) => key[0])
+        .sort((a, b) => b.length - a.length)
+        .find((keyName) => clean.endsWith(`-${keyName}`));
+      if (matchingKey) return matchingKey;
+      const parts = clean.split("-");
+      if (parts.length < 4) return "";
+      const hasFormPrefix = ["full", "tkl", "75", "lemokey", "65", "60", "60arrows", "40"].includes(parts[1]);
+      return parts.slice(hasFormPrefix ? 4 : 3).join("-");
+    }
+
+    function inflateNotSupported(method, filename) {
+      throw new Error(`Cannot load ${filename}. This importer supports ZIPs exported by this page.`);
+    }
+
+    function settingsFromEntries(entries) {
+      const entry = entries.find((item) => item.name.toLowerCase().endsWith("keycap-settings.txt"));
+      if (!entry) return null;
+      try {
+        const text = new TextDecoder().decode(entry.bytes);
+        const settings = JSON.parse(text);
+        return settings && settings.type === "keycap-designer-settings" ? settings : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function restoreBoardImageFromSettings(entries, settings) {
+      const saved = settings && settings.boardImage;
+      if (!saved || !saved.sourceFile) {
+        boardImage.src = "";
+        boardImage.width = 0;
+        boardImage.height = 0;
+        boardImage.blob = null;
+        boardImage.mime = "";
+        boardImage.sourceName = "";
+        syncBoardPanel();
+        return;
+      }
+
+      const sourceName = saved.sourceFile.toLowerCase();
+      const entry = entries.find((item) => item.name.toLowerCase() === sourceName || item.name.toLowerCase().endsWith(`/${sourceName}`));
+      if (!entry) return;
+      const mime = saved.mime || "image/png";
+      const blob = new Blob([entry.bytes], { type: mime });
+      boardImage.src = URL.createObjectURL(blob);
+      boardImage.blob = blob;
+      boardImage.mime = mime;
+      boardImage.sourceName = saved.sourceFile;
+      boardImage.width = Number(saved.width) || 0;
+      boardImage.height = Number(saved.height) || 0;
+      boardImage.scale = Number(saved.scale) || 100;
+      boardImage.opacity = Number(saved.opacity) || 100;
+      boardImage.x = Number(saved.x) || 0;
+      boardImage.y = Number(saved.y) || 0;
+      boardImage.export = saved.export !== false;
+      boardImage.fit = saved.fit || "cover";
+      syncBoardPanel();
+    }
+
+    function restoreKeyImageFromSettings(entries, saved) {
+      if (!saved || !saved.imageSourceFile) return "";
+      const sourceName = saved.imageSourceFile.toLowerCase();
+      const entry = entries.find((item) => item.name.toLowerCase() === sourceName || item.name.toLowerCase().endsWith(`/${sourceName}`));
+      if (!entry) return "";
+      const blob = new Blob([entry.bytes], { type: saved.imageMime || "image/png" });
+      return URL.createObjectURL(blob);
+    }
+
+    function parseZipEntries(buffer) {
+      const view = new DataView(buffer);
+      const bytes = new Uint8Array(buffer);
+      const entries = [];
+      let pos = 0;
+
+      while (pos + 30 < bytes.length) {
+        const sig = view.getUint32(pos, true);
+        if (sig === 0x02014b50 || sig === 0x06054b50) break;
+        if (sig !== 0x04034b50) {
+          pos += 1;
+          continue;
+        }
+
+        const method = view.getUint16(pos + 8, true);
+        const compressedSize = view.getUint32(pos + 18, true);
+        const nameLength = view.getUint16(pos + 26, true);
+        const extraLength = view.getUint16(pos + 28, true);
+        const nameStart = pos + 30;
+        const dataStart = nameStart + nameLength + extraLength;
+        const name = new TextDecoder().decode(bytes.slice(nameStart, nameStart + nameLength));
+        const dataEnd = dataStart + compressedSize;
+
+        if (!name.endsWith("/")) {
+          if (method !== 0) inflateNotSupported(method, name);
+          entries.push({ name, bytes: bytes.slice(dataStart, dataEnd) });
+        }
+
+        pos = dataEnd;
+      }
+
+      return entries;
+    }
+
+    function importZipFile(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const entries = parseZipEntries(reader.result);
+          const importedSettings = settingsFromEntries(entries);
+          if (importedSettings) {
+            currentForm = importedSettings.formFactor || currentForm;
+            currentLayout = importedSettings.layout || currentLayout;
+            currentSpace = importedSettings.spaceVariant || currentSpace;
+            formFactor.value = currentForm;
+            spaceVariant.value = currentSpace;
+            document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === currentLayout));
+            restoreBoardImageFromSettings(entries, importedSettings);
+          }
+          let imported = 0;
+          entries.forEach((entry) => {
+            if (!entry.name.toLowerCase().endsWith(".png")) return;
+            if (entry.name.toLowerCase().includes("board-image.")) return;
+            if (entry.name.toLowerCase().startsWith("key-images/")) return;
+            const keyName = keyNameFromExport(entry.name);
+            if (!keyName) return;
+            const key = currentLayoutData().keys.find((candidate) => candidate[0] === keyName);
+            if (!key) return;
+            const id = keyId(layoutKey(), key);
+            const blob = new Blob([entry.bytes], { type: "image/png" });
+            const imageUrl = URL.createObjectURL(blob);
+            const data = keyState(id);
+            const saved = importedSettings && importedSettings.keys ? importedSettings.keys[key[0]] : null;
+            if (saved) {
+              Object.assign(data, { ...saved });
+              data.image = restoreKeyImageFromSettings(entries, saved);
+              data.textVisible = true;
+              data.importedRender = false;
+            } else {
+              data.image = imageUrl;
+              data.imageFit = "stretch";
+              data.imageContain = false;
+              data.imageScale = 100;
+              data.imageX = 0;
+              data.imageY = 0;
+              data.text = legendForKey(key[0]);
+              data.textVisible = false;
+              data.importedRender = true;
+              data.capBackground = "transparent";
+            }
+            imported += 1;
+          });
+
+          if (imported > 0 || importedSettings) {
+            syncPanel();
+            renderKeyboard();
+          }
+        } catch (error) {
+          alert(error.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    legendText.addEventListener("input", () => {
+      activateEditableText();
+      updateSelected("text", legendText.value);
+    });
+    fontFamily.addEventListener("change", () => {
+      activateEditableText();
+      updateSelected("fontFamily", fontFamily.value);
+    });
+    customFont.addEventListener("change", () => {
+      const name = customFont.value.trim();
+      if (!name) return;
+      const value = fontValue(name);
+      if (![...fontFamily.options].some((option) => option.value === value)) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = name;
+        option.style.fontFamily = value;
+        fontFamily.appendChild(option);
+      }
+      fontFamily.value = value;
+      activateEditableText();
+      updateSelected("fontFamily", value);
+    });
+    document.getElementById("loadFontsButton").addEventListener("click", async () => {
+      if (!("queryLocalFonts" in window)) {
+        customFont.placeholder = "Type any installed font name here";
+        return;
+      }
+      try {
+        const fonts = await window.queryLocalFonts();
+        fillFontSelect(fonts.map((font) => font.family));
+        syncPanel();
+      } catch (error) {
+        // Browser denied font access or does not support it in this context.
+      }
+    });
+    document.getElementById("autoFillButton").addEventListener("click", autoFillEmptyKeys);
+    document.getElementById("applyStyleButton").addEventListener("click", () => applyStyleToAll(false));
+    document.getElementById("addShiftLegendsButton").addEventListener("click", addShiftLegends);
+    fontWeight.addEventListener("change", () => {
+      activateEditableText();
+      updateSelected("fontWeight", fontWeight.value);
+    });
+    textScale.addEventListener("input", () => {
+      activateEditableText();
+      updateSelected("textScale", Number(textScale.value));
+    });
+    textX.addEventListener("input", () => {
+      activateEditableText();
+      updateSelected("textX", Number(textX.value));
+    });
+    textY.addEventListener("input", () => {
+      activateEditableText();
+      updateSelected("textY", Number(textY.value));
+    });
+    textGap.addEventListener("input", () => {
+      activateEditableText();
+      updateSelected("textGap", Number(textGap.value));
+    });
+    textColor.addEventListener("input", () => {
+      activateEditableText();
+      updateSelected("textColor", textColor.value);
+    });
+    textAlign.addEventListener("change", () => {
+      activateEditableText();
+      updateSelected("textAlign", textAlign.value);
+    });
+    textVAlign.addEventListener("change", () => {
+      activateEditableText();
+      updateSelected("textVAlign", textVAlign.value);
+    });
+    autoText.addEventListener("change", () => {
+      activateEditableText();
+      updateSelected("autoText", autoText.checked);
+    });
+    imageScale.addEventListener("input", () => updateSelected("imageScale", Number(imageScale.value)));
+    imageOpacity.addEventListener("input", () => updateSelected("imageOpacity", Number(imageOpacity.value)));
+    imageX.addEventListener("input", () => updateSelected("imageX", Number(imageX.value)));
+    imageY.addEventListener("input", () => updateSelected("imageY", Number(imageY.value)));
+    imageContain.addEventListener("change", () => {
+      updateSelected("imageContain", imageContain.checked);
+      keyState(selectedId).imageFit = imageContain.checked ? "contain" : "cover";
+      imageFit.value = keyState(selectedId).imageFit;
+      renderKeyboard();
+    });
+    imageFit.addEventListener("change", () => {
+      keyState(selectedId).imageFit = imageFit.value;
+      keyState(selectedId).imageContain = imageFit.value === "contain";
+      imageContain.checked = keyState(selectedId).imageContain;
+      renderKeyboard();
+    });
+    capColor.addEventListener("input", () => {
+      keyState(selectedId).capBackground = "color";
+      capBackground.value = "color";
+      updateSelected("capColor", capColor.value);
+      updateSwatches(capColor.value);
+    });
+    capBackground.addEventListener("change", () => updateSelected("capBackground", capBackground.value));
+
+    document.getElementById("pickImageButton").addEventListener("click", () => imageInput.click());
+    imageInput.addEventListener("change", async () => {
+      const file = imageInput.files[0];
+      if (!file) return;
+      await applyImageToSelectedKey(file);
+      imageInput.value = "";
+    });
+
+    stageWrap.addEventListener("dragover", (event) => {
+      if (![...event.dataTransfer.items].some((item) => item.kind === "file" && item.type.startsWith("image/"))) return;
+      event.preventDefault();
+      stageWrap.classList.add("dragging-image");
+      event.dataTransfer.dropEffect = "copy";
+    });
+    stageWrap.addEventListener("dragleave", (event) => {
+      if (stageWrap.contains(event.relatedTarget)) return;
+      stageWrap.classList.remove("dragging-image");
+    });
+    stageWrap.addEventListener("drop", async (event) => {
+      const file = [...event.dataTransfer.files].find((item) => item.type.startsWith("image/"));
+      if (!file) return;
+      event.preventDefault();
+      stageWrap.classList.remove("dragging-image");
+      await applyImageToSelectedKey(file);
+    });
+
+    document.getElementById("removeImageButton").addEventListener("click", () => updateSelected("image", ""));
+    document.getElementById("pickBoardImageButton").addEventListener("click", () => boardImageInput.click());
+    boardImageInput.addEventListener("change", async () => {
+      const file = boardImageInput.files[0];
+      if (!file) return;
+      const optimized = await readOptimizedImage(file);
+      boardImage.src = optimized.src;
+      boardImage.width = optimized.width;
+      boardImage.height = optimized.height;
+      boardImage.scale = 100;
+      boardImage.opacity = 100;
+      boardImage.x = 0;
+      boardImage.y = 0;
+      boardImage.export = true;
+      boardImage.fit = "cover";
+      boardImage.blob = dataUrlToBlob(optimized.src);
+      boardImage.mime = boardImage.blob.type || "image/png";
+      boardImage.sourceName = boardImageFilename();
+      syncBoardPanel();
+      boardImageInput.value = "";
+      renderKeyboard();
+    });
+    document.getElementById("removeBoardImageButton").addEventListener("click", () => {
+      boardImage.src = "";
+      boardImage.width = 0;
+      boardImage.height = 0;
+      boardImage.blob = null;
+      boardImage.mime = "";
+      boardImage.sourceName = "";
+      syncBoardPanel();
+      renderKeyboard();
+    });
+    boardImageScale.addEventListener("input", () => {
+      boardImage.scale = Number(boardImageScale.value);
+      renderKeyboard();
+    });
+    boardImageOpacity.addEventListener("input", () => {
+      boardImage.opacity = Number(boardImageOpacity.value);
+      renderKeyboard();
+    });
+    boardImageX.addEventListener("input", () => {
+      boardImage.x = Number(boardImageX.value);
+      renderKeyboard();
+    });
+    boardImageY.addEventListener("input", () => {
+      boardImage.y = Number(boardImageY.value);
+      renderKeyboard();
+    });
+    boardImageExport.addEventListener("change", () => {
+      boardImage.export = boardImageExport.checked;
+    });
+    boardImageFit.addEventListener("change", () => {
+      boardImage.fit = boardImageFit.value;
+      renderKeyboard();
+    });
+    document.getElementById("clearKeyButton").addEventListener("click", () => {
+      state[layoutKey()][selectedId] = { ...defaults };
+      syncPanel();
+      renderKeyboard();
+    });
+    document.getElementById("clearAllButton").addEventListener("click", () => {
+      currentLayoutData().keys.forEach((key) => {
+        state[layoutKey()][keyId(layoutKey(), key)] = { ...defaults };
+      });
+      syncPanel();
+      renderKeyboard();
+    });
+    document.getElementById("copyButton").addEventListener("click", () => {
+      clipboardStyle = { ...keyState(selectedId) };
+    });
+    document.getElementById("pasteButton").addEventListener("click", () => {
+      if (!clipboardStyle) return;
+      state[layoutKey()][selectedId] = { ...clipboardStyle };
+      syncPanel();
+      renderKeyboard();
+    });
+    document.getElementById("exportSelectedButton").addEventListener("click", () => exportKey(selectedId));
+    document.getElementById("exportAllButton").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = "Zipping";
+      try {
+        const files = [{ name: "keycap-settings.txt", blob: settingsBlob() }];
+        if (boardImage.src) {
+          const blob = boardImage.blob || dataUrlToBlob(boardImage.src);
+          files.push({ name: boardImageFilename(), blob });
+        }
+        for (const key of currentLayoutData().keys) {
+          const id = keyId(layoutKey(), key);
+          const data = keyState(id);
+          if (data.image) {
+            const sourceBlob = await imageSourceBlob(data.image);
+            if (sourceBlob) files.push({ name: keyImageFilename(key, data), blob: sourceBlob });
+          }
+          const canvas = await drawKeyToCanvas(key, data, Number(exportScale.value));
+          files.push({ name: exportFilename(key), blob: await canvasBlob(canvas) });
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+        downloadBlob(await makeZip(files), `${layoutKey()}-keycaps.zip`);
+      } catch (error) {
+        alert(`Export failed: ${error.message}`);
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    });
+    document.getElementById("importZipButton").addEventListener("click", () => zipInput.click());
+    zipInput.addEventListener("change", () => {
+      const file = zipInput.files[0];
+      if (!file) return;
+      importZipFile(file);
+      zipInput.value = "";
+    });
+
+    document.getElementById("fitButton").addEventListener("click", () => {
+      stageWrap.scrollTo({ left: 0, top: 0, behavior: "smooth" });
+    });
+
+    document.querySelectorAll("[data-layout]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.remove("active"));
+        button.classList.add("active");
+        currentLayout = button.dataset.layout;
+        selectedId = keyId(layoutKey(), firstKey());
+        syncPanel();
+        renderKeyboard();
+      });
+    });
+
+    spaceVariant.addEventListener("change", () => {
+      currentSpace = spaceVariant.value;
+      selectedId = keyId(layoutKey(), firstKey());
+      syncPanel();
+      renderKeyboard();
+    });
+    formFactor.addEventListener("change", () => {
+      currentForm = formFactor.value;
+      if (currentForm === "lemokey-p1-pro-iso") {
+        currentLayout = "iso";
+        document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === "iso"));
+      }
+      selectedId = keyId(layoutKey(), firstKey());
+      syncPanel();
+      renderKeyboard();
+    });
+
+    setupRangeNumbers();
+    fillFontSelect();
+    selectedId = keyId(layoutKey(), firstKey());
+    colors.forEach((color) => {
+      const button = document.createElement("button");
+      button.className = "swatch";
+      button.type = "button";
+      button.title = color;
+      button.style.background = color;
+      swatches.appendChild(button);
+    });
+    syncPanel();
+    renderKeyboard();
+  </script>
+</body>
+</html>
