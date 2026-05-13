@@ -784,14 +784,17 @@
                 <option value="6">6x</option>
               </select>
             </div>
-          </div>
             <div class="field">
-              <label for="outlineExport">Outline</label>
-              <select id="outlineExport">
-                <option value="none" selected>No outline</option>
-                <option value="stroke">Stroke</option>
-              </select>
+              <label for="pageBackground">HTML background</label>
+              <input id="pageBackground" type="color" value="#f4f6f8">
             </div>
+          </div>
+          <div class="field">
+            <label for="outlineExport">Outline</label>
+            <select id="outlineExport">
+              <option value="none" selected>No outline</option>
+              <option value="stroke">Stroke</option>
+            </select>
           </div>
           <div class="row">
             <button class="button" id="copyButton" type="button" title="Copy style">Copy</button>
@@ -973,6 +976,7 @@
     const boardImageFit = document.getElementById("boardImageFit");
     const capColor = document.getElementById("capColor");
     const capBackground = document.getElementById("capBackground");
+    const pageBackground = document.getElementById("pageBackground");
     const exportScale = document.getElementById("exportScale");
     const outlineExport = document.getElementById("outlineExport");
     const swatches = document.getElementById("swatches");
@@ -987,6 +991,7 @@
     let clipboardStyle = null;
     const state = {};
     const boardImage = { src: "", width: 0, height: 0, scale: 100, opacity: 100, x: 0, y: 0, export: true, fit: "cover", blob: null, mime: "", sourceName: "" };
+    let htmlBackground = "#f4f6f8";
     const imageCache = new Map();
     const rangeNumberMap = new Map();
 
@@ -1007,15 +1012,36 @@
       rangeNumberMap.set(range, number);
 
       range.addEventListener("input", () => {
+        if (document.activeElement === number) return;
         number.value = range.value;
       });
-      number.addEventListener("input", () => {
+      const commitNumber = () => {
         const min = Number(range.min);
         const max = Number(range.max);
-        const next = Math.max(min, Math.min(max, Number(number.value || 0)));
+        if (number.value === "") {
+          number.value = range.value;
+          return;
+        }
+        const next = Math.max(min, Math.min(max, Number(number.value)));
         range.value = next;
         number.value = next;
         range.dispatchEvent(new Event("input", { bubbles: true }));
+      };
+      number.addEventListener("input", () => {
+        if (number.value === "" || number.value === "-" || number.value === ".") return;
+        const min = Number(range.min);
+        const max = Number(range.max);
+        const next = Math.max(min, Math.min(max, Number(number.value)));
+        if (Number.isNaN(next)) return;
+        range.value = next;
+        range.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      number.addEventListener("blur", commitNumber);
+      number.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          commitNumber();
+          number.blur();
+        }
       });
     }
 
@@ -1025,6 +1051,7 @@
 
     function syncRangeNumbers() {
       rangeNumberMap.forEach((number, range) => {
+        if (document.activeElement === number) return;
         number.value = range.value;
       });
     }
@@ -1037,6 +1064,12 @@
       boardImageExport.checked = boardImage.export;
       boardImageFit.value = boardImage.fit;
       syncRangeNumbers();
+    }
+
+    function setHtmlBackground(color) {
+      htmlBackground = color || "#f4f6f8";
+      pageBackground.value = htmlBackground;
+      document.documentElement.style.setProperty("--bg", htmlBackground);
     }
 
     function layoutKey() {
@@ -1725,6 +1758,7 @@
         formFactor: currentForm,
         layout: currentLayout,
         spaceVariant: currentSpace,
+        htmlBackground,
         boardImage: boardImage.src ? {
           sourceFile: boardImageFilename(),
           width: boardImage.width,
@@ -1971,6 +2005,7 @@
             formFactor.value = currentForm;
             spaceVariant.value = currentSpace;
             document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === currentLayout));
+            setHtmlBackground(importedSettings.htmlBackground || htmlBackground);
             restoreBoardImageFromSettings(entries, importedSettings);
           }
           let imported = 0;
@@ -2116,6 +2151,7 @@
       updateSwatches(capColor.value);
     });
     capBackground.addEventListener("change", () => updateSelected("capBackground", capBackground.value));
+    pageBackground.addEventListener("input", () => setHtmlBackground(pageBackground.value));
 
     document.getElementById("pickImageButton").addEventListener("click", () => imageInput.click());
     imageInput.addEventListener("change", async () => {
@@ -2292,6 +2328,7 @@
 
     setupRangeNumbers();
     fillFontSelect();
+    setHtmlBackground(htmlBackground);
     selectedId = keyId(layoutKey(), firstKey());
     colors.forEach((color) => {
       const button = document.createElement("button");
