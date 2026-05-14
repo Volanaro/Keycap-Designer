@@ -1018,56 +1018,59 @@
       keys.push(...spaceRow(bottomY, spaceVariant, formFactor !== "full" && formFactor !== "tkl"));
 
       if (formFactor === "60") {
-        const shiftIndex = keys.findIndex((key) => key[0] === "RShift");
-        if (shiftIndex >= 0) keys.splice(shiftIndex, 1, ["RShift", 12.25, 3, 1], ["Up", 13.25, 3, 1], ["Delete", 14.25, 3, 1]);
-        ["LCtrl", "LWin", "LAlt", "Space", "Space7u", "SpaceL", "SpaceM", "SpaceR", "RAlt", "Fn", "RCtrl"].forEach((name) => {
+        ["LCtrl", "LWin", "LAlt", "Space", "Space7u", "SpaceL", "SpaceM", "SpaceR", "RAlt", "RWin", "Fn", "RCtrl", "Menu"].forEach((name) => {
           const index = keys.findIndex((key) => key[0] === name);
           if (index >= 0) keys.splice(index, 1);
         });
         if (type === "iso") {
           keys.push(
-            ["LCtrl", 0, 4, 1.5], ["LWin", 1.5, 4, 1.25], ["LAlt", 2.75, 4, 1.25],
-            ["Lower", 4, 4, 1.25], ["Space", 5.25, 4, 3.75], ["Fn", 9, 4, 1.25],
-            ["RAlt", 10.25, 4, 1.25], ["Menu", 11.5, 4, 1],
-            ["Left", 12.5, 4, 1], ["Down", 13.5, 4, 1], ["Right", 14.5, 4, 1]
+            ["LCtrl", 0, 4, 1.25], ["LWin", 1.25, 4, 1.25], ["LAlt", 2.5, 4, 1.25],
+            ["Space", 3.75, 4, 6.25], ["RAlt", 10, 4, 1.25], ["RWin", 11.25, 4, 1.25], ["Menu", 12.5, 4, 1.25], ["RCtrl", 13.75, 4, 1.25]
           );
-          return { w: 15.5, h: 5, keys };
+          return { w: 15, h: 5, keys };
         }
         keys.push(
           ["LCtrl", 0, 4, 1.25], ["LWin", 1.25, 4, 1.25], ["LAlt", 2.5, 4, 1.25],
-          ["Space", 3.75, 4, 6.25], ["RAlt", 10, 4, 1], ["Menu", 11, 4, 1],
-          ["Left", 12, 4, 1], ["Down", 13, 4, 1], ["Right", 14, 4, 1]
+          ["Space", 3.75, 4, 6.25], ["RAlt", 10, 4, 1.25], ["RWin", 11.25, 4, 1.25], ["Menu", 12.5, 4, 1.25], ["RCtrl", 13.75, 4, 1.25]
         );
-        return { w: 15.25, h: 5, keys };
+        return { w: 15, h: 5, keys };
       }
 
       if (formFactor === "60arrows") {
         const shiftIndex = keys.findIndex((key) => key[0] === "RShift");
-        if (shiftIndex >= 0) keys.splice(shiftIndex, 1, ["RShift", 12.25, 3, 1.75], ["Up", 14, 3, 1]);
-        ["LCtrl", "LWin", "LAlt", "Space", "Space7u", "SpaceL", "SpaceM", "SpaceR", "RAlt", "Fn", "RCtrl", "Menu"].forEach((name) => {
+        if (shiftIndex >= 0) keys.splice(shiftIndex, 1, ["RShift", 12.25, 3, 1.75], ["Up", 14.25, 3, 1]);
+        ["LCtrl", "LWin", "LAlt", "Space", "Space7u", "SpaceL", "SpaceM", "SpaceR", "RAlt", "RWin", "Fn", "RCtrl", "Menu"].forEach((name) => {
           const index = keys.findIndex((key) => key[0] === name);
           if (index >= 0) keys.splice(index, 1);
         });
         keys.push(
           ["LCtrl", 0, 4, 1.25], ["LWin", 1.25, 4, 1.25], ["LAlt", 2.5, 4, 1.25],
           ["Space", 3.75, 4, 6.25], ["RAlt", 10, 4, 1], ["Fn", 11, 4, 1], ["RCtrl", 12, 4, 1],
-          ["Home", 15, 0, 1], ["PageUp", 15, 1, 1], ["PageDown", 15, 2, 1], ["End", 15, 3, 1],
-          ["Left", 13, 4, 1], ["Down", 14, 4, 1], ["Right", 15, 4, 1]
+          ["Delete", 15.25, 0, 1], ["End", 15.25, 1, 1], ["PageUp", 15.25, 2, 1], ["PageDown", 15.25, 3, 1],
+          ["Left", 13.25, 4, 1], ["Down", 14.25, 4, 1], ["Right", 15.25, 4, 1]
         );
-        return { w: 16, h: 5, keys };
+        return { w: 16.25, h: 5, keys };
       }
 
       if (formFactor === "65") {
         const shiftIndex = keys.findIndex((key) => key[0] === "RShift");
         if (shiftIndex >= 0) keys.splice(shiftIndex, 1, ["RShift", 12.25, 3, 1.75]);
-        ["Fn", "RCtrl", "Menu"].forEach((name) => {
+        ["RWin", "Fn", "RCtrl", "Menu"].forEach((name) => {
           const index = keys.findIndex((key) => key[0] === name);
           if (index >= 0) keys.splice(index, 1);
         });
-        keys.push(["Fn", 11.25, 4, 0.75]);
-        keys.push(["Home", 15, 0, 1], ["PageUp", 15, 1, 1], ["PageDown", 15, 2, 1], ["End", 15, 3, 1], ["Right", 15, 4, 1]);
-        keys.push(["Left", 12, 4, 1], ["Down", 13, 4, 1], ["Up", 14, 4, 1]);
-        return { w: 16, h: 5, keys };
+        if (type === "iso") {
+          const rAltIndex = keys.findIndex((key) => key[0] === "RAlt");
+          if (rAltIndex >= 0) keys[rAltIndex] = ["RAlt", 10, 4, 1];
+          keys.push(["Fn", 11, 4, 1], ["RCtrl", 12, 4, 1]);
+        } else {
+          const rAltIndex = keys.findIndex((key) => key[0] === "RAlt");
+          if (rAltIndex >= 0) keys[rAltIndex] = ["RAlt", 10, 4, 1];
+          keys.push(["Fn", 11, 4, 1], ["RCtrl", 12, 4, 1]);
+        }
+        keys.push(["Delete", 15.25, 0, 1], ["End", 15.25, 1, 1], ["PageUp", 15.25, 2, 1], ["PageDown", 15.25, 3, 1], ["Right", 15.25, 4, 1]);
+        keys.push(["Left", 13.25, 4, 1], ["Down", 14.25, 4, 1], ["Up", 14.25, 3, 1]);
+        return { w: 16.25, h: 5, keys };
       }
 
       if (formFactor === "75") {
@@ -1464,6 +1467,7 @@
         LCtrl: "Ctrl",
         RCtrl: "Ctrl",
         LWin: "Win",
+        RWin: "Win",
         LAlt: "Alt",
         RAlt: "Alt",
         LShift: "Shift",
