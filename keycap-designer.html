@@ -218,6 +218,14 @@
       box-shadow: 0 0 0 3px rgba(31, 122, 140, 0.18), 0 10px 22px var(--shadow), inset 0 -5px 0 rgba(23, 32, 42, 0.08);
     }
 
+    .keyboard.editing-layout .key {
+      cursor: grab;
+    }
+
+    .keyboard.editing-layout .key:active {
+      cursor: grabbing;
+    }
+
     .key.iso-enter {
       clip-path: none;
       overflow: visible;
@@ -245,7 +253,12 @@
 
     .key.iso-enter .board-slice,
     .key.iso-enter .legend {
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 16.67% 100%, 16.67% 50%, 0 50%);
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 100' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 33 Q 26 99 26 92 V 58 Q 26 51 19 51 H 8 Q 1 51 1 43 V 8 Q 1 1 8 1 Z'/%3E%3C/svg%3E");
+      -webkit-mask-size: 100% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 100' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 33 Q 26 99 26 92 V 58 Q 26 51 19 51 H 8 Q 1 51 1 43 V 8 Q 1 1 8 1 Z'/%3E%3C/svg%3E");
+      mask-size: 100% 100%;
+      mask-repeat: no-repeat;
     }
 
     .iso-checker {
@@ -352,8 +365,23 @@
       line-height: 1;
       overflow-wrap: anywhere;
       white-space: pre-wrap;
+      opacity: var(--text-opacity, 1);
       font-weight: 700;
       z-index: 2;
+    }
+
+    .key.text-cutout .legend-text {
+      color: transparent !important;
+      opacity: var(--cutout-opacity, 1);
+      text-shadow: none;
+      background-image:
+        linear-gradient(45deg, rgba(255, 255, 255, 0.95) 25%, rgba(102, 112, 133, 0.65) 25%, rgba(102, 112, 133, 0.65) 50%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0.95) 75%, rgba(102, 112, 133, 0.65) 75%),
+        linear-gradient(#ffffff, #ffffff);
+      background-position: 0 0, 0 0;
+      background-size: 10px 10px, 100% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .key-id {
@@ -362,6 +390,7 @@
       bottom: 6px;
       font-size: 10px;
       color: rgba(23, 32, 42, 0.42);
+      opacity: var(--text-opacity, 1);
       pointer-events: none;
     }
 
@@ -570,7 +599,55 @@
           <option value="60">60%</option>
           <option value="60arrows">60% arrows</option>
           <option value="40">40%</option>
+          <option value="custom">Custom</option>
         </select>
+        <label class="check-row" title="Drag keys on a snap grid">
+          <span>Edit layout</span>
+          <input id="editLayout" type="checkbox">
+        </label>
+        <select id="newKeyPreset" title="New key size">
+          <optgroup label="ANSI">
+            <option value="Custom|1|1" selected>Standard letter/number - 1u</option>
+            <option value="Tab|1.5|1">Tab - 1.5u</option>
+            <option value="Caps|1.75|1">Caps Lock - 1.75u</option>
+            <option value="LShift|2.25|1">Left Shift - 2.25u</option>
+            <option value="RShift|2.75|1">Right Shift - 2.75u</option>
+            <option value="Backspace|2|1">Backspace - 2u</option>
+            <option value="Enter|2.25|1">Enter ANSI - 2.25u</option>
+            <option value="LCtrl|1.25|1">Left Ctrl - 1.25u</option>
+            <option value="LWin|1.25|1">Left Win - 1.25u</option>
+            <option value="LAlt|1.25|1">Left Alt - 1.25u</option>
+            <option value="Space|6.25|1">Spacebar - 6.25u</option>
+            <option value="RAlt|1.25|1">Right Alt - 1.25u</option>
+            <option value="Fn|1.25|1">Fn - 1.25u</option>
+            <option value="Menu|1.25|1">Menu - 1.25u</option>
+            <option value="RCtrl|1.25|1">Right Ctrl - 1.25u</option>
+            <option value="Num0|2|1">Numpad 0 - 2u</option>
+            <option value="NumPlus|1|2">Numpad + - 2u vertical</option>
+            <option value="NumEnter|1|2">Numpad Enter - 2u vertical</option>
+          </optgroup>
+          <optgroup label="ISO">
+            <option value="Custom|1|1">Standard letter/number - 1u</option>
+            <option value="Tab|1.5|1">Tab - 1.5u</option>
+            <option value="Caps|1.75|1">Caps Lock - 1.75u</option>
+            <option value="LShift|2.25|1">Left Shift - 2.25u</option>
+            <option value="RShift|1.75|1">Right Shift - 1.75u</option>
+            <option value="Backspace|2|1">Backspace - 2u</option>
+            <option value="ISOEnter|1.5|2">Enter ISO - vertical ISO Enter</option>
+            <option value="ISOExtra|1|1">Extra key beside Left Shift - 1u</option>
+            <option value="LCtrl|1.25|1">Left Ctrl - 1.25u</option>
+            <option value="LWin|1.25|1">Left Win - 1.25u</option>
+            <option value="LAlt|1.25|1">Left Alt - 1.25u</option>
+            <option value="Space|6.25|1">Spacebar - 6.25u</option>
+            <option value="RAlt|1.25|1">Right Alt - 1.25u</option>
+            <option value="Fn|1.25|1">Fn - 1.25u</option>
+            <option value="Menu|1.25|1">Menu - 1.25u</option>
+            <option value="RCtrl|1.25|1">Right Ctrl - 1.25u</option>
+          </optgroup>
+        </select>
+        <button class="button" id="addKeyButton" type="button" title="Add key in custom layout">Add Key</button>
+        <button class="button danger" id="removeKeyButton" type="button" title="Remove selected custom key">Remove Key</button>
+        <button class="button" id="resetCustomButton" type="button" title="Reset custom layout to its default shape">Reset Custom</button>
         <button class="button" id="fitButton" type="button" title="Fit view">[]</button>
         <button class="button" id="clearAllButton" type="button" title="Clear all keys">Clear</button>
         <input class="hidden-file" id="zipInput" type="file" accept=".zip,application/zip">
@@ -602,6 +679,10 @@
             <label for="legendText">Text</label>
             <textarea id="legendText" spellcheck="false"></textarea>
           </div>
+          <div class="check-row">
+            <span>Select all keys</span>
+            <input id="selectAllKeys" type="checkbox">
+          </div>
           <div class="inline">
             <div class="field">
               <label for="fontFamily">Font</label>
@@ -627,6 +708,18 @@
               <label for="textColor">Color</label>
               <input id="textColor" type="color" value="#17202a">
             </div>
+          </div>
+          <div class="field">
+            <label for="textOpacity">Text opacity</label>
+            <input id="textOpacity" type="range" min="0" max="100" value="100">
+          </div>
+          <div class="check-row">
+            <span>Cut out text</span>
+            <input id="textCutout" type="checkbox">
+          </div>
+          <div class="field">
+            <label for="textCutoutOpacity">Cutout amount</label>
+            <input id="textCutoutOpacity" type="range" min="0" max="100" value="100">
           </div>
           <div class="inline">
             <div class="field">
@@ -845,6 +938,8 @@
     }
 
     function buildLayout(type, spaceVariant, formFactor) {
+      if (formFactor === "custom" && customLayout) return customLayout;
+
       if (formFactor === "40") {
         return { w: 12.75, h: 4, keys: [
           ["Tab", 0, 0, 1.25], ["Q", 1.25, 0, 1], ["W", 2.25, 0, 1], ["E", 3.25, 0, 1], ["R", 4.25, 0, 1], ["T", 5.25, 0, 1], ["Y", 6.25, 0, 1], ["U", 7.25, 0, 1], ["I", 8.25, 0, 1], ["O", 9.25, 0, 1], ["P", 10.25, 0, 1], ["Backspace", 11.25, 0, 1.5],
@@ -872,15 +967,44 @@
       const keys = [...alphaKeys(type, alphaTop, bottomY)];
       keys.push(...spaceRow(bottomY, spaceVariant, formFactor !== "full" && formFactor !== "tkl"));
 
-      if (formFactor === "60arrows") {
-        keys.splice(keys.findIndex((key) => key[0] === "RShift"), 1, ["RShift", 12.25, 3, 1.75], ["Up", 14, 3, 1]);
-        ["RAlt", "Fn", "RCtrl", "Menu"].forEach((name) => {
+      if (formFactor === "60") {
+        const shiftIndex = keys.findIndex((key) => key[0] === "RShift");
+        if (shiftIndex >= 0) keys.splice(shiftIndex, 1, ["RShift", 12.25, 3, 1], ["Up", 13.25, 3, 1], ["Delete", 14.25, 3, 1]);
+        ["LCtrl", "LWin", "LAlt", "Space", "Space7u", "SpaceL", "SpaceM", "SpaceR", "RAlt", "Fn", "RCtrl"].forEach((name) => {
           const index = keys.findIndex((key) => key[0] === name);
           if (index >= 0) keys.splice(index, 1);
         });
-        keys.push(["RAlt", 10, 4, 1], ["Fn", 11, 4, 1]);
-        keys.push(["Left", 12, 4, 1], ["Down", 13, 4, 1], ["Right", 14, 4, 1]);
-        return { w: 15, h: 5, keys };
+        if (type === "iso") {
+          keys.push(
+            ["LCtrl", 0, 4, 1.5], ["LWin", 1.5, 4, 1.25], ["LAlt", 2.75, 4, 1.25],
+            ["Lower", 4, 4, 1.25], ["Space", 5.25, 4, 3.75], ["Fn", 9, 4, 1.25],
+            ["RAlt", 10.25, 4, 1.25], ["Menu", 11.5, 4, 1],
+            ["Left", 12.5, 4, 1], ["Down", 13.5, 4, 1], ["Right", 14.5, 4, 1]
+          );
+          return { w: 15.5, h: 5, keys };
+        }
+        keys.push(
+          ["LCtrl", 0, 4, 1.25], ["LWin", 1.25, 4, 1.25], ["LAlt", 2.5, 4, 1.25],
+          ["Space", 3.75, 4, 6.25], ["RAlt", 10, 4, 1], ["Menu", 11, 4, 1],
+          ["Left", 12, 4, 1], ["Down", 13, 4, 1], ["Right", 14, 4, 1]
+        );
+        return { w: 15.25, h: 5, keys };
+      }
+
+      if (formFactor === "60arrows") {
+        const shiftIndex = keys.findIndex((key) => key[0] === "RShift");
+        if (shiftIndex >= 0) keys.splice(shiftIndex, 1, ["RShift", 12.25, 3, 1.75], ["Up", 14, 3, 1]);
+        ["LCtrl", "LWin", "LAlt", "Space", "Space7u", "SpaceL", "SpaceM", "SpaceR", "RAlt", "Fn", "RCtrl", "Menu"].forEach((name) => {
+          const index = keys.findIndex((key) => key[0] === name);
+          if (index >= 0) keys.splice(index, 1);
+        });
+        keys.push(
+          ["LCtrl", 0, 4, 1.25], ["LWin", 1.25, 4, 1.25], ["LAlt", 2.5, 4, 1.25],
+          ["Space", 3.75, 4, 6.25], ["RAlt", 10, 4, 1], ["Fn", 11, 4, 1], ["RCtrl", 12, 4, 1],
+          ["Home", 15, 0, 1], ["PageUp", 15, 1, 1], ["PageDown", 15, 2, 1], ["End", 15, 3, 1],
+          ["Left", 13, 4, 1], ["Down", 14, 4, 1], ["Right", 15, 4, 1]
+        );
+        return { w: 16, h: 5, keys };
       }
 
       if (formFactor === "65") {
@@ -897,8 +1021,24 @@
       }
 
       if (formFactor === "75") {
-        keys.push(["Esc", 0, 0, 1], ["F1", 2, 0, 1], ["F2", 3, 0, 1], ["F3", 4, 0, 1], ["F4", 5, 0, 1], ["F5", 6.25, 0, 1], ["F6", 7.25, 0, 1], ["F7", 8.25, 0, 1], ["F8", 9.25, 0, 1], ["F9", 10.5, 0, 1], ["F10", 11.5, 0, 1], ["F11", 12.5, 0, 1], ["F12", 13.5, 0, 1], ["Delete", 15, 0, 1], ["PageUp", 15, 1.25, 1], ["PageDown", 15, 2.25, 1], ["Home", 15, 3.25, 1], ["End", 15, 4.25, 1]);
-        return { w: 16, h: 6.25, keys };
+        const shiftIndex = keys.findIndex((key) => key[0] === "RShift");
+        if (shiftIndex >= 0) keys.splice(shiftIndex, 1, ["RShift", 12.25, 4.25, 1.75], ["Up", 14.25, 4.25, 1]);
+        ["RCtrl", "Menu"].forEach((name) => {
+          const index = keys.findIndex((key) => key[0] === name);
+          if (index >= 0) keys.splice(index, 1);
+        });
+        const fnIndex = keys.findIndex((key) => key[0] === "Fn");
+        if (fnIndex >= 0) keys[fnIndex] = ["Fn", 11.25, 5.25, 1];
+        const altIndex = keys.findIndex((key) => key[0] === "RAlt");
+        if (altIndex >= 0) keys[altIndex] = ["RAlt", 10, 5.25, 1.25];
+        keys.push(
+          ["Esc", 0, 0, 1], ["F1", 1.25, 0, 1], ["F2", 2.25, 0, 1], ["F3", 3.25, 0, 1], ["F4", 4.25, 0, 1],
+          ["F5", 5.5, 0, 1], ["F6", 6.5, 0, 1], ["F7", 7.5, 0, 1], ["F8", 8.5, 0, 1],
+          ["F9", 9.75, 0, 1], ["F10", 10.75, 0, 1], ["F11", 11.75, 0, 1], ["F12", 12.75, 0, 1], ["Delete", 14, 0, 1],
+          ["Home", 15, 1.25, 1], ["PageUp", 15, 2.25, 1], ["PageDown", 15, 3.25, 1], ["End", 15, 4.25, 1],
+          ["RCtrl", 12.25, 5.25, 1], ["Left", 13.25, 5.25, 1], ["Down", 14.25, 5.25, 1], ["Right", 15.25, 5.25, 1]
+        );
+        return { w: 16.25, h: 6.25, keys };
       }
 
       if (formFactor === "tkl") return { w: 18.5, h: 6.25, keys: [...keys, ...fullBlockKeys.filter((key) => key[1] < 19)] };
@@ -915,6 +1055,9 @@
       textY: 0,
       textGap: 10,
       textColor: "#17202a",
+      textOpacity: 100,
+      textCutout: false,
+      textCutoutOpacity: 100,
       textVisible: true,
       textAlign: "center",
       textVAlign: "middle",
@@ -949,6 +1092,7 @@
     const selectedName = document.getElementById("selectedName");
     const selectedSize = document.getElementById("selectedSize");
     const legendText = document.getElementById("legendText");
+    const selectAllKeys = document.getElementById("selectAllKeys");
     const fontFamily = document.getElementById("fontFamily");
     const fontWeight = document.getElementById("fontWeight");
     const customFont = document.getElementById("customFont");
@@ -957,6 +1101,9 @@
     const textY = document.getElementById("textY");
     const textGap = document.getElementById("textGap");
     const textColor = document.getElementById("textColor");
+    const textOpacity = document.getElementById("textOpacity");
+    const textCutout = document.getElementById("textCutout");
+    const textCutoutOpacity = document.getElementById("textCutoutOpacity");
     const textAlign = document.getElementById("textAlign");
     const textVAlign = document.getElementById("textVAlign");
     const autoText = document.getElementById("autoText");
@@ -982,14 +1129,24 @@
     const swatches = document.getElementById("swatches");
     const spaceVariant = document.getElementById("spaceVariant");
     const formFactor = document.getElementById("formFactor");
+    const editLayout = document.getElementById("editLayout");
+    const newKeyPreset = document.getElementById("newKeyPreset");
+    const addKeyButton = document.getElementById("addKeyButton");
+    const removeKeyButton = document.getElementById("removeKeyButton");
+    const resetCustomButton = document.getElementById("resetCustomButton");
     const zipInput = document.getElementById("zipInput");
 
     let currentLayout = "ansi";
     let currentSpace = "standard";
     let currentForm = "full";
     let selectedId = "";
+    let editAllKeys = false;
+    let editLayoutMode = false;
     let clipboardStyle = null;
     const state = {};
+    const persistentState = {};
+    let customLayout = null;
+    let customDefaultLayout = null;
     const boardImage = { src: "", width: 0, height: 0, scale: 100, opacity: 100, x: 0, y: 0, export: true, fit: "cover", blob: null, mime: "", sourceName: "" };
     let htmlBackground = "#f4f6f8";
     const imageCache = new Map();
@@ -1046,7 +1203,7 @@
     }
 
     function setupRangeNumbers() {
-      [textScale, textX, textY, textGap, imageScale, imageOpacity, imageX, imageY, boardImageScale, boardImageOpacity, boardImageX, boardImageY].forEach(setupRangeNumber);
+      [textScale, textX, textY, textGap, textOpacity, textCutoutOpacity, imageScale, imageOpacity, imageX, imageY, boardImageScale, boardImageOpacity, boardImageX, boardImageY].forEach(setupRangeNumber);
     }
 
     function syncRangeNumbers() {
@@ -1077,7 +1234,81 @@
     }
 
     function currentLayoutData() {
+      if (currentForm === "custom") ensureCustomLayout();
       return buildLayout(currentLayout, currentSpace, currentForm);
+    }
+
+    function cloneLayout(layout) {
+      return {
+        w: layout.w,
+        h: layout.h,
+        keys: layout.keys.map((key) => [...key])
+      };
+    }
+
+    function measureLayout(keys) {
+      return keys.reduce((size, key) => ({
+        w: Math.max(size.w, key[1] + key[3]),
+        h: Math.max(size.h, key[2] + (key[4] || 1))
+      }), { w: 1, h: 1 });
+    }
+
+    function ensureCustomLayout(sourceLayout = null) {
+      if (!customLayout) {
+        const source = sourceLayout || buildLayout(currentLayout, currentSpace, currentForm === "custom" ? "full" : currentForm);
+        customLayout = cloneLayout(source);
+        customDefaultLayout = cloneLayout(source);
+      }
+      const size = measureLayout(customLayout.keys);
+      customLayout.w = Math.max(customLayout.w || 0, size.w);
+      customLayout.h = Math.max(customLayout.h || 0, size.h);
+      return customLayout;
+    }
+
+    function resetCustomLayout() {
+      const source = customDefaultLayout || buildLayout(currentLayout, currentSpace, "full");
+      customLayout = cloneLayout(source);
+      updateCustomLayoutSize();
+      selectedId = keyId(layoutKey(), firstKey());
+    }
+
+    function uniqueCustomKeyName(baseName = "Custom") {
+      const used = new Set(ensureCustomLayout().keys.map((key) => key[0]));
+      if (!used.has(baseName)) return baseName;
+      let index = 1;
+      while (used.has(`${baseName}${index}`)) index += 1;
+      return `${baseName}${index}`;
+    }
+
+    function selectedCustomKeyIndex() {
+      if (currentForm !== "custom" || !customLayout) return -1;
+      return customLayout.keys.findIndex((key) => keyId(layoutKey(), key) === selectedId);
+    }
+
+    function updateCustomLayoutSize() {
+      if (!customLayout) return;
+      const size = measureLayout(customLayout.keys);
+      customLayout.w = Math.max(size.w, 1);
+      customLayout.h = Math.max(size.h, 1);
+    }
+
+    function cssUnit() {
+      return Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--unit")) || UNIT;
+    }
+
+    function snapSize(value, fallback = 1) {
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+      return Math.max(0.25, Math.round(parsed / 0.25) * 0.25);
+    }
+
+    function newKeyPresetData() {
+      const [baseName, width, height] = String(newKeyPreset.value || "Custom|1|1").split("|");
+      return {
+        baseName,
+        width: snapSize(width, 1),
+        height: snapSize(height, 1)
+      };
     }
 
     function firstKey() {
@@ -1089,11 +1320,38 @@
       return `${layoutName}-${key[0]}`;
     }
 
+    function canonicalKeyName(name) {
+      const aliases = {
+        ISOEnter: "Enter",
+        Space7u: "Space",
+        SpaceL: "Space",
+        SpaceM: "Space",
+        SpaceR: "Space",
+        ISOHash: "Backslash",
+        ISOExtra: "Backslash"
+      };
+      return aliases[name] || name;
+    }
+
+    function keyNameFromId(id) {
+      const key = getKeyData(id);
+      if (key) return canonicalKeyName(key[0]);
+      const prefix = `${layoutKey()}-`;
+      const name = String(id || "").startsWith(prefix) ? String(id).slice(prefix.length) : String(id || "");
+      return canonicalKeyName(name);
+    }
+
     function keyState(id) {
-      const bucket = layoutKey();
-      if (!state[bucket]) state[bucket] = {};
-      if (!state[bucket][id]) state[bucket][id] = { ...defaults };
-      return state[bucket][id];
+      const name = keyNameFromId(id);
+      const rawName = (() => {
+        const key = getKeyData(id);
+        if (key) return key[0];
+        const prefix = `${layoutKey()}-`;
+        return String(id || "").startsWith(prefix) ? String(id).slice(prefix.length) : String(id || "");
+      })();
+      if (!persistentState[name] && persistentState[rawName]) persistentState[name] = persistentState[rawName];
+      if (!persistentState[name]) persistentState[name] = { ...defaults };
+      return persistentState[name];
     }
 
     function getKeyData(id) {
@@ -1105,6 +1363,13 @@
       const key = firstKey();
       selectedId = keyId(layoutKey(), key);
       return key;
+    }
+
+    function carryVisibleKeyState() {
+      currentLayoutData().keys.forEach((key) => {
+        const id = keyId(layoutKey(), key);
+        persistentState[canonicalKeyName(key[0])] = { ...keyState(id) };
+      });
     }
 
     function keyLabel(name) {
@@ -1200,6 +1465,9 @@
         textY: data.textY,
         textGap: data.textGap,
         textColor: data.textColor,
+        textOpacity: data.textOpacity,
+        textCutout: data.textCutout,
+        textCutoutOpacity: data.textCutoutOpacity,
         textVisible: true,
         autoText: data.autoText,
         textAlign: data.textAlign,
@@ -1292,6 +1560,9 @@
         data.textY = style.textY;
         data.textGap = style.textGap;
         data.textColor = style.textColor;
+        data.textOpacity = style.textOpacity;
+        data.textCutout = style.textCutout;
+        data.textCutoutOpacity = style.textCutoutOpacity;
         data.textAlign = style.textAlign;
         data.textVAlign = style.textVAlign;
         data.autoText = false;
@@ -1308,6 +1579,7 @@
       const layout = currentLayoutData();
       keyboard.style.setProperty("--layout-w", layout.w);
       keyboard.style.setProperty("--layout-h", layout.h);
+      keyboard.classList.toggle("editing-layout", editLayoutMode && currentForm === "custom");
       keyboard.innerHTML = "";
 
       layout.keys.forEach((key) => {
@@ -1317,6 +1589,7 @@
         const el = document.createElement("button");
         el.className = "key";
         if (name === "ISOEnter") el.classList.add("iso-enter");
+        if (data.textCutout && (data.textCutoutOpacity ?? 100) > 0) el.classList.add("text-cutout");
         if (data.capBackground === "transparent") el.classList.add("transparent-cap");
         el.type = "button";
         el.dataset.id = id;
@@ -1325,11 +1598,14 @@
         el.style.setProperty("--w", w);
         el.style.setProperty("--h", h);
         el.style.setProperty("--cap-color", data.capColor);
+        el.style.setProperty("--text-opacity", (data.textOpacity ?? 100) / 100);
+        el.style.setProperty("--cutout-opacity", (data.textCutoutOpacity ?? 100) / 100);
         if (data.capBackground === "color") el.style.background = data.capColor;
         applyBoardSlice(el, key);
         el.setAttribute("aria-label", keyLabel(name));
-        if (id === selectedId) el.classList.add("selected");
-        const showKeyId = !String(data.text || "").trim();
+        if (id === selectedId || editAllKeys) el.classList.add("selected");
+        const hasLegendText = String(data.text || "").trim();
+        const showKeyId = !hasLegendText && !data.textCutout;
         el.innerHTML = `
           ${name === "ISOEnter" ? "<div class=\"iso-checker\"></div><svg class=\"iso-outline\" viewBox=\"0 0 150 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"iso-fill\" d=\"M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 33 Q 26 99 26 92 V 58 Q 26 51 19 51 H 8 Q 1 51 1 43 V 8 Q 1 1 8 1 Z\"></path></svg>" : ""}
           ${boardImage.src ? `<div class="board-slice"><img src="${boardImage.src}" alt=""></div>` : ""}
@@ -1340,7 +1616,7 @@
           ${showKeyId ? `<div class="key-id">${keyLabel(name)}</div>` : ""}
         `;
         const textEl = el.querySelector(".legend-text");
-        textEl.textContent = data.textVisible === false ? "" : data.text;
+        textEl.textContent = (data.textVisible === false && !data.textCutout) ? "" : (hasLegendText ? data.text : (data.textCutout ? keyLabel(name) : ""));
         textEl.style.color = data.textColor;
         textEl.style.fontFamily = data.fontFamily;
         textEl.style.fontWeight = data.fontWeight;
@@ -1354,21 +1630,60 @@
         const legendImg = el.querySelector(".legend img");
         if (legendImg) {
           const fit = data.imageFit || (data.imageContain ? "contain" : "cover");
-          const innerW = Math.max(1, w * UNIT - 18);
-          const innerH = Math.max(1, h * UNIT - 18);
-          legendImg.style.width = fit === "stretch" ? `${innerW}px` : `${innerW * (data.imageScale / 100)}px`;
-          legendImg.style.height = fit === "stretch" ? `${innerH}px` : `${innerH * (data.imageScale / 100)}px`;
+          const paddedW = Math.max(1, w * UNIT - 18);
+          const paddedH = Math.max(1, h * UNIT - 18);
+          const faceW = Math.max(1, w * UNIT - 6);
+          const faceH = Math.max(1, h * UNIT - 6);
+          const imageBoxW = fit === "contain" ? paddedW : faceW;
+          const imageBoxH = fit === "contain" ? paddedH : faceH;
+          legendImg.style.width = fit === "stretch" ? `${imageBoxW}px` : `${imageBoxW * (data.imageScale / 100)}px`;
+          legendImg.style.height = fit === "stretch" ? `${imageBoxH}px` : `${imageBoxH * (data.imageScale / 100)}px`;
           legendImg.style.opacity = data.imageOpacity / 100;
           legendImg.style.objectFit = fit === "stretch" ? "fill" : fit;
-          legendImg.style.transform = `translate(calc(-50% + ${(data.imageX / 100) * innerW}px), calc(-50% + ${(data.imageY / 100) * innerH}px))`;
+          legendImg.style.transform = `translate(calc(-50% + ${(data.imageX / 100) * imageBoxW}px), calc(-50% + ${(data.imageY / 100) * imageBoxH}px))`;
         }
 
         const boardImg = el.querySelector(".board-slice img");
         if (boardImg) positionBoardImage(boardImg, key);
 
+        if (editLayoutMode && currentForm === "custom") {
+          el.addEventListener("pointerdown", (event) => beginKeyDrag(event, key));
+        }
         el.addEventListener("click", () => selectKey(id));
         keyboard.appendChild(el);
       });
+    }
+
+    function beginKeyDrag(event, key) {
+      if (!editLayoutMode || currentForm !== "custom") return;
+      event.preventDefault();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      selectKey(keyId(layoutKey(), key));
+      const unit = cssUnit();
+      const snap = 0.25;
+      const startX = event.clientX;
+      const startY = event.clientY;
+      const originalX = key[1];
+      const originalY = key[2];
+
+      const move = (moveEvent) => {
+        const nextX = Math.max(0, Math.round((originalX + ((moveEvent.clientX - startX) / unit)) / snap) * snap);
+        const nextY = Math.max(0, Math.round((originalY + ((moveEvent.clientY - startY) / unit)) / snap) * snap);
+        key[1] = Number(nextX.toFixed(3));
+        key[2] = Number(nextY.toFixed(3));
+        const size = measureLayout(customLayout.keys);
+        customLayout.w = Math.max(size.w, 1);
+        customLayout.h = Math.max(size.h, 1);
+        renderKeyboard();
+      };
+
+      const up = () => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      };
+
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up, { once: true });
     }
 
     function applyBoardSlice(el, key) {
@@ -1424,8 +1739,13 @@
       const key = ensureSelectedKey();
       if (!key) return;
       const data = keyState(selectedId);
+      editLayout.checked = editLayoutMode;
+      selectAllKeys.checked = editAllKeys;
       selectedName.textContent = keyLabel(key[0]);
       selectedSize.textContent = `${key[3]}u${key[4] ? ` x ${key[4]}u` : ""}`;
+      addKeyButton.disabled = currentForm !== "custom" || !editLayoutMode;
+      removeKeyButton.disabled = currentForm !== "custom" || !editLayoutMode || selectedCustomKeyIndex() < 0 || currentLayoutData().keys.length <= 1;
+      resetCustomButton.disabled = currentForm !== "custom";
       legendText.value = data.text;
       if (![...fontFamily.options].some((option) => option.value === data.fontFamily)) {
         const option = document.createElement("option");
@@ -1441,6 +1761,9 @@
       textY.value = data.textY || 0;
       textGap.value = data.textGap ?? 10;
       textColor.value = data.textColor;
+      textOpacity.value = data.textOpacity ?? 100;
+      textCutout.checked = !!data.textCutout;
+      textCutoutOpacity.value = data.textCutoutOpacity ?? 100;
       textAlign.value = data.textAlign || "center";
       textVAlign.value = data.textVAlign || "middle";
       autoText.checked = data.autoText;
@@ -1457,12 +1780,29 @@
     }
 
     function updateSelected(prop, value) {
-      keyState(selectedId)[prop] = value;
+      if (editAllKeys) {
+        currentLayoutData().keys.forEach((key) => {
+          keyState(keyId(layoutKey(), key))[prop] = value;
+        });
+      } else {
+        keyState(selectedId)[prop] = value;
+      }
       if (prop === "capBackground") syncPanel();
       renderKeyboard();
     }
 
     function activateEditableText() {
+      if (editAllKeys) {
+        currentLayoutData().keys.forEach((key) => {
+          const data = keyState(keyId(layoutKey(), key));
+          data.textVisible = true;
+          if (data.importedRender) {
+            data.image = "";
+            data.importedRender = false;
+          }
+        });
+        return;
+      }
       const data = keyState(selectedId);
       data.textVisible = true;
       if (data.importedRender) {
@@ -1474,7 +1814,7 @@
     async function applyImageToSelectedKey(file) {
       if (!file || !file.type.startsWith("image/")) return;
       ensureSelectedKey();
-      const src = await readImage(file);
+      const src = await trimTransparentImage(await readImage(file));
       const data = keyState(selectedId);
       data.imageScale = 100;
       data.imageX = 0;
@@ -1510,6 +1850,46 @@
         reader.onload = () => resolve(reader.result);
         reader.readAsDataURL(file);
       });
+    }
+
+    async function trimTransparentImage(src) {
+      if (!src || !src.startsWith("data:image/")) return src;
+      const img = await loadImage(src);
+      if (!img) return src;
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const corner = [pixels[0], pixels[1], pixels[2], pixels[3]];
+      let minX = canvas.width;
+      let minY = canvas.height;
+      let maxX = -1;
+      let maxY = -1;
+
+      for (let y = 0; y < canvas.height; y += 1) {
+        for (let x = 0; x < canvas.width; x += 1) {
+          const i = (y * canvas.width + x) * 4;
+          const alpha = pixels[i + 3];
+          const colorDistance = Math.abs(pixels[i] - corner[0]) + Math.abs(pixels[i + 1] - corner[1]) + Math.abs(pixels[i + 2] - corner[2]) + Math.abs(alpha - corner[3]);
+          if (alpha <= 8 || colorDistance <= 32) continue;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        }
+      }
+
+      if (maxX < 0) return src;
+      const trimW = maxX - minX + 1;
+      const trimH = maxY - minY + 1;
+      if (trimW === canvas.width && trimH === canvas.height) return src;
+      const trimmed = document.createElement("canvas");
+      trimmed.width = trimW;
+      trimmed.height = trimH;
+      trimmed.getContext("2d").drawImage(canvas, minX, minY, trimW, trimH, 0, 0, trimW, trimH);
+      return trimmed.toDataURL("image/png");
     }
 
     async function readOptimizedImage(file, maxSide = 1800) {
@@ -1599,13 +1979,21 @@
 
       const notchX = x + width * 0.1667;
       const notchY = y + height * 0.5;
+      const r = Math.min(8, width / 8, height / 8);
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + width, y);
-      ctx.lineTo(x + width, y + height);
-      ctx.lineTo(notchX, y + height);
-      ctx.lineTo(notchX, notchY);
-      ctx.lineTo(x, notchY);
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + width - r, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+      ctx.lineTo(x + width, y + height - r);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+      ctx.lineTo(notchX + r, y + height);
+      ctx.quadraticCurveTo(notchX, y + height, notchX, y + height - r);
+      ctx.lineTo(notchX, notchY + r);
+      ctx.quadraticCurveTo(notchX, notchY, notchX - r, notchY);
+      ctx.lineTo(x + r, notchY);
+      ctx.quadraticCurveTo(x, notchY, x, notchY - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
       ctx.closePath();
     }
 
@@ -1658,6 +2046,8 @@
 
       const innerW = width / scale - 18;
       const innerH = height / scale - 18;
+      const faceW = width / scale;
+      const faceH = height / scale;
       const cx = width / scale / 2;
       const cy = height / scale / 2;
 
@@ -1687,30 +2077,36 @@
         const img = await loadImage(data.image);
         if (img) {
           const imageMode = data.imageFit || (data.imageContain ? "contain" : "cover");
-          let drawW = innerW * (data.imageScale / 100);
-          let drawH = innerH * (data.imageScale / 100);
+          const imageBoxW = imageMode === "contain" ? innerW : faceW;
+          const imageBoxH = imageMode === "contain" ? innerH : faceH;
+          let drawW = imageBoxW * (data.imageScale / 100);
+          let drawH = imageBoxH * (data.imageScale / 100);
           if (imageMode !== "stretch") {
-            const fit = imageMode === "contain" ? Math.min(innerW / img.width, innerH / img.height) : Math.max(innerW / img.width, innerH / img.height);
+            const fit = imageMode === "contain" ? Math.min(imageBoxW / img.width, imageBoxH / img.height) : Math.max(imageBoxW / img.width, imageBoxH / img.height);
             const drawScale = fit * (data.imageScale / 100);
             drawW = img.width * drawScale;
             drawH = img.height * drawScale;
           }
-          const dx = cx - drawW / 2 + (data.imageX / 100) * innerW;
-          const dy = cy - drawH / 2 + (data.imageY / 100) * innerH;
+          const dx = cx - drawW / 2 + (data.imageX / 100) * imageBoxW;
+          const dy = cy - drawH / 2 + (data.imageY / 100) * imageBoxH;
           ctx.globalAlpha = data.imageOpacity / 100;
           ctx.drawImage(img, dx, dy, drawW, drawH);
           ctx.globalAlpha = 1;
         }
       }
 
-      if (data.text && data.textVisible !== false) {
-        const fontSize = autoFontSize(data.text, w, h, data.textScale, data.autoText, data.textGap);
-        ctx.fillStyle = data.textColor;
+      const exportText = data.text || (data.textCutout ? keyLabel(name) : "");
+      if (exportText && (data.textVisible !== false || data.textCutout)) {
+        const fontSize = autoFontSize(exportText, w, h, data.textScale, data.autoText, data.textGap);
+        const cutAmount = data.textCutout ? ((data.textCutoutOpacity ?? 100) / 100) : 0;
+        ctx.globalCompositeOperation = cutAmount > 0 ? "destination-out" : "source-over";
+        ctx.fillStyle = cutAmount > 0 ? "#000000" : data.textColor;
+        ctx.globalAlpha = cutAmount > 0 ? cutAmount : ((data.textOpacity ?? 100) / 100);
         ctx.textAlign = data.textAlign || "center";
         ctx.textBaseline = "middle";
         ctx.font = `${data.fontWeight} ${fontSize}px ${data.fontFamily}`;
         const textBox = { left: 9, right: width / scale - 9, top: 9, bottom: height / scale - 9 };
-        const lines = wrapLines(ctx, data.text, textBox.right - textBox.left);
+        const lines = wrapLines(ctx, exportText, textBox.right - textBox.left);
         const lineHeight = fontSize * (1.06 + ((data.textGap || 0) / 100));
         const total = (lines.length - 1) * lineHeight;
         const textX = data.textAlign === "left" ? textBox.left : data.textAlign === "right" ? textBox.right : (textBox.left + textBox.right) / 2;
@@ -1720,6 +2116,8 @@
         lines.forEach((line, index) => {
           ctx.fillText(line, textX + moveX, textY + moveY - total / 2 + index * lineHeight);
         });
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = 1;
       }
 
       ctx.restore();
@@ -1758,6 +2156,8 @@
         formFactor: currentForm,
         layout: currentLayout,
         spaceVariant: currentSpace,
+        customLayout,
+        customDefaultLayout,
         htmlBackground,
         boardImage: boardImage.src ? {
           sourceFile: boardImageFilename(),
@@ -2002,6 +2402,8 @@
             currentForm = importedSettings.formFactor || currentForm;
             currentLayout = importedSettings.layout || currentLayout;
             currentSpace = importedSettings.spaceVariant || currentSpace;
+            customLayout = importedSettings.customLayout ? cloneLayout(importedSettings.customLayout) : customLayout;
+            customDefaultLayout = importedSettings.customDefaultLayout ? cloneLayout(importedSettings.customDefaultLayout) : customDefaultLayout;
             formFactor.value = currentForm;
             spaceVariant.value = currentSpace;
             document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === currentLayout));
@@ -2056,6 +2458,18 @@
     legendText.addEventListener("input", () => {
       activateEditableText();
       updateSelected("text", legendText.value);
+    });
+    selectAllKeys.addEventListener("change", () => {
+      editAllKeys = selectAllKeys.checked;
+      if (editAllKeys) {
+        ["textCutout", "textCutoutOpacity", "textOpacity"].forEach((prop) => {
+          const source = keyState(selectedId);
+          currentLayoutData().keys.forEach((key) => {
+            keyState(keyId(layoutKey(), key))[prop] = source[prop];
+          });
+        });
+      }
+      renderKeyboard();
     });
     fontFamily.addEventListener("change", () => {
       activateEditableText();
@@ -2116,6 +2530,22 @@
       activateEditableText();
       updateSelected("textColor", textColor.value);
     });
+    textOpacity.addEventListener("input", () => {
+      activateEditableText();
+      updateSelected("textOpacity", Number(textOpacity.value));
+    });
+    textCutout.addEventListener("change", () => {
+      activateEditableText();
+      updateSelected("textCutout", textCutout.checked);
+    });
+    textCutoutOpacity.addEventListener("input", () => {
+      activateEditableText();
+      if (!textCutout.checked) {
+        textCutout.checked = true;
+        updateSelected("textCutout", true);
+      }
+      updateSelected("textCutoutOpacity", Number(textCutoutOpacity.value));
+    });
     textAlign.addEventListener("change", () => {
       activateEditableText();
       updateSelected("textAlign", textAlign.value);
@@ -2132,16 +2562,31 @@
     imageOpacity.addEventListener("input", () => updateSelected("imageOpacity", Number(imageOpacity.value)));
     imageX.addEventListener("input", () => updateSelected("imageX", Number(imageX.value)));
     imageY.addEventListener("input", () => updateSelected("imageY", Number(imageY.value)));
-    imageContain.addEventListener("change", () => {
-      updateSelected("imageContain", imageContain.checked);
-      keyState(selectedId).imageFit = imageContain.checked ? "contain" : "cover";
-      imageFit.value = keyState(selectedId).imageFit;
+    imageContain.addEventListener("change", async () => {
+      const data = keyState(selectedId);
+      data.imageContain = imageContain.checked;
+      data.imageFit = imageContain.checked ? "contain" : "cover";
+      if (data.imageFit === "cover") {
+        if (data.image) data.image = await trimTransparentImage(data.image);
+        if (data.imageScale < 100) data.imageScale = 100;
+      }
+      imageFit.value = data.imageFit;
+      imageScale.value = data.imageScale;
+      syncRangeNumbers();
       renderKeyboard();
     });
-    imageFit.addEventListener("change", () => {
-      keyState(selectedId).imageFit = imageFit.value;
-      keyState(selectedId).imageContain = imageFit.value === "contain";
-      imageContain.checked = keyState(selectedId).imageContain;
+    imageFit.addEventListener("change", async () => {
+      const data = keyState(selectedId);
+      data.imageFit = imageFit.value;
+      data.imageContain = imageFit.value === "contain";
+      if (imageFit.value === "cover") {
+        if (data.image) data.image = await trimTransparentImage(data.image);
+        if (data.imageScale < 100) data.imageScale = 100;
+      }
+      if (imageFit.value === "stretch") data.imageScale = 100;
+      imageContain.checked = data.imageContain;
+      imageScale.value = data.imageScale;
+      syncRangeNumbers();
       renderKeyboard();
     });
     capColor.addEventListener("input", () => {
@@ -2232,16 +2677,19 @@
     });
     boardImageFit.addEventListener("change", () => {
       boardImage.fit = boardImageFit.value;
+      if (boardImage.fit === "cover" && boardImage.scale < 100) boardImage.scale = 100;
+      if (boardImage.fit === "stretch") boardImage.scale = 100;
+      syncBoardPanel();
       renderKeyboard();
     });
     document.getElementById("clearKeyButton").addEventListener("click", () => {
-      state[layoutKey()][selectedId] = { ...defaults };
+      persistentState[keyNameFromId(selectedId)] = { ...defaults };
       syncPanel();
       renderKeyboard();
     });
     document.getElementById("clearAllButton").addEventListener("click", () => {
       currentLayoutData().keys.forEach((key) => {
-        state[layoutKey()][keyId(layoutKey(), key)] = { ...defaults };
+        persistentState[canonicalKeyName(key[0])] = { ...defaults };
       });
       syncPanel();
       renderKeyboard();
@@ -2251,7 +2699,7 @@
     });
     document.getElementById("pasteButton").addEventListener("click", () => {
       if (!clipboardStyle) return;
-      state[layoutKey()][selectedId] = { ...clipboardStyle };
+      persistentState[keyNameFromId(selectedId)] = { ...clipboardStyle };
       syncPanel();
       renderKeyboard();
     });
@@ -2298,8 +2746,64 @@
       stageWrap.scrollTo({ left: 0, top: 0, behavior: "smooth" });
     });
 
+    editLayout.addEventListener("change", () => {
+      editLayoutMode = editLayout.checked;
+      if (editLayoutMode && currentForm !== "custom") {
+        carryVisibleKeyState();
+        ensureCustomLayout(currentLayoutData());
+        currentForm = "custom";
+        formFactor.value = "custom";
+        selectedId = keyId(layoutKey(), firstKey());
+        syncPanel();
+      }
+      renderKeyboard();
+    });
+
+    addKeyButton.addEventListener("click", () => {
+      if (!editLayoutMode) {
+        editLayout.checked = true;
+        editLayout.dispatchEvent(new Event("change"));
+      }
+      if (currentForm !== "custom") return;
+      const layout = ensureCustomLayout();
+      const anchor = getKeyData(selectedId) || layout.keys[layout.keys.length - 1];
+      const snap = 0.25;
+      const preset = newKeyPresetData();
+      const width = preset.width;
+      const height = preset.height;
+      const x = Math.max(0, Math.round(((anchor ? anchor[1] + anchor[3] : 0) / snap)) * snap);
+      const y = Math.max(0, anchor ? anchor[2] : 0);
+      const key = [uniqueCustomKeyName(preset.baseName), x, y, width, height];
+      layout.keys.push(key);
+      updateCustomLayoutSize();
+      selectedId = keyId(layoutKey(), key);
+      persistentState[canonicalKeyName(key[0])] = { ...defaults, text: keyLabel(preset.baseName), autoText: true };
+      syncPanel();
+      renderKeyboard();
+    });
+
+    removeKeyButton.addEventListener("click", () => {
+      if (!editLayoutMode || currentForm !== "custom" || !customLayout || customLayout.keys.length <= 1) return;
+      const index = selectedCustomKeyIndex();
+      if (index < 0) return;
+      const [removed] = customLayout.keys.splice(index, 1);
+      delete persistentState[canonicalKeyName(removed[0])];
+      updateCustomLayoutSize();
+      selectedId = keyId(layoutKey(), customLayout.keys[Math.min(index, customLayout.keys.length - 1)]);
+      syncPanel();
+      renderKeyboard();
+    });
+
+    resetCustomButton.addEventListener("click", () => {
+      if (currentForm !== "custom") return;
+      resetCustomLayout();
+      syncPanel();
+      renderKeyboard();
+    });
+
     document.querySelectorAll("[data-layout]").forEach((button) => {
       button.addEventListener("click", () => {
+        carryVisibleKeyState();
         document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.remove("active"));
         button.classList.add("active");
         currentLayout = button.dataset.layout;
@@ -2310,17 +2814,23 @@
     });
 
     spaceVariant.addEventListener("change", () => {
+      carryVisibleKeyState();
       currentSpace = spaceVariant.value;
       selectedId = keyId(layoutKey(), firstKey());
       syncPanel();
       renderKeyboard();
     });
     formFactor.addEventListener("change", () => {
+      carryVisibleKeyState();
+      const previousLayout = currentLayoutData();
       currentForm = formFactor.value;
+      if (currentForm === "custom") ensureCustomLayout(previousLayout);
       if (currentForm === "lemokey-p1-pro-iso") {
         currentLayout = "iso";
         document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === "iso"));
       }
+      editLayoutMode = currentForm === "custom" && editLayout.checked;
+      editLayout.checked = editLayoutMode;
       selectedId = keyId(layoutKey(), firstKey());
       syncPanel();
       renderKeyboard();
