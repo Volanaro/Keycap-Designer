@@ -45,10 +45,8 @@
     }
 
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+      display: grid;
+      gap: 10px;
       padding: 14px 18px;
       border-bottom: 1px solid var(--line);
       background: var(--panel);
@@ -57,8 +55,10 @@
     .brand {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
-      min-width: 180px;
+      min-width: 0;
+      white-space: nowrap;
     }
 
     .mark {
@@ -86,6 +86,10 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    .top-actions {
+      justify-content: center;
     }
 
     .layout-tabs {
@@ -128,6 +132,21 @@
       color: var(--ink);
       background: var(--panel);
       cursor: pointer;
+    }
+
+    .button:disabled {
+      color: #8a97a8;
+      border-color: #d8dee7;
+      background: #eef2f6;
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
+
+    .button.primary:disabled,
+    .button.danger:disabled {
+      color: #8a97a8;
+      border-color: #d8dee7;
+      background: #eef2f6;
     }
 
     .button.icon {
@@ -414,6 +433,24 @@
       margin-bottom: 0;
     }
 
+    .side-links {
+      display: grid;
+      gap: 8px;
+      padding-top: 2px;
+      font-size: 13px;
+    }
+
+    .side-links a {
+      color: var(--accent);
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+
+    .side-links a:hover {
+      color: var(--accent-strong);
+      text-decoration: underline;
+    }
+
     h2 {
       margin: 0 0 12px;
       font-size: 14px;
@@ -554,7 +591,15 @@
 
       .topbar {
         align-items: flex-start;
-        flex-direction: column;
+      }
+
+      .brand {
+        justify-content: flex-start;
+        white-space: normal;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
       }
     }
 
@@ -578,7 +623,7 @@
     <header class="topbar">
       <div class="brand">
         <div class="mark">K</div>
-        <h1>Keycap Designer</h1>
+        <h1>AKNES (Volanaro) Keycap Designer</h1>
       </div>
       <div class="top-actions">
         <div class="layout-tabs" role="tablist" aria-label="Layout">
@@ -894,6 +939,11 @@
             <button class="button" id="pasteButton" type="button" title="Paste style">Paste</button>
             <button class="button danger" id="clearKeyButton" type="button" title="Clear selected key">Clear Key</button>
           </div>
+        </div>
+
+        <div class="section side-links">
+          <a href="https://discord.gg/SUuuAJxrJ9" target="_blank" rel="noopener noreferrer">Discord</a>
+          <a href="https://aknes.com?sca_ref=10848560.vs2PnSy5tFy" target="_blank" rel="noopener noreferrer">AKNES</a>
         </div>
       </aside>
     </main>
