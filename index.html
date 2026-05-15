@@ -342,24 +342,28 @@
 
     .legend {
       position: absolute;
-      inset: 6px;
+      inset: 0;
+      overflow: hidden;
+      border-radius: 8px;
       pointer-events: none;
       z-index: 2;
     }
 
     .legend img {
       position: absolute;
-      left: 50%;
-      top: 50%;
+      left: 0;
+      top: 0;
       max-width: none;
       max-height: none;
       object-fit: contain;
-      transform: translate(-50%, -50%);
+      transform: none;
     }
 
     .board-slice {
       position: absolute;
       inset: 0;
+      overflow: hidden;
+      border-radius: 8px;
       pointer-events: none;
       opacity: var(--board-opacity, 1);
       z-index: 1;
@@ -449,6 +453,57 @@
     .side-links a:hover {
       color: var(--accent-strong);
       text-decoration: underline;
+    }
+
+    .changelog-panel {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: rgba(23, 32, 42, 0.38);
+      z-index: 20;
+    }
+
+    .changelog-panel.open {
+      display: grid;
+    }
+
+    .changelog-dialog {
+      width: min(720px, 100%);
+      max-height: min(760px, 88vh);
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 22px 60px rgba(23, 32, 42, 0.26);
+      padding: 18px;
+    }
+
+    .changelog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .changelog-list {
+      display: grid;
+      gap: 14px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .changelog-list h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    .changelog-list ul {
+      margin: 0;
+      padding-left: 20px;
     }
 
     h2 {
@@ -694,6 +749,8 @@
         <button class="button danger" id="removeKeyButton" type="button" title="Remove selected custom key">Remove Key</button>
         <button class="button" id="resetCustomButton" type="button" title="Reset custom layout to its default shape">Reset Custom</button>
         <button class="button" id="fitButton" type="button" title="Fit view">[]</button>
+        <button class="button" id="undoButton" type="button" title="Undo last action" disabled>Undo</button>
+        <button class="button" id="changelogButton" type="button" title="View change log">What's Changed</button>
         <button class="button" id="clearAllButton" type="button" title="Clear all keys">Clear</button>
         <input class="hidden-file" id="zipInput" type="file" accept=".zip,application/zip">
         <button class="button" id="importZipButton" type="button" title="Load exported ZIP">Load ZIP</button>
@@ -920,6 +977,9 @@
                 <option value="3" selected>3x</option>
                 <option value="4">4x</option>
                 <option value="6">6x</option>
+                <option value="8">8x</option>
+                <option value="10">10x</option>
+                <option value="12">12x</option>
               </select>
             </div>
             <div class="field">
@@ -947,6 +1007,50 @@
         </div>
       </aside>
     </main>
+
+    <div class="changelog-panel" id="changelogPanel" aria-hidden="true">
+      <div class="changelog-dialog" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+        <div class="changelog-head">
+          <h2 id="changelogTitle">What's Changed</h2>
+          <button class="button" id="closeChangelogButton" type="button">Close</button>
+        </div>
+        <div class="changelog-list">
+          <section>
+            <h3>Current Version</h3>
+            <ul>
+              <li>Added Undo for recent edits, layout changes, imports, clears, images, and custom layout moves.</li>
+              <li>Added larger PNG export scales up to 12x.</li>
+              <li>ZIP exports now preserve raw per-key source images for better reload quality.</li>
+              <li>Preview image placement and export cropping now use matching placement logic.</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Layouts</h3>
+            <ul>
+              <li>Improved ANSI and ISO 60%, 60% arrows, 65%, 75%, TKL, Full, and Lemokey P1 Pro ISO layouts.</li>
+              <li>Fixed ISO Enter shape, rounded clipping, ISO extra keys, right shift sizing, and arrow cluster alignment.</li>
+              <li>Added custom layout editing with 0.25u snap, key add/remove, size presets, and custom reset.</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Design Tools</h3>
+            <ul>
+              <li>Added board-wide images, per-key images, drag-and-drop images, fit/fill/stretch controls, and source ZIP reload.</li>
+              <li>Added text alignment, text X/Y movement, legend gap, font loading, text opacity, and shine-through cutout controls.</li>
+              <li>Added select-all editing for applying text opacity and cutout settings across the whole board.</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Export And Project Files</h3>
+            <ul>
+              <li>ZIP load/save restores layout settings, key text, images, font settings, colors, and board images.</li>
+              <li>Added transparent or colored key backgrounds for print-friendly exports.</li>
+              <li>Added page background color, AKNES branding, Discord/AKNES links, and this changelog.</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1120,6 +1224,7 @@
       imageOpacity: 100,
       imageX: 0,
       imageY: 0,
+      imageSource: "",
       imageContain: true,
       imageFit: "contain",
       capBackground: "transparent",
@@ -1187,6 +1292,10 @@
     const addKeyButton = document.getElementById("addKeyButton");
     const removeKeyButton = document.getElementById("removeKeyButton");
     const resetCustomButton = document.getElementById("resetCustomButton");
+    const undoButton = document.getElementById("undoButton");
+    const changelogButton = document.getElementById("changelogButton");
+    const changelogPanel = document.getElementById("changelogPanel");
+    const closeChangelogButton = document.getElementById("closeChangelogButton");
     const zipInput = document.getElementById("zipInput");
 
     let currentLayout = "ansi";
@@ -1200,6 +1309,8 @@
     const persistentState = {};
     let customLayout = null;
     let customDefaultLayout = null;
+    const undoStack = [];
+    let suppressUndo = false;
     const boardImage = { src: "", width: 0, height: 0, scale: 100, opacity: 100, x: 0, y: 0, export: true, fit: "cover", blob: null, mime: "", sourceName: "" };
     let htmlBackground = "#f4f6f8";
     const imageCache = new Map();
@@ -1280,6 +1391,62 @@
       htmlBackground = color || "#f4f6f8";
       pageBackground.value = htmlBackground;
       document.documentElement.style.setProperty("--bg", htmlBackground);
+    }
+
+    function clonePlain(value) {
+      return typeof structuredClone === "function" ? structuredClone(value) : JSON.parse(JSON.stringify(value));
+    }
+
+    function undoSnapshot() {
+      return {
+        currentLayout,
+        currentSpace,
+        currentForm,
+        selectedId,
+        editAllKeys,
+        editLayoutMode,
+        htmlBackground,
+        persistentState: clonePlain(persistentState),
+        boardImage: clonePlain(boardImage),
+        customLayout: customLayout ? cloneLayout(customLayout) : null,
+        customDefaultLayout: customDefaultLayout ? cloneLayout(customDefaultLayout) : null
+      };
+    }
+
+    function updateUndoButton() {
+      undoButton.disabled = undoStack.length === 0;
+    }
+
+    function pushUndo() {
+      if (suppressUndo) return;
+      undoStack.push(undoSnapshot());
+      if (undoStack.length > 60) undoStack.shift();
+      updateUndoButton();
+    }
+
+    function restoreUndoSnapshot(snapshot) {
+      currentLayout = snapshot.currentLayout;
+      currentSpace = snapshot.currentSpace;
+      currentForm = snapshot.currentForm;
+      selectedId = snapshot.selectedId;
+      editAllKeys = snapshot.editAllKeys;
+      editLayoutMode = snapshot.editLayoutMode;
+      customLayout = snapshot.customLayout ? cloneLayout(snapshot.customLayout) : null;
+      customDefaultLayout = snapshot.customDefaultLayout ? cloneLayout(snapshot.customDefaultLayout) : null;
+      Object.keys(persistentState).forEach((key) => delete persistentState[key]);
+      Object.assign(persistentState, clonePlain(snapshot.persistentState || {}));
+      Object.keys(boardImage).forEach((key) => delete boardImage[key]);
+      Object.assign(boardImage, clonePlain(snapshot.boardImage || {}));
+      formFactor.value = currentForm;
+      spaceVariant.value = currentSpace;
+      editLayout.checked = editLayoutMode;
+      selectAllKeys.checked = editAllKeys;
+      document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === currentLayout));
+      setHtmlBackground(snapshot.htmlBackground || "#f4f6f8");
+      syncBoardPanel();
+      syncPanel();
+      renderKeyboard();
+      updateUndoButton();
     }
 
     function layoutKey() {
@@ -1538,6 +1705,7 @@
     }
 
     function applyStyleToAll(fillLegends) {
+      pushUndo();
       const style = selectedLegendStyle();
       currentLayoutData().keys.forEach((key) => {
         const id = keyId(layoutKey(), key);
@@ -1595,6 +1763,7 @@
     }
 
     function addShiftLegends() {
+      pushUndo();
       const style = selectedLegendStyle();
       const referenceKey = currentLayoutData().keys.find((key) => key[0] === "1") || getKeyData(selectedId) || firstKey();
       if (!referenceKey) return;
@@ -1683,18 +1852,25 @@
 
         const legendImg = el.querySelector(".legend img");
         if (legendImg) {
-          const fit = data.imageFit || (data.imageContain ? "contain" : "cover");
-          const paddedW = Math.max(1, w * UNIT - 18);
-          const paddedH = Math.max(1, h * UNIT - 18);
-          const faceW = Math.max(1, w * UNIT - 6);
-          const faceH = Math.max(1, h * UNIT - 6);
-          const imageBoxW = fit === "contain" ? paddedW : faceW;
-          const imageBoxH = fit === "contain" ? paddedH : faceH;
-          legendImg.style.width = fit === "stretch" ? `${imageBoxW}px` : `${imageBoxW * (data.imageScale / 100)}px`;
-          legendImg.style.height = fit === "stretch" ? `${imageBoxH}px` : `${imageBoxH * (data.imageScale / 100)}px`;
-          legendImg.style.opacity = data.imageOpacity / 100;
-          legendImg.style.objectFit = fit === "stretch" ? "fill" : fit;
-          legendImg.style.transform = `translate(calc(-50% + ${(data.imageX / 100) * imageBoxW}px), calc(-50% + ${(data.imageY / 100) * imageBoxH}px))`;
+          const placeLegendImage = () => {
+            const fit = data.imageFit || (data.imageContain ? "contain" : "cover");
+            const fullW = Math.max(1, w * UNIT - 6);
+            const fullH = Math.max(1, h * UNIT - 6);
+            const containW = Math.max(1, fullW - 12);
+            const containH = Math.max(1, fullH - 12);
+            const imageBoxW = fit === "contain" ? containW : fullW;
+            const imageBoxH = fit === "contain" ? containH : fullH;
+            const rect = imagePlacement(legendImg.naturalWidth || imageBoxW, legendImg.naturalHeight || imageBoxH, imageBoxW, imageBoxH, fit, data.imageScale, data.imageX, data.imageY);
+            legendImg.style.width = `${rect.width}px`;
+            legendImg.style.height = `${rect.height}px`;
+            legendImg.style.left = `${fit === "contain" ? 6 : 0}px`;
+            legendImg.style.top = `${fit === "contain" ? 6 : 0}px`;
+            legendImg.style.opacity = data.imageOpacity / 100;
+            legendImg.style.objectFit = fit === "stretch" ? "fill" : "fill";
+            legendImg.style.transform = `translate(${rect.x}px, ${rect.y}px)`;
+          };
+          if (legendImg.complete) placeLegendImage();
+          else legendImg.addEventListener("load", placeLegendImage, { once: true });
         }
 
         const boardImg = el.querySelector(".board-slice img");
@@ -1711,6 +1887,7 @@
     function beginKeyDrag(event, key) {
       if (!editLayoutMode || currentForm !== "custom") return;
       event.preventDefault();
+      pushUndo();
       event.currentTarget.setPointerCapture(event.pointerId);
       selectKey(keyId(layoutKey(), key));
       const unit = cssUnit();
@@ -1773,6 +1950,23 @@
       img.style.opacity = boardImage.opacity / 100;
     }
 
+    function imagePlacement(imgW, imgH, boxW, boxH, mode, scalePercent, xPercent, yPercent) {
+      let drawW = boxW * (scalePercent / 100);
+      let drawH = boxH * (scalePercent / 100);
+      if (mode !== "stretch") {
+        const fit = mode === "contain" ? Math.min(boxW / imgW, boxH / imgH) : Math.max(boxW / imgW, boxH / imgH);
+        const drawScale = fit * (scalePercent / 100);
+        drawW = imgW * drawScale;
+        drawH = imgH * drawScale;
+      }
+      return {
+        width: drawW,
+        height: drawH,
+        x: (boxW - drawW) / 2 + (xPercent / 100) * boxW,
+        y: (boxH - drawH) / 2 + (yPercent / 100) * boxH
+      };
+    }
+
     function autoFontSize(text, w, h, scale, auto, gap = 0) {
       const lines = String(text || "").split("\n");
       const longest = lines.reduce((max, line) => Math.max(max, line.length), 1);
@@ -1833,7 +2027,8 @@
       syncRangeNumbers();
     }
 
-    function updateSelected(prop, value) {
+    function updateSelected(prop, value, recordUndo = true) {
+      if (recordUndo) pushUndo();
       if (editAllKeys) {
         currentLayoutData().keys.forEach((key) => {
           keyState(keyId(layoutKey(), key))[prop] = value;
@@ -1868,7 +2063,9 @@
     async function applyImageToSelectedKey(file) {
       if (!file || !file.type.startsWith("image/")) return;
       ensureSelectedKey();
-      const src = await trimTransparentImage(await readImage(file));
+      const rawSrc = await readImage(file);
+      const src = await trimTransparentImage(rawSrc);
+      pushUndo();
       const data = keyState(selectedId);
       data.imageScale = 100;
       data.imageX = 0;
@@ -1877,6 +2074,8 @@
       data.imageFit = "contain";
       data.importedRender = false;
       data.image = src;
+      data.imageSource = rawSrc;
+      data.imageMime = file.type || imageMime(rawSrc);
       syncPanel();
       renderKeyboard();
     }
@@ -1991,7 +2190,7 @@
     }
 
     function keyImageFilename(key, data) {
-      return `key-images/${safeFilePart(key[0])}.${imageExtension(data.imageMime || imageMime(data.image))}`;
+      return `key-images/${safeFilePart(key[0])}.${imageExtension(data.imageMime || imageMime(data.imageSource || data.image))}`;
     }
 
     async function imageSourceBlob(src) {
@@ -2094,16 +2293,12 @@
         ctx.stroke();
       }
 
-      keyPath(ctx, name, 5, 5, width / scale - 10, height / scale - 10);
+      keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1);
       ctx.save();
       ctx.clip();
 
-      const innerW = width / scale - 18;
-      const innerH = height / scale - 18;
       const faceW = width / scale;
       const faceH = height / scale;
-      const cx = width / scale / 2;
-      const cy = height / scale / 2;
 
       if (boardImage.src && boardImage.export) {
         const img = await loadImage(boardImage.src);
@@ -2131,20 +2326,13 @@
         const img = await loadImage(data.image);
         if (img) {
           const imageMode = data.imageFit || (data.imageContain ? "contain" : "cover");
-          const imageBoxW = imageMode === "contain" ? innerW : faceW;
-          const imageBoxH = imageMode === "contain" ? innerH : faceH;
-          let drawW = imageBoxW * (data.imageScale / 100);
-          let drawH = imageBoxH * (data.imageScale / 100);
-          if (imageMode !== "stretch") {
-            const fit = imageMode === "contain" ? Math.min(imageBoxW / img.width, imageBoxH / img.height) : Math.max(imageBoxW / img.width, imageBoxH / img.height);
-            const drawScale = fit * (data.imageScale / 100);
-            drawW = img.width * drawScale;
-            drawH = img.height * drawScale;
-          }
-          const dx = cx - drawW / 2 + (data.imageX / 100) * imageBoxW;
-          const dy = cy - drawH / 2 + (data.imageY / 100) * imageBoxH;
+          const imageBoxW = imageMode === "contain" ? Math.max(1, faceW - 12) : faceW;
+          const imageBoxH = imageMode === "contain" ? Math.max(1, faceH - 12) : faceH;
+          const rect = imagePlacement(img.width, img.height, imageBoxW, imageBoxH, imageMode, data.imageScale, data.imageX, data.imageY);
+          const dx = (imageMode === "contain" ? 6 : 0) + rect.x;
+          const dy = (imageMode === "contain" ? 6 : 0) + rect.y;
           ctx.globalAlpha = data.imageOpacity / 100;
-          ctx.drawImage(img, dx, dy, drawW, drawH);
+          ctx.drawImage(img, dx, dy, rect.width, rect.height);
           ctx.globalAlpha = 1;
         }
       }
@@ -2195,10 +2383,10 @@
       currentLayoutData().keys.forEach((key) => {
         const id = keyId(layoutKey(), key);
         const data = keyState(id);
-        const { image, ...settings } = data;
-        if (image) {
+        const { image, imageSource, ...settings } = data;
+        if (image || imageSource) {
           settings.imageSourceFile = keyImageFilename(key, data);
-          settings.imageMime = imageMime(image);
+          settings.imageMime = data.imageMime || imageMime(imageSource || image);
         }
         keys[key[0]] = { ...settings };
       });
@@ -2450,6 +2638,7 @@
       const reader = new FileReader();
       reader.onload = () => {
         try {
+          pushUndo();
           const entries = parseZipEntries(reader.result);
           const importedSettings = settingsFromEntries(entries);
           if (importedSettings) {
@@ -2481,10 +2670,12 @@
             if (saved) {
               Object.assign(data, { ...saved });
               data.image = restoreKeyImageFromSettings(entries, saved);
+              data.imageSource = data.image;
               data.textVisible = true;
               data.importedRender = false;
             } else {
               data.image = imageUrl;
+              data.imageSource = "";
               data.imageFit = "stretch";
               data.imageContain = false;
               data.imageScale = 100;
@@ -2514,6 +2705,7 @@
       updateSelected("text", legendText.value);
     });
     selectAllKeys.addEventListener("change", () => {
+      pushUndo();
       editAllKeys = selectAllKeys.checked;
       if (editAllKeys) {
         ["textCutout", "textCutoutOpacity", "textOpacity"].forEach((prop) => {
@@ -2617,6 +2809,7 @@
     imageX.addEventListener("input", () => updateSelected("imageX", Number(imageX.value)));
     imageY.addEventListener("input", () => updateSelected("imageY", Number(imageY.value)));
     imageContain.addEventListener("change", async () => {
+      pushUndo();
       const data = keyState(selectedId);
       data.imageContain = imageContain.checked;
       data.imageFit = imageContain.checked ? "contain" : "cover";
@@ -2630,6 +2823,7 @@
       renderKeyboard();
     });
     imageFit.addEventListener("change", async () => {
+      pushUndo();
       const data = keyState(selectedId);
       data.imageFit = imageFit.value;
       data.imageContain = imageFit.value === "contain";
@@ -2644,13 +2838,17 @@
       renderKeyboard();
     });
     capColor.addEventListener("input", () => {
+      pushUndo();
       keyState(selectedId).capBackground = "color";
       capBackground.value = "color";
-      updateSelected("capColor", capColor.value);
+      updateSelected("capColor", capColor.value, false);
       updateSwatches(capColor.value);
     });
     capBackground.addEventListener("change", () => updateSelected("capBackground", capBackground.value));
-    pageBackground.addEventListener("input", () => setHtmlBackground(pageBackground.value));
+    pageBackground.addEventListener("input", () => {
+      pushUndo();
+      setHtmlBackground(pageBackground.value);
+    });
 
     document.getElementById("pickImageButton").addEventListener("click", () => imageInput.click());
     imageInput.addEventListener("change", async () => {
@@ -2678,12 +2876,18 @@
       await applyImageToSelectedKey(file);
     });
 
-    document.getElementById("removeImageButton").addEventListener("click", () => updateSelected("image", ""));
+    document.getElementById("removeImageButton").addEventListener("click", () => {
+      pushUndo();
+      updateSelected("image", "", false);
+      updateSelected("imageSource", "", false);
+      updateSelected("imageMime", "", false);
+    });
     document.getElementById("pickBoardImageButton").addEventListener("click", () => boardImageInput.click());
     boardImageInput.addEventListener("change", async () => {
       const file = boardImageInput.files[0];
       if (!file) return;
       const optimized = await readOptimizedImage(file);
+      pushUndo();
       boardImage.src = optimized.src;
       boardImage.width = optimized.width;
       boardImage.height = optimized.height;
@@ -2701,6 +2905,7 @@
       renderKeyboard();
     });
     document.getElementById("removeBoardImageButton").addEventListener("click", () => {
+      pushUndo();
       boardImage.src = "";
       boardImage.width = 0;
       boardImage.height = 0;
@@ -2711,25 +2916,31 @@
       renderKeyboard();
     });
     boardImageScale.addEventListener("input", () => {
+      pushUndo();
       boardImage.scale = Number(boardImageScale.value);
       renderKeyboard();
     });
     boardImageOpacity.addEventListener("input", () => {
+      pushUndo();
       boardImage.opacity = Number(boardImageOpacity.value);
       renderKeyboard();
     });
     boardImageX.addEventListener("input", () => {
+      pushUndo();
       boardImage.x = Number(boardImageX.value);
       renderKeyboard();
     });
     boardImageY.addEventListener("input", () => {
+      pushUndo();
       boardImage.y = Number(boardImageY.value);
       renderKeyboard();
     });
     boardImageExport.addEventListener("change", () => {
+      pushUndo();
       boardImage.export = boardImageExport.checked;
     });
     boardImageFit.addEventListener("change", () => {
+      pushUndo();
       boardImage.fit = boardImageFit.value;
       if (boardImage.fit === "cover" && boardImage.scale < 100) boardImage.scale = 100;
       if (boardImage.fit === "stretch") boardImage.scale = 100;
@@ -2737,11 +2948,13 @@
       renderKeyboard();
     });
     document.getElementById("clearKeyButton").addEventListener("click", () => {
+      pushUndo();
       persistentState[keyNameFromId(selectedId)] = { ...defaults };
       syncPanel();
       renderKeyboard();
     });
     document.getElementById("clearAllButton").addEventListener("click", () => {
+      pushUndo();
       currentLayoutData().keys.forEach((key) => {
         persistentState[canonicalKeyName(key[0])] = { ...defaults };
       });
@@ -2753,11 +2966,32 @@
     });
     document.getElementById("pasteButton").addEventListener("click", () => {
       if (!clipboardStyle) return;
+      pushUndo();
       persistentState[keyNameFromId(selectedId)] = { ...clipboardStyle };
       syncPanel();
       renderKeyboard();
     });
     document.getElementById("exportSelectedButton").addEventListener("click", () => exportKey(selectedId));
+    undoButton.addEventListener("click", () => {
+      const snapshot = undoStack.pop();
+      if (!snapshot) return;
+      suppressUndo = true;
+      restoreUndoSnapshot(snapshot);
+      suppressUndo = false;
+    });
+    changelogButton.addEventListener("click", () => {
+      changelogPanel.classList.add("open");
+      changelogPanel.setAttribute("aria-hidden", "false");
+    });
+    closeChangelogButton.addEventListener("click", () => {
+      changelogPanel.classList.remove("open");
+      changelogPanel.setAttribute("aria-hidden", "true");
+    });
+    changelogPanel.addEventListener("click", (event) => {
+      if (event.target !== changelogPanel) return;
+      changelogPanel.classList.remove("open");
+      changelogPanel.setAttribute("aria-hidden", "true");
+    });
     document.getElementById("exportAllButton").addEventListener("click", async (event) => {
       const button = event.currentTarget;
       const originalText = button.textContent;
@@ -2772,8 +3006,8 @@
         for (const key of currentLayoutData().keys) {
           const id = keyId(layoutKey(), key);
           const data = keyState(id);
-          if (data.image) {
-            const sourceBlob = await imageSourceBlob(data.image);
+          if (data.image || data.imageSource) {
+            const sourceBlob = await imageSourceBlob(data.imageSource || data.image);
             if (sourceBlob) files.push({ name: keyImageFilename(key, data), blob: sourceBlob });
           }
           const canvas = await drawKeyToCanvas(key, data, Number(exportScale.value));
@@ -2801,6 +3035,7 @@
     });
 
     editLayout.addEventListener("change", () => {
+      pushUndo();
       editLayoutMode = editLayout.checked;
       if (editLayoutMode && currentForm !== "custom") {
         carryVisibleKeyState();
@@ -2819,6 +3054,7 @@
         editLayout.dispatchEvent(new Event("change"));
       }
       if (currentForm !== "custom") return;
+      pushUndo();
       const layout = ensureCustomLayout();
       const anchor = getKeyData(selectedId) || layout.keys[layout.keys.length - 1];
       const snap = 0.25;
@@ -2840,6 +3076,7 @@
       if (!editLayoutMode || currentForm !== "custom" || !customLayout || customLayout.keys.length <= 1) return;
       const index = selectedCustomKeyIndex();
       if (index < 0) return;
+      pushUndo();
       const [removed] = customLayout.keys.splice(index, 1);
       delete persistentState[canonicalKeyName(removed[0])];
       updateCustomLayoutSize();
@@ -2850,6 +3087,7 @@
 
     resetCustomButton.addEventListener("click", () => {
       if (currentForm !== "custom") return;
+      pushUndo();
       resetCustomLayout();
       syncPanel();
       renderKeyboard();
@@ -2857,6 +3095,7 @@
 
     document.querySelectorAll("[data-layout]").forEach((button) => {
       button.addEventListener("click", () => {
+        pushUndo();
         carryVisibleKeyState();
         document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.remove("active"));
         button.classList.add("active");
@@ -2868,6 +3107,7 @@
     });
 
     spaceVariant.addEventListener("change", () => {
+      pushUndo();
       carryVisibleKeyState();
       currentSpace = spaceVariant.value;
       selectedId = keyId(layoutKey(), firstKey());
@@ -2875,6 +3115,7 @@
       renderKeyboard();
     });
     formFactor.addEventListener("change", () => {
+      pushUndo();
       carryVisibleKeyState();
       const previousLayout = currentLayoutData();
       currentForm = formFactor.value;
