@@ -237,6 +237,25 @@
       box-shadow: 0 0 0 3px rgba(31, 122, 140, 0.18), 0 10px 22px var(--shadow), inset 0 -5px 0 rgba(23, 32, 42, 0.08);
     }
 
+    .export-preview-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      image-rendering: auto;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .key.export-previewing .board-slice,
+    .key.export-previewing .legend,
+    .key.export-previewing .key-id,
+    .key.export-previewing .iso-checker,
+    .key.export-previewing .iso-outline {
+      visibility: hidden;
+    }
+
     .keyboard.editing-layout .key {
       cursor: grab;
     }
@@ -386,8 +405,9 @@
       color: var(--ink);
       text-align: center;
       line-height: 1;
-      overflow-wrap: anywhere;
-      white-space: pre-wrap;
+      overflow-wrap: normal;
+      word-break: normal;
+      white-space: pre-line;
       opacity: var(--text-opacity, 1);
       font-weight: 700;
       z-index: 2;
@@ -701,6 +721,7 @@
           <option value="40">40%</option>
           <option value="custom">Custom</option>
         </select>
+        <button class="button" id="undoButton" type="button" title="Undo last action" disabled>Undo</button>
         <label class="check-row" title="Drag keys on a snap grid">
           <span>Edit layout</span>
           <input id="editLayout" type="checkbox">
@@ -749,7 +770,10 @@
         <button class="button danger" id="removeKeyButton" type="button" title="Remove selected custom key">Remove Key</button>
         <button class="button" id="resetCustomButton" type="button" title="Reset custom layout to its default shape">Reset Custom</button>
         <button class="button" id="fitButton" type="button" title="Fit view">[]</button>
-        <button class="button" id="undoButton" type="button" title="Undo last action" disabled>Undo</button>
+        <label class="check-row" title="Show the exact exported key render in the preview">
+          <span>Export Preview</span>
+          <input id="exportPreviewToggle" type="checkbox">
+        </label>
         <button class="button" id="changelogButton" type="button" title="View change log">What's Changed</button>
         <button class="button" id="clearAllButton" type="button" title="Clear all keys">Clear</button>
         <input class="hidden-file" id="zipInput" type="file" accept=".zip,application/zip">
@@ -1004,6 +1028,7 @@
         <div class="section side-links">
           <a href="https://discord.gg/SUuuAJxrJ9" target="_blank" rel="noopener noreferrer">Discord</a>
           <a href="https://aknes.com?sca_ref=10848560.vs2PnSy5tFy" target="_blank" rel="noopener noreferrer">AKNES</a>
+          <a href="https://paypal.me/Volanaro" target="_blank" rel="noopener noreferrer">help me buy more controllers</a>
         </div>
       </aside>
     </main>
@@ -1022,6 +1047,12 @@
               <li>Added larger PNG export scales up to 12x.</li>
               <li>ZIP exports now preserve raw per-key source images for better reload quality.</li>
               <li>Preview image placement and export cropping now use matching placement logic.</li>
+              <li>Added Export Preview mode to show keys using the same canvas renderer as PNG export.</li>
+              <li>Export Preview hides the normal HTML preview layers so transparent exports do not show helper key labels underneath.</li>
+              <li>Added a support link under the Discord and AKNES links.</li>
+              <li>Improved Export Preview sharpness with higher-resolution rendering and high-quality canvas image smoothing.</li>
+              <li>Board images now keep the original upload for Export Preview and PNG/ZIP output while using the smaller copy for the normal live editor.</li>
+              <li>Live preview labels now shrink to fit single words instead of splitting labels like Pause and Delete across lines.</li>
             </ul>
           </section>
           <section>
@@ -1293,6 +1324,7 @@
     const removeKeyButton = document.getElementById("removeKeyButton");
     const resetCustomButton = document.getElementById("resetCustomButton");
     const undoButton = document.getElementById("undoButton");
+    const exportPreviewToggle = document.getElementById("exportPreviewToggle");
     const changelogButton = document.getElementById("changelogButton");
     const changelogPanel = document.getElementById("changelogPanel");
     const closeChangelogButton = document.getElementById("closeChangelogButton");
@@ -1304,6 +1336,8 @@
     let selectedId = "";
     let editAllKeys = false;
     let editLayoutMode = false;
+    let exportPreviewMode = false;
+    let previewRenderToken = 0;
     let clipboardStyle = null;
     const state = {};
     const persistentState = {};
@@ -1311,7 +1345,7 @@
     let customDefaultLayout = null;
     const undoStack = [];
     let suppressUndo = false;
-    const boardImage = { src: "", width: 0, height: 0, scale: 100, opacity: 100, x: 0, y: 0, export: true, fit: "cover", blob: null, mime: "", sourceName: "" };
+    const boardImage = { src: "", sourceSrc: "", width: 0, height: 0, scale: 100, opacity: 100, x: 0, y: 0, export: true, fit: "cover", blob: null, mime: "", sourceName: "" };
     let htmlBackground = "#f4f6f8";
     const imageCache = new Map();
     const rangeNumberMap = new Map();
@@ -1798,8 +1832,29 @@
       renderKeyboard();
     }
 
+    function exportPreviewScale() {
+      const selectedScale = Number(exportScale.value) || 6;
+      const screenScale = Math.ceil((window.devicePixelRatio || 1) * 3);
+      return Math.min(8, Math.max(6, selectedScale, screenScale));
+    }
+
+    async function renderExportPreviewImage(el, key, data, token) {
+      try {
+        const canvas = await drawKeyToCanvas(key, data, exportPreviewScale());
+        if (token !== previewRenderToken || !el.isConnected) return;
+        const img = document.createElement("img");
+        img.className = "export-preview-img";
+        img.alt = "";
+        img.src = canvas.toDataURL("image/png");
+        el.appendChild(img);
+      } catch (error) {
+        // Keep the normal preview if an image fails to render.
+      }
+    }
+
     function renderKeyboard() {
       const layout = currentLayoutData();
+      const token = ++previewRenderToken;
       keyboard.style.setProperty("--layout-w", layout.w);
       keyboard.style.setProperty("--layout-h", layout.h);
       keyboard.classList.toggle("editing-layout", editLayoutMode && currentForm === "custom");
@@ -1812,6 +1867,7 @@
         const el = document.createElement("button");
         el.className = "key";
         if (name === "ISOEnter") el.classList.add("iso-enter");
+        if (exportPreviewMode) el.classList.add("export-previewing");
         if (data.textCutout && (data.textCutoutOpacity ?? 100) > 0) el.classList.add("text-cutout");
         if (data.capBackground === "transparent") el.classList.add("transparent-cap");
         el.type = "button";
@@ -1839,11 +1895,12 @@
           ${showKeyId ? `<div class="key-id">${keyLabel(name)}</div>` : ""}
         `;
         const textEl = el.querySelector(".legend-text");
-        textEl.textContent = (data.textVisible === false && !data.textCutout) ? "" : (hasLegendText ? data.text : (data.textCutout ? keyLabel(name) : ""));
+        const displayText = (data.textVisible === false && !data.textCutout) ? "" : (hasLegendText ? data.text : (data.textCutout ? keyLabel(name) : ""));
+        textEl.textContent = displayText;
         textEl.style.color = data.textColor;
         textEl.style.fontFamily = data.fontFamily;
         textEl.style.fontWeight = data.fontWeight;
-        textEl.style.fontSize = `${autoFontSize(data.text, w, h, data.textScale, data.autoText, data.textGap)}px`;
+        textEl.style.fontSize = `${autoFontSize(displayText, w, h, data.textScale, data.autoText, data.textGap)}px`;
         textEl.style.lineHeight = `${1.06 + ((data.textGap || 0) / 100)}`;
         textEl.style.textAlign = data.textAlign;
         textEl.style.justifyItems = data.textAlign === "left" ? "start" : data.textAlign === "right" ? "end" : "center";
@@ -1875,6 +1932,8 @@
 
         const boardImg = el.querySelector(".board-slice img");
         if (boardImg) positionBoardImage(boardImg, key);
+
+        if (exportPreviewMode) renderExportPreviewImage(el, key, data, token);
 
         if (editLayoutMode && currentForm === "custom") {
           el.addEventListener("pointerdown", (event) => beginKeyDrag(event, key));
@@ -2149,7 +2208,7 @@
       const src = await readImage(file);
       const img = await loadImage(src);
       const longest = Math.max(img.width, img.height);
-      if (longest <= maxSide) return { src, width: img.width, height: img.height };
+      if (longest <= maxSide) return { src, sourceSrc: src, width: img.width, height: img.height };
 
       const scale = maxSide / longest;
       const canvas = document.createElement("canvas");
@@ -2157,7 +2216,7 @@
       canvas.height = Math.round(img.height * scale);
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      return { src: canvas.toDataURL("image/jpeg", 0.86), width: canvas.width, height: canvas.height };
+      return { src: canvas.toDataURL("image/jpeg", 0.86), sourceSrc: src, width: img.width, height: img.height };
     }
 
     function dataUrlToBlob(dataUrl) {
@@ -2278,6 +2337,8 @@
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d");
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
       ctx.scale(scale, scale);
 
       if (data.capBackground === "color") {
@@ -2301,7 +2362,7 @@
       const faceH = height / scale;
 
       if (boardImage.src && boardImage.export) {
-        const img = await loadImage(boardImage.src);
+        const img = await loadImage(boardImage.sourceSrc || boardImage.src);
         if (img) {
           const layout = currentLayoutData();
           const boardW = layout.w * UNIT;
@@ -2562,6 +2623,7 @@
       const saved = settings && settings.boardImage;
       if (!saved || !saved.sourceFile) {
         boardImage.src = "";
+        boardImage.sourceSrc = "";
         boardImage.width = 0;
         boardImage.height = 0;
         boardImage.blob = null;
@@ -2577,6 +2639,7 @@
       const mime = saved.mime || "image/png";
       const blob = new Blob([entry.bytes], { type: mime });
       boardImage.src = URL.createObjectURL(blob);
+      boardImage.sourceSrc = boardImage.src;
       boardImage.blob = blob;
       boardImage.mime = mime;
       boardImage.sourceName = saved.sourceFile;
@@ -2889,6 +2952,7 @@
       const optimized = await readOptimizedImage(file);
       pushUndo();
       boardImage.src = optimized.src;
+      boardImage.sourceSrc = optimized.sourceSrc;
       boardImage.width = optimized.width;
       boardImage.height = optimized.height;
       boardImage.scale = 100;
@@ -2897,8 +2961,8 @@
       boardImage.y = 0;
       boardImage.export = true;
       boardImage.fit = "cover";
-      boardImage.blob = dataUrlToBlob(optimized.src);
-      boardImage.mime = boardImage.blob.type || "image/png";
+      boardImage.blob = dataUrlToBlob(optimized.sourceSrc || optimized.src);
+      boardImage.mime = file.type || boardImage.blob.type || "image/png";
       boardImage.sourceName = boardImageFilename();
       syncBoardPanel();
       boardImageInput.value = "";
@@ -2907,6 +2971,7 @@
     document.getElementById("removeBoardImageButton").addEventListener("click", () => {
       pushUndo();
       boardImage.src = "";
+      boardImage.sourceSrc = "";
       boardImage.width = 0;
       boardImage.height = 0;
       boardImage.blob = null;
@@ -2979,6 +3044,13 @@
       restoreUndoSnapshot(snapshot);
       suppressUndo = false;
     });
+    exportPreviewToggle.addEventListener("change", () => {
+      exportPreviewMode = exportPreviewToggle.checked;
+      renderKeyboard();
+    });
+    exportScale.addEventListener("change", () => {
+      if (exportPreviewMode) renderKeyboard();
+    });
     changelogButton.addEventListener("click", () => {
       changelogPanel.classList.add("open");
       changelogPanel.setAttribute("aria-hidden", "false");
@@ -3000,7 +3072,7 @@
       try {
         const files = [{ name: "keycap-settings.txt", blob: settingsBlob() }];
         if (boardImage.src) {
-          const blob = boardImage.blob || dataUrlToBlob(boardImage.src);
+          const blob = boardImage.blob || dataUrlToBlob(boardImage.sourceSrc || boardImage.src);
           files.push({ name: boardImageFilename(), blob });
         }
         for (const key of currentLayoutData().keys) {
