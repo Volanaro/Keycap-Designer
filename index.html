@@ -208,7 +208,7 @@
       width: calc(var(--w) * var(--unit) - 6px);
       height: calc(var(--h) * var(--unit) - 6px);
       border: 1px solid var(--key-edge);
-      border-radius: 8px;
+      border-radius: 13px;
       background: var(--key);
       box-shadow: 0 8px 18px var(--shadow), inset 0 -5px 0 rgba(23, 32, 42, 0.08);
       cursor: pointer;
@@ -363,7 +363,8 @@
       position: absolute;
       inset: 0;
       overflow: hidden;
-      border-radius: 8px;
+      border-radius: var(--image-radius, 13px);
+      clip-path: inset(var(--image-mask-inset, 0%) round var(--image-radius, 13px));
       pointer-events: none;
       z-index: 2;
     }
@@ -382,7 +383,8 @@
       position: absolute;
       inset: 0;
       overflow: hidden;
-      border-radius: 8px;
+      border-radius: var(--image-radius, 13px);
+      clip-path: inset(var(--image-mask-inset, 0%) round var(--image-radius, 13px));
       pointer-events: none;
       opacity: var(--board-opacity, 1);
       z-index: 1;
@@ -934,6 +936,14 @@
               <option value="stretch">Stretch</option>
             </select>
           </div>
+          <div class="field">
+            <label for="keyRadius">Corner radius</label>
+            <input id="keyRadius" type="range" min="0" max="100" value="48">
+          </div>
+          <div class="field">
+            <label for="imageMaskScale">Corner scale</label>
+            <input id="imageMaskScale" type="range" min="10" max="100" value="100">
+          </div>
         </div>
 
         <div class="section">
@@ -1053,6 +1063,10 @@
               <li>Improved Export Preview sharpness with higher-resolution rendering and high-quality canvas image smoothing.</li>
               <li>Board images now keep the original upload for Export Preview and PNG/ZIP output while using the smaller copy for the normal live editor.</li>
               <li>Live preview labels now shrink to fit single words instead of splitting labels like Pause and Delete across lines.</li>
+              <li>Increased the artwork corner radius in live preview and PNG export so printed key images have rounder corners.</li>
+              <li>Moved the Corner radius slider into the Image section and made it round only the printed artwork/image area, not the visible key body.</li>
+              <li>Changed Corner radius to a 0-100 scale so printer tuning is proportional to each key face.</li>
+              <li>Added a separate Corner scale slider for resizing the rounded artwork mask without changing the image scale.</li>
             </ul>
           </section>
           <section>
@@ -1315,6 +1329,8 @@
     const pageBackground = document.getElementById("pageBackground");
     const exportScale = document.getElementById("exportScale");
     const outlineExport = document.getElementById("outlineExport");
+    const keyRadius = document.getElementById("keyRadius");
+    const imageMaskScale = document.getElementById("imageMaskScale");
     const swatches = document.getElementById("swatches");
     const spaceVariant = document.getElementById("spaceVariant");
     const formFactor = document.getElementById("formFactor");
@@ -1347,6 +1363,8 @@
     let suppressUndo = false;
     const boardImage = { src: "", sourceSrc: "", width: 0, height: 0, scale: 100, opacity: 100, x: 0, y: 0, export: true, fit: "cover", blob: null, mime: "", sourceName: "" };
     let htmlBackground = "#f4f6f8";
+    let keyCornerRadius = 48;
+    let keyCornerScale = 100;
     const imageCache = new Map();
     const rangeNumberMap = new Map();
 
@@ -1401,7 +1419,7 @@
     }
 
     function setupRangeNumbers() {
-      [textScale, textX, textY, textGap, textOpacity, textCutoutOpacity, imageScale, imageOpacity, imageX, imageY, boardImageScale, boardImageOpacity, boardImageX, boardImageY].forEach(setupRangeNumber);
+      [textScale, textX, textY, textGap, textOpacity, textCutoutOpacity, imageScale, imageOpacity, imageX, imageY, boardImageScale, boardImageOpacity, boardImageX, boardImageY, keyRadius, imageMaskScale].forEach(setupRangeNumber);
     }
 
     function syncRangeNumbers() {
@@ -1427,6 +1445,20 @@
       document.documentElement.style.setProperty("--bg", htmlBackground);
     }
 
+    function setKeyCornerRadius(value) {
+      keyCornerRadius = Math.max(0, Math.min(100, Number(value) || 0));
+      keyRadius.value = keyCornerRadius;
+      document.documentElement.style.setProperty("--image-radius", `${keyCornerRadius}%`);
+      syncRangeNumbers();
+    }
+
+    function setKeyCornerScale(value) {
+      keyCornerScale = Math.max(10, Math.min(100, Number(value) || 100));
+      imageMaskScale.value = keyCornerScale;
+      document.documentElement.style.setProperty("--image-mask-inset", `${(100 - keyCornerScale) / 2}%`);
+      syncRangeNumbers();
+    }
+
     function clonePlain(value) {
       return typeof structuredClone === "function" ? structuredClone(value) : JSON.parse(JSON.stringify(value));
     }
@@ -1440,6 +1472,8 @@
         editAllKeys,
         editLayoutMode,
         htmlBackground,
+        keyCornerRadius,
+        keyCornerScale,
         persistentState: clonePlain(persistentState),
         boardImage: clonePlain(boardImage),
         customLayout: customLayout ? cloneLayout(customLayout) : null,
@@ -1477,6 +1511,8 @@
       selectAllKeys.checked = editAllKeys;
       document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === currentLayout));
       setHtmlBackground(snapshot.htmlBackground || "#f4f6f8");
+      setKeyCornerRadius(snapshot.keyCornerRadius ?? 48);
+      setKeyCornerScale(snapshot.keyCornerScale ?? 100);
       syncBoardPanel();
       syncPanel();
       renderKeyboard();
@@ -2283,15 +2319,17 @@
       ctx.closePath();
     }
 
-    function keyPath(ctx, keyName, x, y, width, height) {
+    function keyPath(ctx, keyName, x, y, width, height, radius = 48) {
+      const radiusPercent = Math.max(0, Math.min(100, radius));
+      const cornerRadius = Math.min(width / 2, height / 2) * (radiusPercent / 100);
       if (keyName !== "ISOEnter") {
-        roundedRect(ctx, x, y, width, height, 8);
+        roundedRect(ctx, x, y, width, height, cornerRadius);
         return;
       }
 
       const notchX = x + width * 0.1667;
       const notchY = y + height * 0.5;
-      const r = Math.min(8, width / 8, height / 8);
+      const r = Math.min(cornerRadius, width / 6, height / 6);
       ctx.beginPath();
       ctx.moveTo(x + r, y);
       ctx.lineTo(x + width - r, y);
@@ -2307,6 +2345,18 @@
       ctx.lineTo(x, y + r);
       ctx.quadraticCurveTo(x, y, x + r, y);
       ctx.closePath();
+    }
+
+    function artworkClipBox(width, height) {
+      const scale = Math.max(10, Math.min(100, keyCornerScale)) / 100;
+      const insetX = (width * (1 - scale)) / 2;
+      const insetY = (height * (1 - scale)) / 2;
+      return {
+        x: insetX,
+        y: insetY,
+        width: Math.max(1, width - insetX * 2),
+        height: Math.max(1, height - insetY * 2)
+      };
     }
 
     function wrapLines(ctx, text, maxWidth) {
@@ -2342,19 +2392,20 @@
       ctx.scale(scale, scale);
 
       if (data.capBackground === "color") {
-        keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1);
+        keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1, 48);
         ctx.fillStyle = data.capColor;
         ctx.fill();
       }
 
       if (outlineExport.value === "stroke") {
-        keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1);
+        keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1, 48);
         ctx.strokeStyle = "#9aa5b1";
         ctx.lineWidth = 1;
         ctx.stroke();
       }
 
-      keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1);
+      const clipBox = artworkClipBox(width / scale - 1, height / scale - 1);
+      keyPath(ctx, name, 0.5 + clipBox.x, 0.5 + clipBox.y, clipBox.width, clipBox.height, keyCornerRadius);
       ctx.save();
       ctx.clip();
 
@@ -2462,6 +2513,8 @@
         customLayout,
         customDefaultLayout,
         htmlBackground,
+        keyCornerRadius,
+        keyCornerScale,
         boardImage: boardImage.src ? {
           sourceFile: boardImageFilename(),
           width: boardImage.width,
@@ -2714,6 +2767,8 @@
             spaceVariant.value = currentSpace;
             document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === currentLayout));
             setHtmlBackground(importedSettings.htmlBackground || htmlBackground);
+            setKeyCornerRadius(importedSettings.keyCornerRadius ?? keyCornerRadius);
+            setKeyCornerScale(importedSettings.keyCornerScale ?? keyCornerScale);
             restoreBoardImageFromSettings(entries, importedSettings);
           }
           let imported = 0;
@@ -2911,6 +2966,16 @@
     pageBackground.addEventListener("input", () => {
       pushUndo();
       setHtmlBackground(pageBackground.value);
+    });
+    keyRadius.addEventListener("input", () => {
+      pushUndo();
+      setKeyCornerRadius(keyRadius.value);
+      renderKeyboard();
+    });
+    imageMaskScale.addEventListener("input", () => {
+      pushUndo();
+      setKeyCornerScale(imageMaskScale.value);
+      renderKeyboard();
     });
 
     document.getElementById("pickImageButton").addEventListener("click", () => imageInput.click());
@@ -3206,6 +3271,8 @@
     setupRangeNumbers();
     fillFontSelect();
     setHtmlBackground(htmlBackground);
+    setKeyCornerRadius(keyCornerRadius);
+    setKeyCornerScale(keyCornerScale);
     selectedId = keyId(layoutKey(), firstKey());
     colors.forEach((color) => {
       const button = document.createElement("button");
