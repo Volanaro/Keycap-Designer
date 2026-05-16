@@ -92,6 +92,63 @@
       justify-content: center;
     }
 
+    .profile-preview {
+      position: sticky;
+      left: 0;
+      top: 0;
+      z-index: 5;
+      pointer-events: none;
+      display: none;
+      width: 96px;
+      height: 96px;
+      margin: 0 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 8px 18px var(--shadow);
+    }
+
+    .profile-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .profile-image-preview {
+      width: 120px;
+      height: 120px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+
+    .profile-image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .settings-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 8px;
+      align-items: end;
+      font-size: 13px;
+    }
+
+    .profile-grid input {
+      min-width: 0;
+    }
+
     .layout-tabs {
       display: flex;
       border: 1px solid var(--line);
@@ -361,10 +418,13 @@
 
     .legend {
       position: absolute;
-      inset: 0;
+      left: 50%;
+      top: 50%;
+      width: var(--artwork-w, 100%);
+      height: var(--artwork-h, 100%);
+      transform: translate(-50%, -50%);
       overflow: hidden;
       border-radius: var(--image-radius, 13px);
-      clip-path: inset(var(--image-mask-inset, 0%) round var(--image-radius, 13px));
       pointer-events: none;
       z-index: 2;
     }
@@ -381,10 +441,13 @@
 
     .board-slice {
       position: absolute;
-      inset: 0;
+      left: 50%;
+      top: 50%;
+      width: var(--artwork-w, 100%);
+      height: var(--artwork-h, 100%);
+      transform: translate(-50%, -50%);
       overflow: hidden;
       border-radius: var(--image-radius, 13px);
-      clip-path: inset(var(--image-mask-inset, 0%) round var(--image-radius, 13px));
       pointer-events: none;
       opacity: var(--board-opacity, 1);
       z-index: 1;
@@ -771,6 +834,12 @@
         <button class="button" id="addKeyButton" type="button" title="Add key in custom layout">Add Key</button>
         <button class="button danger" id="removeKeyButton" type="button" title="Remove selected custom key">Remove Key</button>
         <button class="button" id="resetCustomButton" type="button" title="Reset custom layout to its default shape">Reset Custom</button>
+        <button class="button" id="printerSettingsButton" type="button" title="Printer keycap profile settings">Settings</button>
+        <select id="mainPrinterProfile" title="Printer profile">
+          <option value="keycap1">Keycap 1</option>
+          <option value="keycap2">Keycap 2</option>
+          <option value="keycap3">Keycap 3</option>
+        </select>
         <button class="button" id="fitButton" type="button" title="Fit view">[]</button>
         <label class="check-row" title="Show the exact exported key render in the preview">
           <span>Export Preview</span>
@@ -787,6 +856,9 @@
 
     <main class="workspace">
       <section class="stage-wrap" id="stageWrap">
+        <div class="profile-preview" id="mainProfilePreview" aria-hidden="true">
+          <img id="mainProfileImage" alt="">
+        </div>
         <div class="keyboard-stage">
           <div class="keyboard" id="keyboard" aria-label="Keyboard keycaps"></div>
         </div>
@@ -940,10 +1012,6 @@
             <label for="keyRadius">Corner radius</label>
             <input id="keyRadius" type="range" min="0" max="100" value="48">
           </div>
-          <div class="field">
-            <label for="imageMaskScale">Corner scale</label>
-            <input id="imageMaskScale" type="range" min="10" max="100" value="100">
-          </div>
         </div>
 
         <div class="section">
@@ -1053,6 +1121,7 @@
           <section>
             <h3>Current Version</h3>
             <ul>
+              <li>Fixed the printer profile reference image so it no longer blocks key selection, per-key image uploads, or drag-and-drop images.</li>
               <li>Added Undo for recent edits, layout changes, imports, clears, images, and custom layout moves.</li>
               <li>Added larger PNG export scales up to 12x.</li>
               <li>ZIP exports now preserve raw per-key source images for better reload quality.</li>
@@ -1066,7 +1135,12 @@
               <li>Increased the artwork corner radius in live preview and PNG export so printed key images have rounder corners.</li>
               <li>Moved the Corner radius slider into the Image section and made it round only the printed artwork/image area, not the visible key body.</li>
               <li>Changed Corner radius to a 0-100 scale so printer tuning is proportional to each key face.</li>
-              <li>Added a separate Corner scale slider for resizing the rounded artwork mask without changing the image scale.</li>
+              <li>Added locked Printer Settings with three local keycap profiles for mm face sizes and DPI-based export sizing.</li>
+              <li>Removed the extra Corner scale control because printer profiles now define the artwork face area directly.</li>
+              <li>Printer Settings now re-lock every time they open, and text fitting follows the same printer profile face area as images.</li>
+              <li>Printer Settings now require the password before the settings window opens.</li>
+              <li>Added main-page printer profile selection, per-profile reference images, and hashed password checking for Printer Settings.</li>
+              <li>Added session unlock for Printer Settings and a Download HTML with Profiles button for baking hosted profile settings into the HTML file.</li>
             </ul>
           </section>
           <section>
@@ -1096,6 +1170,63 @@
         </div>
       </div>
     </div>
+
+    <div class="changelog-panel" id="printerSettingsPanel" aria-hidden="true">
+      <div class="changelog-dialog" role="dialog" aria-modal="true" aria-labelledby="printerSettingsTitle">
+        <div class="changelog-head">
+          <h2 id="printerSettingsTitle">Printer Settings</h2>
+          <button class="button" id="closePrinterSettingsButton" type="button">Close</button>
+        </div>
+        <div class="section" id="printerSettingsLock">
+          <h3>Locked</h3>
+          <div class="field">
+            <label for="printerSettingsPassword">Password</label>
+            <input id="printerSettingsPassword" type="password" placeholder="Enter password">
+          </div>
+          <div class="row">
+            <button class="button primary" id="unlockPrinterSettingsButton" type="button">Unlock</button>
+          </div>
+        </div>
+        <div class="settings-grid" id="printerSettingsContent" hidden>
+          <div class="inline">
+            <div class="field">
+              <label for="activePrinterProfile">Active profile</label>
+              <select id="activePrinterProfile">
+                <option value="keycap1">Keycap 1</option>
+                <option value="keycap2">Keycap 2</option>
+                <option value="keycap3">Keycap 3</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="printerDpi">DPI</label>
+              <input id="printerDpi" type="number" min="72" max="2400" value="600">
+            </div>
+          </div>
+          <div class="field">
+            <label for="printerProfileName">Profile name</label>
+            <input id="printerProfileName" type="text" value="Keycap 1">
+          </div>
+          <div class="field">
+            <label>Profile image</label>
+            <input class="hidden-file" id="profileImageInput" type="file" accept="image/*">
+            <div class="row">
+              <button class="button" id="pickProfileImageButton" type="button">Upload Image</button>
+              <button class="button danger" id="removeProfileImageButton" type="button">Delete Image</button>
+            </div>
+            <div class="profile-image-preview" id="profileImagePreview" hidden>
+              <img id="profileImagePreviewImg" alt="">
+            </div>
+          </div>
+          <div class="profile-grid" id="profileSizeGrid"></div>
+          <div class="row">
+            <button class="button primary" id="savePrinterProfileButton" type="button">Save and Apply</button>
+            <button class="button" id="resetPrinterProfileButton" type="button">Reset Profile</button>
+            <button class="button" id="downloadProfileHtmlButton" type="button">Download HTML with Profiles</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script id="defaultPrinterProfiles" type="application/json"></script>
   </div>
 
   <script>
@@ -1330,7 +1461,6 @@
     const exportScale = document.getElementById("exportScale");
     const outlineExport = document.getElementById("outlineExport");
     const keyRadius = document.getElementById("keyRadius");
-    const imageMaskScale = document.getElementById("imageMaskScale");
     const swatches = document.getElementById("swatches");
     const spaceVariant = document.getElementById("spaceVariant");
     const formFactor = document.getElementById("formFactor");
@@ -1340,6 +1470,28 @@
     const removeKeyButton = document.getElementById("removeKeyButton");
     const resetCustomButton = document.getElementById("resetCustomButton");
     const undoButton = document.getElementById("undoButton");
+    const mainPrinterProfile = document.getElementById("mainPrinterProfile");
+    const mainProfilePreview = document.getElementById("mainProfilePreview");
+    const mainProfileImage = document.getElementById("mainProfileImage");
+    const printerSettingsButton = document.getElementById("printerSettingsButton");
+    const printerSettingsPanel = document.getElementById("printerSettingsPanel");
+    const closePrinterSettingsButton = document.getElementById("closePrinterSettingsButton");
+    const printerSettingsLock = document.getElementById("printerSettingsLock");
+    const printerSettingsContent = document.getElementById("printerSettingsContent");
+    const printerSettingsPassword = document.getElementById("printerSettingsPassword");
+    const unlockPrinterSettingsButton = document.getElementById("unlockPrinterSettingsButton");
+    const activePrinterProfile = document.getElementById("activePrinterProfile");
+    const printerDpi = document.getElementById("printerDpi");
+    const printerProfileName = document.getElementById("printerProfileName");
+    const profileImageInput = document.getElementById("profileImageInput");
+    const pickProfileImageButton = document.getElementById("pickProfileImageButton");
+    const removeProfileImageButton = document.getElementById("removeProfileImageButton");
+    const profileImagePreview = document.getElementById("profileImagePreview");
+    const profileImagePreviewImg = document.getElementById("profileImagePreviewImg");
+    const profileSizeGrid = document.getElementById("profileSizeGrid");
+    const savePrinterProfileButton = document.getElementById("savePrinterProfileButton");
+    const resetPrinterProfileButton = document.getElementById("resetPrinterProfileButton");
+    const downloadProfileHtmlButton = document.getElementById("downloadProfileHtmlButton");
     const exportPreviewToggle = document.getElementById("exportPreviewToggle");
     const changelogButton = document.getElementById("changelogButton");
     const changelogPanel = document.getElementById("changelogPanel");
@@ -1364,9 +1516,56 @@
     const boardImage = { src: "", sourceSrc: "", width: 0, height: 0, scale: 100, opacity: 100, x: 0, y: 0, export: true, fit: "cover", blob: null, mime: "", sourceName: "" };
     let htmlBackground = "#f4f6f8";
     let keyCornerRadius = 48;
-    let keyCornerScale = 100;
+    let printerSettingsUnlocked = false;
+    let printerSettingsSessionUnlocked = sessionStorage.getItem("aknes-printer-settings-unlocked") === "1";
     const imageCache = new Map();
     const rangeNumberMap = new Map();
+    const profileStorageKey = "aknes-keycap-printer-profiles-v1";
+    const printerSettingsPasswordHash = "32d761967f1eb4376e07c73067fed23173af02ed66ee8708b60d7adda799bba8";
+    const profileSizeKeys = ["1", "1.25", "1.5", "1.75", "2", "2.25", "2.75", "6.25", "7", "1x2", "1.5x2"];
+    const profileSizeLabels = {
+      "1": "1u",
+      "1.25": "1.25u",
+      "1.5": "1.5u",
+      "1.75": "1.75u",
+      "2": "2u",
+      "2.25": "2.25u",
+      "2.75": "2.75u",
+      "6.25": "6.25u Space",
+      "7": "7u Space",
+      "1x2": "2u vertical",
+      "1.5x2": "ISO Enter"
+    };
+
+    function defaultProfile(name = "Keycap 1") {
+      const baseW = 12.5;
+      const baseH = 14.6;
+      return {
+        name,
+        image: "",
+        dpi: 600,
+        sizes: {
+          "1": { w: baseW, h: baseH },
+          "1.25": { w: 15.6, h: baseH },
+          "1.5": { w: 18.8, h: baseH },
+          "1.75": { w: 21.9, h: baseH },
+          "2": { w: 25, h: baseH },
+          "2.25": { w: 28.1, h: baseH },
+          "2.75": { w: 34.4, h: baseH },
+          "6.25": { w: 78.1, h: baseH },
+          "7": { w: 87.5, h: baseH },
+          "1x2": { w: baseW, h: 29.2 },
+          "1.5x2": { w: 18.8, h: 29.2 }
+        }
+      };
+    }
+
+    let printerProfiles = {
+      active: "keycap1",
+      keycap1: defaultProfile("Keycap 1"),
+      keycap2: defaultProfile("Keycap 2"),
+      keycap3: defaultProfile("Keycap 3")
+    };
 
     function setupRangeNumber(range) {
       const number = document.createElement("input");
@@ -1419,7 +1618,7 @@
     }
 
     function setupRangeNumbers() {
-      [textScale, textX, textY, textGap, textOpacity, textCutoutOpacity, imageScale, imageOpacity, imageX, imageY, boardImageScale, boardImageOpacity, boardImageX, boardImageY, keyRadius, imageMaskScale].forEach(setupRangeNumber);
+      [textScale, textX, textY, textGap, textOpacity, textCutoutOpacity, imageScale, imageOpacity, imageX, imageY, boardImageScale, boardImageOpacity, boardImageX, boardImageY, keyRadius].forEach(setupRangeNumber);
     }
 
     function syncRangeNumbers() {
@@ -1452,11 +1651,200 @@
       syncRangeNumbers();
     }
 
-    function setKeyCornerScale(value) {
-      keyCornerScale = Math.max(10, Math.min(100, Number(value) || 100));
-      imageMaskScale.value = keyCornerScale;
-      document.documentElement.style.setProperty("--image-mask-inset", `${(100 - keyCornerScale) / 2}%`);
-      syncRangeNumbers();
+    function mmToPx(mm, dpi) {
+      return Math.max(1, Math.round((Number(mm) / 25.4) * Number(dpi || 600)));
+    }
+
+    function loadPrinterProfiles() {
+      try {
+        const embedded = document.getElementById("defaultPrinterProfiles")?.textContent.trim();
+        const saved = JSON.parse(localStorage.getItem(profileStorageKey) || embedded || "null");
+        if (saved && saved.keycap1 && saved.keycap2 && saved.keycap3) {
+          printerProfiles = saved;
+        }
+      } catch (error) {
+        // Keep defaults if local storage is unavailable or malformed.
+      }
+    }
+
+    function savePrinterProfiles() {
+      try {
+        localStorage.setItem(profileStorageKey, JSON.stringify(printerProfiles));
+      } catch (error) {
+        // Hosted browsers can block storage; the current session still keeps the values.
+      }
+    }
+
+    function activeProfile() {
+      return printerProfiles[printerProfiles.active] || printerProfiles.keycap1;
+    }
+
+    function syncProfileSelectors() {
+      ["keycap1", "keycap2", "keycap3"].forEach((id) => {
+        const label = printerProfiles[id]?.name || `Keycap ${id.replace("keycap", "")}`;
+        const mainOption = mainPrinterProfile.querySelector(`option[value="${id}"]`);
+        const settingsOption = activePrinterProfile.querySelector(`option[value="${id}"]`);
+        if (mainOption) mainOption.textContent = label;
+        if (settingsOption) settingsOption.textContent = label;
+      });
+      mainPrinterProfile.value = printerProfiles.active;
+      activePrinterProfile.value = printerProfiles.active;
+    }
+
+    function syncMainProfilePreview() {
+      const image = activeProfile().image || "";
+      mainProfilePreview.style.display = image ? "block" : "none";
+      mainProfilePreview.setAttribute("aria-hidden", image ? "false" : "true");
+      mainProfileImage.src = image;
+    }
+
+    function keyProfileSizeId(key) {
+      const [, , , w, h = 1] = key;
+      if (key[0] === "ISOEnter") return "1.5x2";
+      if (h > 1) return `${w}x${h}`;
+      return String(w);
+    }
+
+    function keyPhysicalSize(key) {
+      const profile = activeProfile();
+      const id = keyProfileSizeId(key);
+      return profile.sizes[id] || profile.sizes[String(key[3])] || profile.sizes["1"];
+    }
+
+    function keyArtworkCssSize(key) {
+      const size = keyPhysicalSize(key);
+      const [, , , w, h = 1] = key;
+      const availableW = Math.max(1, w * UNIT - 6);
+      const availableH = Math.max(1, h * UNIT - 6);
+      const physicalW = Math.max(1, Number(size.w) || 12.5);
+      const physicalH = Math.max(1, Number(size.h) || 14.6);
+      const physicalRatio = physicalW / physicalH;
+      const availableRatio = availableW / availableH;
+      let idealW = availableW;
+      let idealH = availableH;
+      if (physicalRatio > availableRatio) {
+        idealH = availableW / physicalRatio;
+      } else {
+        idealW = availableH * physicalRatio;
+      }
+      return {
+        w: Math.max(8, Math.min(availableW, idealW)),
+        h: Math.max(8, Math.min(availableH, idealH))
+      };
+    }
+
+    function keyExportPixelSize(key, fallbackScale) {
+      const profile = activeProfile();
+      const size = keyPhysicalSize(key);
+      const dpi = Number(profile.dpi) || 600;
+      if (!size) {
+        const [, , , w, h = 1] = key;
+        return {
+          width: Math.round((w * UNIT - 6) * fallbackScale),
+          height: Math.round((h * UNIT - 6) * fallbackScale)
+        };
+      }
+      return {
+        width: mmToPx(size.w, dpi),
+        height: mmToPx(size.h, dpi)
+      };
+    }
+
+    function syncPrinterProfileForm() {
+      const id = activePrinterProfile.value || printerProfiles.active;
+      const profile = printerProfiles[id] || defaultProfile(id);
+      printerProfileName.value = profile.name;
+      printerDpi.value = profile.dpi;
+      const image = profile.image || "";
+      profileImagePreview.hidden = !image;
+      profileImagePreviewImg.src = image;
+      profileSizeGrid.querySelectorAll("[data-profile-size]").forEach((input) => {
+        const sizeId = input.dataset.profileSize;
+        const axis = input.dataset.axis;
+        input.value = profile.sizes[sizeId]?.[axis] ?? "";
+      });
+    }
+
+    function buildProfileSizeGrid() {
+      profileSizeGrid.innerHTML = "<strong>Key size</strong><strong>Width mm</strong><strong>Height mm</strong>";
+      profileSizeKeys.forEach((sizeId) => {
+        const label = document.createElement("div");
+        label.textContent = profileSizeLabels[sizeId] || sizeId;
+        const width = document.createElement("input");
+        width.type = "number";
+        width.step = "0.1";
+        width.min = "1";
+        width.dataset.profileSize = sizeId;
+        width.dataset.axis = "w";
+        const height = document.createElement("input");
+        height.type = "number";
+        height.step = "0.1";
+        height.min = "1";
+        height.dataset.profileSize = sizeId;
+        height.dataset.axis = "h";
+        profileSizeGrid.append(label, width, height);
+      });
+      syncPrinterProfileForm();
+    }
+
+    function saveActivePrinterProfileFromForm() {
+      const id = activePrinterProfile.value;
+      const profile = printerProfiles[id] || defaultProfile(id);
+      profile.name = printerProfileName.value.trim() || profile.name;
+      profile.dpi = Math.max(72, Math.min(2400, Number(printerDpi.value) || 600));
+      profile.sizes = profile.sizes || {};
+      profileSizeGrid.querySelectorAll("[data-profile-size]").forEach((input) => {
+        const sizeId = input.dataset.profileSize;
+        const axis = input.dataset.axis;
+        profile.sizes[sizeId] = profile.sizes[sizeId] || { w: 12.5, h: 14.6 };
+        profile.sizes[sizeId][axis] = Math.max(1, Number(input.value) || profile.sizes[sizeId][axis]);
+      });
+      printerProfiles[id] = profile;
+      printerProfiles.active = id;
+      savePrinterProfiles();
+      syncProfileSelectors();
+      syncMainProfilePreview();
+      renderKeyboard();
+    }
+
+    async function sha256(text) {
+      const bytes = new TextEncoder().encode(text);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function verifyPrinterSettingsPassword(password) {
+      if (!password || !crypto?.subtle) return false;
+      return await sha256(password) === printerSettingsPasswordHash;
+    }
+
+    function downloadHtmlWithProfiles() {
+      savePrinterProfiles();
+      const clone = document.documentElement.cloneNode(true);
+      let profileScript = clone.querySelector("#defaultPrinterProfiles");
+      if (!profileScript) {
+        profileScript = clone.ownerDocument.createElement("script");
+        profileScript.id = "defaultPrinterProfiles";
+        profileScript.type = "application/json";
+        clone.querySelector(".app")?.appendChild(profileScript);
+      }
+      profileScript.textContent = JSON.stringify(printerProfiles).replace(/</g, "\\u003c");
+      clone.querySelectorAll("input[type=\"file\"]").forEach((input) => {
+        input.value = "";
+      });
+      const html = `<!doctype html>\n${clone.outerHTML}`;
+      downloadBlob(new Blob([html], { type: "text/html" }), "keycap-designer-with-profiles.html");
+    }
+
+    function openPrinterSettingsPanel() {
+      printerSettingsPanel.classList.add("open");
+      printerSettingsPanel.setAttribute("aria-hidden", "false");
+      printerSettingsUnlocked = true;
+      printerSettingsLock.hidden = true;
+      printerSettingsContent.hidden = false;
+      printerSettingsPassword.value = "";
+      activePrinterProfile.value = printerProfiles.active;
+      syncPrinterProfileForm();
     }
 
     function clonePlain(value) {
@@ -1473,7 +1861,6 @@
         editLayoutMode,
         htmlBackground,
         keyCornerRadius,
-        keyCornerScale,
         persistentState: clonePlain(persistentState),
         boardImage: clonePlain(boardImage),
         customLayout: customLayout ? cloneLayout(customLayout) : null,
@@ -1512,7 +1899,6 @@
       document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === currentLayout));
       setHtmlBackground(snapshot.htmlBackground || "#f4f6f8");
       setKeyCornerRadius(snapshot.keyCornerRadius ?? 48);
-      setKeyCornerScale(snapshot.keyCornerScale ?? 100);
       syncBoardPanel();
       syncPanel();
       renderKeyboard();
@@ -1915,6 +2301,9 @@
         el.style.setProperty("--cap-color", data.capColor);
         el.style.setProperty("--text-opacity", (data.textOpacity ?? 100) / 100);
         el.style.setProperty("--cutout-opacity", (data.textCutoutOpacity ?? 100) / 100);
+        const artworkSize = keyArtworkCssSize(key);
+        el.style.setProperty("--artwork-w", `${artworkSize.w}px`);
+        el.style.setProperty("--artwork-h", `${artworkSize.h}px`);
         if (data.capBackground === "color") el.style.background = data.capColor;
         applyBoardSlice(el, key);
         el.setAttribute("aria-label", keyLabel(name));
@@ -1936,7 +2325,7 @@
         textEl.style.color = data.textColor;
         textEl.style.fontFamily = data.fontFamily;
         textEl.style.fontWeight = data.fontWeight;
-        textEl.style.fontSize = `${autoFontSize(displayText, w, h, data.textScale, data.autoText, data.textGap)}px`;
+        textEl.style.fontSize = `${autoFontSizeForBox(displayText, artworkSize.w - 6, artworkSize.h - 6, data.textScale, data.autoText, data.textGap)}px`;
         textEl.style.lineHeight = `${1.06 + ((data.textGap || 0) / 100)}`;
         textEl.style.textAlign = data.textAlign;
         textEl.style.justifyItems = data.textAlign === "left" ? "start" : data.textAlign === "right" ? "end" : "center";
@@ -1947,8 +2336,9 @@
         if (legendImg) {
           const placeLegendImage = () => {
             const fit = data.imageFit || (data.imageContain ? "contain" : "cover");
-            const fullW = Math.max(1, w * UNIT - 6);
-            const fullH = Math.max(1, h * UNIT - 6);
+            const artSize = keyArtworkCssSize(key);
+            const fullW = Math.max(1, artSize.w);
+            const fullH = Math.max(1, artSize.h);
             const containW = Math.max(1, fullW - 12);
             const containH = Math.max(1, fullH - 12);
             const imageBoxW = fit === "contain" ? containW : fullW;
@@ -2036,12 +2426,15 @@
     }
 
     function positionBoardImage(img, key) {
-      const [, x, y] = key;
+      const [, x, y, w, h = 1] = key;
       const rect = boardImageRect();
+      const artSize = keyArtworkCssSize(key);
+      const insetX = (Math.max(1, w * UNIT - 6) - artSize.w) / 2;
+      const insetY = (Math.max(1, h * UNIT - 6) - artSize.h) / 2;
       img.style.width = `${rect.bgW}px`;
       img.style.height = `${rect.bgH}px`;
-      img.style.left = `${rect.offsetX - x * UNIT}px`;
-      img.style.top = `${rect.offsetY - y * UNIT}px`;
+      img.style.left = `${rect.offsetX - x * UNIT - insetX}px`;
+      img.style.top = `${rect.offsetY - y * UNIT - insetY}px`;
       img.style.opacity = boardImage.opacity / 100;
     }
 
@@ -2063,12 +2456,16 @@
     }
 
     function autoFontSize(text, w, h, scale, auto, gap = 0) {
+      return autoFontSizeForBox(text, w * UNIT - 18, h * UNIT - 18, scale, auto, gap);
+    }
+
+    function autoFontSizeForBox(text, capW, capH, scale, auto, gap = 0) {
       const lines = String(text || "").split("\n");
       const longest = lines.reduce((max, line) => Math.max(max, line.length), 1);
-      const capW = w * UNIT - 18;
-      const capH = h * UNIT - 18;
+      const safeW = Math.max(1, capW);
+      const safeH = Math.max(1, capH);
       const lineUnits = Math.max(1, 1 + (lines.length - 1) * (1 + (gap / 100)));
-      const base = auto ? Math.min(capH / lineUnits, capW / (longest * 0.62)) : 20;
+      const base = auto ? Math.min(safeH / lineUnits, safeW / (longest * 0.62)) : 20;
       return Math.max(7, Math.min(42, base * (scale / 100)));
     }
 
@@ -2347,18 +2744,6 @@
       ctx.closePath();
     }
 
-    function artworkClipBox(width, height) {
-      const scale = Math.max(10, Math.min(100, keyCornerScale)) / 100;
-      const insetX = (width * (1 - scale)) / 2;
-      const insetY = (height * (1 - scale)) / 2;
-      return {
-        x: insetX,
-        y: insetY,
-        width: Math.max(1, width - insetX * 2),
-        height: Math.max(1, height - insetY * 2)
-      };
-    }
-
     function wrapLines(ctx, text, maxWidth) {
       const sourceLines = String(text || "").split("\n");
       const lines = [];
@@ -2381,36 +2766,38 @@
 
     async function drawKeyToCanvas(key, data, scale) {
       const [name, keyX, keyY, w, h = 1] = key;
-      const width = Math.round((w * UNIT - 6) * scale);
-      const height = Math.round((h * UNIT - 6) * scale);
+      const virtualW = Math.max(1, w * UNIT - 6);
+      const virtualH = Math.max(1, h * UNIT - 6);
+      const exportSize = keyExportPixelSize(key, scale);
+      const width = exportSize.width;
+      const height = exportSize.height;
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
-      ctx.scale(scale, scale);
+      ctx.scale(width / virtualW, height / virtualH);
 
       if (data.capBackground === "color") {
-        keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1, 48);
+        keyPath(ctx, name, 0.5, 0.5, virtualW - 1, virtualH - 1, 48);
         ctx.fillStyle = data.capColor;
         ctx.fill();
       }
 
       if (outlineExport.value === "stroke") {
-        keyPath(ctx, name, 0.5, 0.5, width / scale - 1, height / scale - 1, 48);
+        keyPath(ctx, name, 0.5, 0.5, virtualW - 1, virtualH - 1, 48);
         ctx.strokeStyle = "#9aa5b1";
         ctx.lineWidth = 1;
         ctx.stroke();
       }
 
-      const clipBox = artworkClipBox(width / scale - 1, height / scale - 1);
-      keyPath(ctx, name, 0.5 + clipBox.x, 0.5 + clipBox.y, clipBox.width, clipBox.height, keyCornerRadius);
+      keyPath(ctx, name, 0.5, 0.5, virtualW - 1, virtualH - 1, keyCornerRadius);
       ctx.save();
       ctx.clip();
 
-      const faceW = width / scale;
-      const faceH = height / scale;
+      const faceW = virtualW;
+      const faceH = virtualH;
 
       if (boardImage.src && boardImage.export) {
         const img = await loadImage(boardImage.sourceSrc || boardImage.src);
@@ -2451,7 +2838,7 @@
 
       const exportText = data.text || (data.textCutout ? keyLabel(name) : "");
       if (exportText && (data.textVisible !== false || data.textCutout)) {
-        const fontSize = autoFontSize(exportText, w, h, data.textScale, data.autoText, data.textGap);
+        const fontSize = autoFontSizeForBox(exportText, faceW - 18, faceH - 18, data.textScale, data.autoText, data.textGap);
         const cutAmount = data.textCutout ? ((data.textCutoutOpacity ?? 100) / 100) : 0;
         ctx.globalCompositeOperation = cutAmount > 0 ? "destination-out" : "source-over";
         ctx.fillStyle = cutAmount > 0 ? "#000000" : data.textColor;
@@ -2459,7 +2846,7 @@
         ctx.textAlign = data.textAlign || "center";
         ctx.textBaseline = "middle";
         ctx.font = `${data.fontWeight} ${fontSize}px ${data.fontFamily}`;
-        const textBox = { left: 9, right: width / scale - 9, top: 9, bottom: height / scale - 9 };
+        const textBox = { left: 9, right: virtualW - 9, top: 9, bottom: virtualH - 9 };
         const lines = wrapLines(ctx, exportText, textBox.right - textBox.left);
         const lineHeight = fontSize * (1.06 + ((data.textGap || 0) / 100));
         const total = (lines.length - 1) * lineHeight;
@@ -2514,7 +2901,6 @@
         customDefaultLayout,
         htmlBackground,
         keyCornerRadius,
-        keyCornerScale,
         boardImage: boardImage.src ? {
           sourceFile: boardImageFilename(),
           width: boardImage.width,
@@ -2768,7 +3154,6 @@
             document.querySelectorAll("[data-layout]").forEach((tab) => tab.classList.toggle("active", tab.dataset.layout === currentLayout));
             setHtmlBackground(importedSettings.htmlBackground || htmlBackground);
             setKeyCornerRadius(importedSettings.keyCornerRadius ?? keyCornerRadius);
-            setKeyCornerScale(importedSettings.keyCornerScale ?? keyCornerScale);
             restoreBoardImageFromSettings(entries, importedSettings);
           }
           let imported = 0;
@@ -2972,12 +3357,6 @@
       setKeyCornerRadius(keyRadius.value);
       renderKeyboard();
     });
-    imageMaskScale.addEventListener("input", () => {
-      pushUndo();
-      setKeyCornerScale(imageMaskScale.value);
-      renderKeyboard();
-    });
-
     document.getElementById("pickImageButton").addEventListener("click", () => imageInput.click());
     imageInput.addEventListener("change", async () => {
       const file = imageInput.files[0];
@@ -3115,6 +3494,90 @@
     });
     exportScale.addEventListener("change", () => {
       if (exportPreviewMode) renderKeyboard();
+    });
+    mainPrinterProfile.addEventListener("change", () => {
+      printerProfiles.active = mainPrinterProfile.value;
+      savePrinterProfiles();
+      syncProfileSelectors();
+      syncMainProfilePreview();
+      renderKeyboard();
+    });
+    printerSettingsButton.addEventListener("click", async () => {
+      if (printerSettingsSessionUnlocked) {
+        openPrinterSettingsPanel();
+        return;
+      }
+      const password = window.prompt("Enter printer settings password");
+      if (!(await verifyPrinterSettingsPassword(password))) return;
+      printerSettingsSessionUnlocked = true;
+      sessionStorage.setItem("aknes-printer-settings-unlocked", "1");
+      openPrinterSettingsPanel();
+    });
+    closePrinterSettingsButton.addEventListener("click", () => {
+      printerSettingsPanel.classList.remove("open");
+      printerSettingsPanel.setAttribute("aria-hidden", "true");
+    });
+    printerSettingsPanel.addEventListener("click", (event) => {
+      if (event.target !== printerSettingsPanel) return;
+      printerSettingsPanel.classList.remove("open");
+      printerSettingsPanel.setAttribute("aria-hidden", "true");
+    });
+    unlockPrinterSettingsButton.addEventListener("click", async () => {
+      if (!(await verifyPrinterSettingsPassword(printerSettingsPassword.value))) {
+        printerSettingsPassword.select();
+        return;
+      }
+      printerSettingsSessionUnlocked = true;
+      sessionStorage.setItem("aknes-printer-settings-unlocked", "1");
+      printerSettingsUnlocked = true;
+      printerSettingsLock.hidden = true;
+      printerSettingsContent.hidden = false;
+      syncPrinterProfileForm();
+    });
+    printerSettingsPassword.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") unlockPrinterSettingsButton.click();
+    });
+    activePrinterProfile.addEventListener("change", () => {
+      printerProfiles.active = activePrinterProfile.value;
+      syncProfileSelectors();
+      syncMainProfilePreview();
+      syncPrinterProfileForm();
+      renderKeyboard();
+    });
+    pickProfileImageButton.addEventListener("click", () => profileImageInput.click());
+    profileImageInput.addEventListener("change", async () => {
+      const file = profileImageInput.files[0];
+      if (!file || !file.type.startsWith("image/")) return;
+      const id = activePrinterProfile.value;
+      const profile = printerProfiles[id] || defaultProfile(id);
+      profile.image = await readImage(file);
+      printerProfiles[id] = profile;
+      savePrinterProfiles();
+      syncPrinterProfileForm();
+      syncMainProfilePreview();
+      profileImageInput.value = "";
+    });
+    removeProfileImageButton.addEventListener("click", () => {
+      const id = activePrinterProfile.value;
+      const profile = printerProfiles[id] || defaultProfile(id);
+      profile.image = "";
+      printerProfiles[id] = profile;
+      savePrinterProfiles();
+      syncPrinterProfileForm();
+      syncMainProfilePreview();
+    });
+    savePrinterProfileButton.addEventListener("click", () => {
+      saveActivePrinterProfileFromForm();
+    });
+    downloadProfileHtmlButton.addEventListener("click", downloadHtmlWithProfiles);
+    resetPrinterProfileButton.addEventListener("click", () => {
+      const id = activePrinterProfile.value;
+      printerProfiles[id] = defaultProfile(`Keycap ${id.replace("keycap", "")}`);
+      savePrinterProfiles();
+      syncProfileSelectors();
+      syncMainProfilePreview();
+      syncPrinterProfileForm();
+      renderKeyboard();
     });
     changelogButton.addEventListener("click", () => {
       changelogPanel.classList.add("open");
@@ -3269,10 +3732,13 @@
     });
 
     setupRangeNumbers();
+    loadPrinterProfiles();
+    syncProfileSelectors();
+    syncMainProfilePreview();
+    buildProfileSizeGrid();
     fillFontSelect();
     setHtmlBackground(htmlBackground);
     setKeyCornerRadius(keyCornerRadius);
-    setKeyCornerScale(keyCornerScale);
     selectedId = keyId(layoutKey(), firstKey());
     colors.forEach((color) => {
       const button = document.createElement("button");
