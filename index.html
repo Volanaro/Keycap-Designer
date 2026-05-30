@@ -21,6 +21,7 @@
       --key-edge: #b7c5d3;
       --shadow: rgba(16, 32, 51, 0.12);
       --unit: 54px;
+      --topbar-height: 170px;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
@@ -45,7 +46,7 @@
 
     .app {
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: auto minmax(0, 1fr);
       min-height: 100vh;
     }
 
@@ -165,6 +166,11 @@
 
     .top-controls-body {
       padding: 0 16px 16px;
+    }
+
+    .persistent-toolbar {
+      display: flex;
+      justify-content: center;
     }
 
     .toolbar-cluster {
@@ -333,15 +339,17 @@
       grid-template-columns: minmax(0, 1fr) 360px;
       gap: 18px;
       padding: 18px;
-      height: calc(100vh - 129px);
+      height: calc(100vh - var(--topbar-height));
       min-height: 0;
       overflow: hidden;
+      align-items: start;
     }
 
     .stage-wrap {
       min-width: 0;
       min-height: 0;
-      overflow: auto;
+      max-height: calc(100vh - var(--topbar-height) - 36px);
+      overflow: hidden;
       padding: 26px;
       border: 1px solid var(--line);
       border-radius: 22px;
@@ -565,6 +573,14 @@
       z-index: 2;
     }
 
+    .legend-image-box {
+      position: absolute;
+      left: 0;
+      top: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
     .legend img {
       position: absolute;
       left: 0;
@@ -641,7 +657,7 @@
     .side {
       overflow: auto;
       min-height: 0;
-      max-height: calc(100vh - 129px);
+      max-height: calc(100vh - var(--topbar-height) - 36px);
       border: 1px solid var(--line);
       border-radius: 22px;
       background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
@@ -1103,8 +1119,11 @@
           <button class="button" id="resetCustomButton" type="button" title="Reset custom layout to its default shape">Reset Custom</button>
           <button class="button" id="printerSettingsButton" type="button" title="Printer keycap profile settings">Settings</button>
         </div>
-        <div class="toolbar-divider" aria-hidden="true"></div>
-        <div class="toolbar-cluster">
+      </div>
+        </div>
+      </details>
+      <div class="persistent-toolbar">
+        <div class="top-actions">
           <label class="check-row" title="Show the exact exported key render in the preview">
             <span>Export Preview</span>
             <input id="exportPreviewToggle" type="checkbox">
@@ -1118,8 +1137,6 @@
           <button class="button primary" id="exportAllButton" type="button" title="Export every key">ZIP</button>
         </div>
       </div>
-        </div>
-      </details>
     </header>
 
     <main class="workspace">
@@ -1296,7 +1313,11 @@
           </div>
           <div class="field">
             <label for="keyCornerScale">Corner scale</label>
-            <input id="keyCornerScale" type="range" min="50" max="150" value="100">
+            <input id="keyCornerScale" type="range" min="0" max="150" value="100">
+          </div>
+          <div class="field">
+            <label for="imageCircle">Circle face</label>
+            <input id="imageCircle" type="range" min="0" max="100" value="0">
           </div>
           <div class="inline">
             <div class="field">
@@ -1459,7 +1480,14 @@
               <li>Turned the top control area into an open-by-default disclosure panel and removed the old Fit view button for a cleaner header.</li>
               <li>Made the sidebar sections collapsible too, so Legend, Image, Board Image, Keycap, and Links can be folded away while you focus on one area.</li>
               <li>Changed the sidebar sections to start closed by default, so the page opens with a cleaner, less overwhelming settings column.</li>
+              <li>Removed the internal scrollbar from the main keyboard stage so the board area no longer shows its own scroll bar.</li>
+              <li>Moved the export and preview controls into a persistent toolbar under the collapsible header so those actions always stay visible.</li>
+              <li>Let the workspace height respond to the real sticky header size, so opening the top controls no longer shoves the keyboard underneath them.</li>
+              <li>Made the keyboard workspace reserve the real header height dynamically, so scrolling the right settings column keeps the board in view instead of sliding under the top controls.</li>
               <li>Added Ctrl+A and Cmd+A to select all visible keys when you're not typing in a field.</li>
+              <li>Added a Circle face slider under Image so key artwork can display and export inside a true circular face for round-top keycaps.</li>
+              <li>Added printer-profile image bounds for corner radius, corner scale, and circle face so the main Image controls can be locked to print-safe limits per profile.</li>
+              <li>Allowed corner scale to go down to 0, including profile bounds, so rounded artwork scaling can be completely flattened when needed.</li>
               <li>Corrected the ISO Enter silhouette so the stepped shape matches a proper ISO enter key and still responds to corner radius and corner scale.</li>
               <li>Fixed ISO Enter preview and export rendering so the stepped shape stays visible in Export Preview, keeps its full bounds, and uses a better-aligned text box.</li>
               <li>Kept the ISO Enter outline visible during Export Preview fallback and matched the canvas Enter path to the same stepped proportions as the on-page SVG shape.</li>
@@ -1611,6 +1639,29 @@
               <div class="field">
                 <label for="profileBoardZ">Board Z / Scale</label>
                 <input id="profileBoardZ" type="number" min="25" max="500" step="1" value="100">
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <h3>Image bounds</h3>
+            <div class="inline">
+              <div class="field">
+                <label for="profileCornerRadiusMax">Corner radius max</label>
+                <input id="profileCornerRadiusMax" type="number" min="0" max="100" step="1" value="100">
+              </div>
+              <div class="field">
+                <label for="profileCircleMax">Circle face max</label>
+                <input id="profileCircleMax" type="number" min="0" max="100" step="1" value="100">
+              </div>
+            </div>
+            <div class="inline">
+              <div class="field">
+                <label for="profileCornerScaleMin">Corner scale min</label>
+                <input id="profileCornerScaleMin" type="number" min="0" max="150" step="1" value="0">
+              </div>
+              <div class="field">
+                <label for="profileCornerScaleMax">Corner scale max</label>
+                <input id="profileCornerScaleMax" type="number" min="0" max="150" step="1" value="150">
               </div>
             </div>
           </div>
@@ -1814,6 +1865,7 @@
       imageFit: "contain",
       imageCornerRadius: 0,
       imageCornerScale: 100,
+      imageCircle: 0,
       imageAreaScaleX: 100,
       imageAreaScaleY: 100,
       imageAreaScaleZ: 100,
@@ -1835,6 +1887,8 @@
     ];
 
     const colors = ["#fbfcfe", "#f4eee2", "#ece7ff", "#d9f3ef", "#ffe4df", "#222831", "#254e58", "#9a3412"];
+    const topbar = document.querySelector(".topbar");
+    const topControls = document.getElementById("topControls");
     const keyboard = document.getElementById("keyboard");
     const stageWrap = document.getElementById("stageWrap");
     const selectedName = document.getElementById("selectedName");
@@ -1863,6 +1917,7 @@
     const imageContain = document.getElementById("imageContain");
     const imageFit = document.getElementById("imageFit");
     const keyCornerScale = document.getElementById("keyCornerScale");
+    const imageCircle = document.getElementById("imageCircle");
     const imageAreaScaleX = document.getElementById("imageAreaScaleX");
     const imageAreaScaleY = document.getElementById("imageAreaScaleY");
     const imageAreaScaleZ = document.getElementById("imageAreaScaleZ");
@@ -1916,6 +1971,10 @@
     const profileBoardX = document.getElementById("profileBoardX");
     const profileBoardY = document.getElementById("profileBoardY");
     const profileBoardZ = document.getElementById("profileBoardZ");
+    const profileCornerRadiusMax = document.getElementById("profileCornerRadiusMax");
+    const profileCircleMax = document.getElementById("profileCircleMax");
+    const profileCornerScaleMin = document.getElementById("profileCornerScaleMin");
+    const profileCornerScaleMax = document.getElementById("profileCornerScaleMax");
     const profileSizeGrid = document.getElementById("profileSizeGrid");
     const isoEnterStepDepth = document.getElementById("isoEnterStepDepth");
     const isoEnterStepHeight = document.getElementById("isoEnterStepHeight");
@@ -1978,6 +2037,19 @@
       };
     }
 
+    function normalizeImageBounds(sourceBounds = {}, fallbackBounds = {}) {
+      const radiusMax = clampNumber(sourceBounds.cornerRadiusMax, 0, 100, Number(fallbackBounds.cornerRadiusMax) || 100);
+      const circleMax = clampNumber(sourceBounds.circleMax, 0, 100, Number(fallbackBounds.circleMax) || 100);
+      const scaleMin = clampNumber(sourceBounds.cornerScaleMin, 0, 150, Number(fallbackBounds.cornerScaleMin) || 0);
+      const scaleMax = clampNumber(sourceBounds.cornerScaleMax, 0, 150, Number(fallbackBounds.cornerScaleMax) || 150);
+      return {
+        cornerRadiusMax: radiusMax,
+        circleMax,
+        cornerScaleMin: Math.min(scaleMin, scaleMax),
+        cornerScaleMax: Math.max(scaleMin, scaleMax)
+      };
+    }
+
     function cloneProfileSizes(sourceSizes = {}, fallbackSizes = {}) {
       const nextSizes = {};
       Object.keys(fallbackSizes).forEach((sizeId) => {
@@ -2005,6 +2077,7 @@
             ...(sourceProfile.calibration?.board || {})
           }
         },
+        imageBounds: normalizeImageBounds(sourceProfile.imageBounds || sourceProfile.settingsPanel?.imageBounds || {}, defaultsProfile.imageBounds),
         sizes: cloneProfileSizes(sourceProfile.sizes || {}, defaultsProfile.sizes),
         isoEnter: normalizeIsoEnterProfile(sourceProfile.isoEnter || sourceProfile.settingsPanel?.isoEnter || {}, defaultsProfile.isoEnter)
       };
@@ -2020,6 +2093,12 @@
         calibration: {
           image: { x: 0, y: 0, z: 100 },
           board: { x: 0, y: 0, z: 100 }
+        },
+        imageBounds: {
+          cornerRadiusMax: 100,
+          circleMax: 100,
+          cornerScaleMin: 0,
+          cornerScaleMax: 150
         },
         isoEnter: {
           stepDepth: 4.3,
@@ -2058,6 +2137,7 @@
         image: { ...nextProfile.settingsPanel.calibration.image },
         board: { ...nextProfile.settingsPanel.calibration.board }
       };
+      nextProfile.imageBounds = { ...nextProfile.settingsPanel.imageBounds };
       nextProfile.isoEnter = { ...nextProfile.settingsPanel.isoEnter };
       nextProfile.sizes = cloneProfileSizes(nextProfile.settingsPanel.sizes, defaultsProfile.sizes);
       return nextProfile;
@@ -2121,7 +2201,7 @@
     }
 
     function setupRangeNumbers() {
-      [textScale, textX, textY, textGap, textOpacity, textCutoutOpacity, imageScale, imageOpacity, imageX, imageY, keyRadius, keyCornerScale, imageAreaScaleX, imageAreaScaleY, imageAreaScaleZ, boardImageScale, boardImageScaleX, boardImageScaleY, boardImageOpacity, boardImageX, boardImageY].forEach(setupRangeNumber);
+      [textScale, textX, textY, textGap, textOpacity, textCutoutOpacity, imageScale, imageOpacity, imageX, imageY, keyRadius, keyCornerScale, imageCircle, imageAreaScaleX, imageAreaScaleY, imageAreaScaleZ, boardImageScale, boardImageScaleX, boardImageScaleY, boardImageOpacity, boardImageX, boardImageY].forEach(setupRangeNumber);
     }
 
     function syncRangeNumbers() {
@@ -2163,6 +2243,11 @@
       document.documentElement.style.setProperty("--bg", htmlBackground);
     }
 
+    function updateLayoutViewportMetrics() {
+      const headerHeight = Math.max(120, Math.ceil(topbar?.offsetHeight || 170));
+      document.documentElement.style.setProperty("--topbar-height", `${headerHeight}px`);
+    }
+
     function setKeyCornerRadius(value) {
       keyCornerRadius = Math.max(0, Math.min(100, Number(value) || 0));
       keyRadius.value = keyCornerRadius;
@@ -2193,6 +2278,19 @@
         y: clampNumber(source.y, -100, 100, 0),
         z: clampNumber(source.z, 25, 500, 100)
       };
+    }
+
+    function activeImageBounds() {
+      const profile = activeProfile();
+      return normalizeImageBounds(profile.imageBounds || profile.settingsPanel?.imageBounds || {}, defaultProfile(profile.name).imageBounds);
+    }
+
+    function clampImageSettingValue(prop, value) {
+      const bounds = activeImageBounds();
+      if (prop === "imageCornerRadius") return clampNumber(value, 0, bounds.cornerRadiusMax, 0);
+      if (prop === "imageCornerScale") return clampNumber(value, bounds.cornerScaleMin, bounds.cornerScaleMax, 100);
+      if (prop === "imageCircle") return clampNumber(value, 0, bounds.circleMax, 0);
+      return value;
     }
 
     function loadPrinterProfiles() {
@@ -2280,6 +2378,22 @@
       };
     }
 
+    function circleViewport(boxW, boxH, amount) {
+      const circle = Math.max(0, Math.min(100, Number(amount) || 0));
+      if (!circle) {
+        return { active: false, size: 0, left: 0, top: 0, width: boxW, height: boxH };
+      }
+      const size = Math.max(8, Math.min(boxW, boxH) * (circle / 100));
+      return {
+        active: true,
+        size,
+        left: (boxW - size) / 2,
+        top: (boxH - size) / 2,
+        width: size,
+        height: size
+      };
+    }
+
     function keyArtworkCssSize(key) {
       const size = keyPhysicalSize(key);
       const [, , , w, h = 1] = key;
@@ -2336,6 +2450,10 @@
       profileBoardX.value = settings.calibration.board?.x ?? 0;
       profileBoardY.value = settings.calibration.board?.y ?? 0;
       profileBoardZ.value = settings.calibration.board?.z ?? 100;
+      profileCornerRadiusMax.value = settings.imageBounds?.cornerRadiusMax ?? 100;
+      profileCircleMax.value = settings.imageBounds?.circleMax ?? 100;
+      profileCornerScaleMin.value = settings.imageBounds?.cornerScaleMin ?? 50;
+      profileCornerScaleMax.value = settings.imageBounds?.cornerScaleMax ?? 150;
       isoEnterStepDepth.value = settings.isoEnter?.stepDepth ?? 4.3;
       isoEnterStepHeight.value = settings.isoEnter?.stepHeight ?? 13.38;
       profileSizeGrid.querySelectorAll("[data-profile-size]").forEach((input) => {
@@ -2386,6 +2504,12 @@
           z: clampNumber(profileBoardZ.value, 25, 500, 100)
         }
         },
+        imageBounds: normalizeImageBounds({
+          cornerRadiusMax: profileCornerRadiusMax.value,
+          circleMax: profileCircleMax.value,
+          cornerScaleMin: profileCornerScaleMin.value,
+          cornerScaleMax: profileCornerScaleMax.value
+        }, profile.settingsPanel?.imageBounds || profile.imageBounds || defaultProfile(profile.name).imageBounds),
         isoEnter: normalizeIsoEnterProfile({
           stepDepth: isoEnterStepDepth.value,
           stepHeight: isoEnterStepHeight.value
@@ -2405,6 +2529,7 @@
         image: { ...nextSettings.calibration.image },
         board: { ...nextSettings.calibration.board }
       };
+      profile.imageBounds = { ...nextSettings.imageBounds };
       profile.isoEnter = { ...nextSettings.isoEnter };
       profile.sizes = cloneProfileSizes(nextSettings.sizes, defaultProfile(profile.name).sizes);
       printerProfiles[profileId] = profile;
@@ -2417,6 +2542,7 @@
       savePrinterProfiles();
       syncProfileSelectors();
       syncMainProfilePreview();
+      syncPanel();
       renderKeyboard();
     }
 
@@ -2427,6 +2553,7 @@
       savePrinterProfiles();
       if (refreshLabels) syncProfileSelectors();
       if (refreshPreview) syncMainProfilePreview();
+      syncPanel();
       if (rerender) renderKeyboard();
     }
 
@@ -2858,6 +2985,7 @@
         imageY: data.imageY,
         imageCornerRadius: data.imageCornerRadius ?? keyCornerRadius,
         imageCornerScale: data.imageCornerScale ?? keyCornerScaleValue,
+        imageCircle: data.imageCircle ?? 0,
         imageAreaScaleX: data.imageAreaScaleX ?? data.imageFaceScale ?? 100,
         imageAreaScaleY: data.imageAreaScaleY ?? data.imageFaceScale ?? 100,
         imageAreaScaleZ: data.imageAreaScaleZ ?? data.imageFaceScale ?? 100
@@ -3010,8 +3138,8 @@
         const faceScaleX = Math.max(0.5, Math.min(1.5, Number(data.imageAreaScaleX ?? data.imageFaceScale ?? 100) / 100));
         const faceScaleY = Math.max(0.5, Math.min(1.5, Number(data.imageAreaScaleY ?? data.imageFaceScale ?? 100) / 100));
         const faceScaleZ = Math.max(0.5, Math.min(1.5, Number(data.imageAreaScaleZ ?? data.imageFaceScale ?? 100) / 100));
-        const cornerScale = Math.max(0.5, Math.min(1.5, Number(data.imageCornerScale ?? keyCornerScaleValue) / 100));
-        const cornerRadius = Math.max(0, Math.min(100, Number(data.imageCornerRadius ?? keyCornerRadius) || 0));
+        const cornerScale = Math.max(0, Math.min(1.5, clampImageSettingValue("imageCornerScale", data.imageCornerScale ?? keyCornerScaleValue) / 100));
+        const cornerRadius = clampImageSettingValue("imageCornerRadius", Number(data.imageCornerRadius ?? keyCornerRadius) || 0);
         const textArtworkSize = name === "ISOEnter" ? isoEnterTextBox(availableW, availableH) : keyArtworkCssSize(key);
         const imageArtworkSize = name === "ISOEnter"
           ? { w: availableW, h: availableH }
@@ -3030,7 +3158,7 @@
           ${name === "ISOEnter" ? "<div class=\"iso-checker\"></div><svg class=\"iso-outline\" viewBox=\"0 0 150 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"iso-fill\" d=\"M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 35 Q 28 99 28 92 V 49 Q 28 42 21 42 H 8 Q 1 42 1 35 V 8 Q 1 1 8 1 Z\"></path></svg>" : ""}
           ${boardImage.src ? `<div class="board-slice"><img src="${boardImage.src}" alt=""></div>` : ""}
           <div class="legend">
-            ${data.image ? `<img src="${data.image}" alt="">` : ""}
+            ${data.image ? `<div class="legend-image-box"><img src="${data.image}" alt=""></div>` : ""}
             <div class="legend-text"></div>
           </div>
           ${showKeyId ? `<div class="key-id">${keyLabel(name)}</div>` : ""}
@@ -3093,16 +3221,20 @@
           textEl.style.height = "";
         }
 
-        const legendImg = el.querySelector(".legend img");
-        if (legendImg) {
+        const legendImageBox = el.querySelector(".legend-image-box");
+        const legendImg = legendImageBox?.querySelector("img");
+        if (legendImg && legendImageBox) {
           const placeLegendImage = () => {
             const fit = data.imageFit || (data.imageContain ? "contain" : "cover");
             const fullW = Math.max(1, availableW);
             const fullH = Math.max(1, availableH);
             const containW = Math.max(1, fullW - 12);
             const containH = Math.max(1, fullH - 12);
-            const imageBoxW = fit === "contain" ? containW : fullW;
-            const imageBoxH = fit === "contain" ? containH : fullH;
+            const baseBoxW = fit === "contain" ? containW : fullW;
+            const baseBoxH = fit === "contain" ? containH : fullH;
+            const circleView = circleViewport(baseBoxW, baseBoxH, clampImageSettingValue("imageCircle", data.imageCircle ?? 0));
+            const imageBoxW = circleView.active ? circleView.width : baseBoxW;
+            const imageBoxH = circleView.active ? circleView.height : baseBoxH;
             const calibration = profileCalibration("image");
             const rect = imagePlacement(
               legendImg.naturalWidth || imageBoxW,
@@ -3114,13 +3246,20 @@
               (data.imageX || 0) + calibration.x,
               (data.imageY || 0) + calibration.y
             );
+            const baseLeft = (fit === "contain" ? 6 : 0) + (circleView.active ? circleView.left : 0);
+            const baseTop = (fit === "contain" ? 6 : 0) + (circleView.active ? circleView.top : 0);
+            legendImageBox.style.left = `${baseLeft}px`;
+            legendImageBox.style.top = `${baseTop}px`;
+            legendImageBox.style.width = `${imageBoxW}px`;
+            legendImageBox.style.height = `${imageBoxH}px`;
+            legendImageBox.style.borderRadius = circleView.active ? "999px" : "0";
             legendImg.style.width = `${rect.width}px`;
             legendImg.style.height = `${rect.height}px`;
-            legendImg.style.left = `${fit === "contain" ? 6 : 0}px`;
-            legendImg.style.top = `${fit === "contain" ? 6 : 0}px`;
+            legendImg.style.left = `${rect.x}px`;
+            legendImg.style.top = `${rect.y}px`;
             legendImg.style.opacity = data.imageOpacity / 100;
-            legendImg.style.objectFit = fit === "stretch" ? "fill" : "fill";
-            legendImg.style.transform = `translate(${rect.x}px, ${rect.y}px)`;
+            legendImg.style.objectFit = fit === "stretch" ? "fill" : "cover";
+            legendImg.style.transform = "none";
           };
           if (legendImg.complete) placeLegendImage();
           else legendImg.addEventListener("load", placeLegendImage, { once: true });
@@ -3404,8 +3543,16 @@
       imageY.value = data.imageY;
       imageContain.checked = data.imageContain;
       imageFit.value = data.imageFit || (data.imageContain ? "contain" : "cover");
-      keyRadius.value = data.imageCornerRadius ?? keyCornerRadius;
-      keyCornerScale.value = data.imageCornerScale ?? keyCornerScaleValue;
+      const imageBounds = activeImageBounds();
+      keyRadius.min = 0;
+      keyRadius.max = imageBounds.cornerRadiusMax;
+      keyCornerScale.min = imageBounds.cornerScaleMin;
+      keyCornerScale.max = imageBounds.cornerScaleMax;
+      imageCircle.min = 0;
+      imageCircle.max = imageBounds.circleMax;
+      keyRadius.value = clampImageSettingValue("imageCornerRadius", data.imageCornerRadius ?? keyCornerRadius);
+      keyCornerScale.value = clampImageSettingValue("imageCornerScale", data.imageCornerScale ?? keyCornerScaleValue);
+      imageCircle.value = clampImageSettingValue("imageCircle", data.imageCircle ?? 0);
       imageAreaScaleX.value = data.imageAreaScaleX ?? data.imageFaceScale ?? 100;
       imageAreaScaleY.value = data.imageAreaScaleY ?? data.imageFaceScale ?? 100;
       imageAreaScaleZ.value = data.imageAreaScaleZ ?? data.imageFaceScale ?? 100;
@@ -3416,11 +3563,14 @@
     }
 
     function updateSelected(prop, value, recordUndo = true) {
+      if (prop === "imageCornerRadius" || prop === "imageCornerScale" || prop === "imageCircle") {
+        value = clampImageSettingValue(prop, value);
+      }
       if (recordUndo) pushUndo();
       selectedTargetIds().forEach((id) => {
         keyState(id)[prop] = value;
       });
-      if (prop === "capBackground") syncPanel();
+      if (prop === "capBackground" || prop === "imageCornerRadius" || prop === "imageCornerScale" || prop === "imageCircle") syncPanel();
       renderKeyboard();
     }
 
@@ -3499,6 +3649,7 @@
         data.imageFit = "contain";
         data.imageCornerRadius = 0;
         data.imageCornerScale = 100;
+        data.imageCircle = 0;
         data.imageAreaScaleX = 100;
         data.imageAreaScaleY = 100;
         data.imageAreaScaleZ = 100;
@@ -3871,8 +4022,8 @@
       const faceScaleX = Math.max(0.5, Math.min(1.5, Number(data.imageAreaScaleX ?? data.imageFaceScale ?? 100) / 100));
       const faceScaleY = Math.max(0.5, Math.min(1.5, Number(data.imageAreaScaleY ?? data.imageFaceScale ?? 100) / 100));
       const faceScaleZ = Math.max(0.5, Math.min(1.5, Number(data.imageAreaScaleZ ?? data.imageFaceScale ?? 100) / 100));
-      const cornerScale = Math.max(0.5, Math.min(1.5, Number(data.imageCornerScale ?? keyCornerScaleValue) / 100));
-      const cornerRadius = Math.max(0, Math.min(100, Number(data.imageCornerRadius ?? keyCornerRadius) || 0));
+      const cornerScale = Math.max(0, Math.min(1.5, clampImageSettingValue("imageCornerScale", data.imageCornerScale ?? keyCornerScaleValue) / 100));
+      const cornerRadius = clampImageSettingValue("imageCornerRadius", Number(data.imageCornerRadius ?? keyCornerRadius) || 0);
       const maskW = name === "ISOEnter" ? virtualW : virtualW * faceScaleX * faceScaleZ;
       const maskH = name === "ISOEnter" ? virtualH : virtualH * faceScaleY * faceScaleZ;
       const maskX = name === "ISOEnter" ? 0 : (virtualW - maskW) / 2;
@@ -3915,8 +4066,11 @@
         const img = await loadImage(data.image);
         if (img) {
           const imageMode = data.imageFit || (data.imageContain ? "contain" : "cover");
-          const imageBoxW = imageMode === "contain" ? Math.max(1, faceW - 12) : faceW;
-          const imageBoxH = imageMode === "contain" ? Math.max(1, faceH - 12) : faceH;
+          const baseBoxW = imageMode === "contain" ? Math.max(1, faceW - 12) : faceW;
+          const baseBoxH = imageMode === "contain" ? Math.max(1, faceH - 12) : faceH;
+          const circleView = circleViewport(baseBoxW, baseBoxH, clampImageSettingValue("imageCircle", data.imageCircle ?? 0));
+          const imageBoxW = circleView.active ? circleView.width : baseBoxW;
+          const imageBoxH = circleView.active ? circleView.height : baseBoxH;
           const calibration = profileCalibration("image");
           const rect = imagePlacement(
             img.width,
@@ -3928,11 +4082,20 @@
             (data.imageX || 0) + calibration.x,
             (data.imageY || 0) + calibration.y
           );
-          const dx = (imageMode === "contain" ? 6 : 0) + rect.x;
-          const dy = (imageMode === "contain" ? 6 : 0) + rect.y;
+          const baseLeft = (imageMode === "contain" ? 6 : 0) + (circleView.active ? circleView.left : 0);
+          const baseTop = (imageMode === "contain" ? 6 : 0) + (circleView.active ? circleView.top : 0);
+          const dx = baseLeft + rect.x;
+          const dy = baseTop + rect.y;
+          if (circleView.active) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(baseLeft + imageBoxW / 2, baseTop + imageBoxH / 2, imageBoxW / 2, imageBoxH / 2, 0, 0, Math.PI * 2);
+            ctx.clip();
+          }
           ctx.globalAlpha = data.imageOpacity / 100;
           ctx.drawImage(img, dx, dy, rect.width, rect.height);
           ctx.globalAlpha = 1;
+          if (circleView.active) ctx.restore();
         }
       }
 
@@ -4472,6 +4635,7 @@
     imageOpacity.addEventListener("input", () => updateSelected("imageOpacity", Number(imageOpacity.value)));
     imageX.addEventListener("input", () => updateSelected("imageX", Number(imageX.value)));
     imageY.addEventListener("input", () => updateSelected("imageY", Number(imageY.value)));
+    imageCircle.addEventListener("input", () => updateSelected("imageCircle", Number(imageCircle.value)));
     imageContain.addEventListener("change", async () => {
       pushUndo();
       const data = keyState(selectedId);
@@ -4706,6 +4870,10 @@
       exportPreviewMode = exportPreviewToggle.checked;
       renderKeyboard();
     });
+    topControls?.addEventListener("toggle", () => {
+      requestAnimationFrame(updateLayoutViewportMetrics);
+    });
+    window.addEventListener("resize", updateLayoutViewportMetrics);
     exportScale.addEventListener("change", () => {
       if (exportPreviewMode) renderKeyboard();
     });
@@ -4971,6 +5139,7 @@
     setHtmlBackground(htmlBackground);
     setKeyCornerRadius(keyCornerRadius);
     setKeyCornerScale(keyCornerScaleValue);
+    updateLayoutViewportMetrics();
     selectedId = keyId(layoutKey(), firstKey());
     selectedIds = new Set(selectedId ? [selectedId] : []);
     colors.forEach((color) => {
