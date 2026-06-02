@@ -346,6 +346,9 @@
     }
 
     .stage-wrap {
+      position: sticky;
+      top: 18px;
+      align-self: start;
       min-width: 0;
       min-height: 0;
       max-height: calc(100vh - var(--topbar-height) - 36px);
@@ -578,7 +581,20 @@
       left: 0;
       top: 0;
       overflow: hidden;
-      pointer-events: none;
+      pointer-events: auto;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .legend-image-box.active {
+      outline: 2px dashed rgba(18, 122, 150, 0.85);
+      outline-offset: 2px;
+      z-index: 3;
+    }
+
+    .legend-image-box.dragging {
+      cursor: grabbing;
+      z-index: 4;
     }
 
     .legend img {
@@ -655,7 +671,8 @@
     }
 
     .side {
-      overflow: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
       min-height: 0;
       max-height: calc(100vh - var(--topbar-height) - 36px);
       border: 1px solid var(--line);
@@ -986,6 +1003,11 @@
         max-height: none;
       }
 
+      .stage-wrap {
+        position: relative;
+        top: auto;
+      }
+
       .topbar {
         align-items: flex-start;
       }
@@ -1266,20 +1288,28 @@
 
         <details class="section-fold">
           <summary>
-            <h2>Image</h2>
+          <h2>Key Image</h2>
             <span class="section-chevron" aria-hidden="true"></span>
           </summary>
           <div class="section-body">
-          <input class="hidden-file" id="imageInput" type="file" accept="image/*">
-          <div class="row">
-            <button class="button" id="pickImageButton" type="button" title="Choose image">Image</button>
-            <button class="button danger" id="removeImageButton" type="button" title="Remove image">Remove</button>
-          </div>
-          <div class="inline">
-            <div class="field">
-              <label for="imageScale">Scale</label>
-              <input id="imageScale" type="range" min="20" max="500" value="100">
+            <input class="hidden-file" id="imageInput" type="file" accept="image/*">
+            <div class="row">
+              <button class="button" id="pickImageButton" type="button" title="Choose image">Image</button>
+              <button class="button danger" id="removeImageButton" type="button" title="Remove image">Remove</button>
             </div>
+            <div class="field">
+              <label for="imageLayerSelect">Image layer</label>
+              <select id="imageLayerSelect"></select>
+            </div>
+            <div class="row">
+              <button class="button" id="addImageLayerButton" type="button" title="Add image layer">Add Layer</button>
+              <button class="button danger" id="removeImageLayerButton" type="button" title="Remove selected image layer">Remove Layer</button>
+            </div>
+            <div class="inline">
+              <div class="field">
+                <label for="imageScale">Scale</label>
+                <input id="imageScale" type="range" min="20" max="500" value="100">
+              </div>
             <div class="field">
               <label for="imageOpacity">Opacity</label>
               <input id="imageOpacity" type="range" min="5" max="100" value="100">
@@ -1301,12 +1331,12 @@
           </div>
           <div class="field">
             <label for="imageFit">Fit</label>
-            <select id="imageFit">
-              <option value="contain">Contain</option>
-              <option value="cover">Fill</option>
-              <option value="stretch">Stretch</option>
-            </select>
-          </div>
+              <select id="imageFit">
+                <option value="contain">Contain</option>
+                <option value="cover">Fill</option>
+                <option value="stretch">Stretch</option>
+              </select>
+            </div>
           <div class="field">
             <label for="keyRadius">Corner radius</label>
               <input id="keyRadius" type="range" min="0" max="100" value="0">
@@ -1476,89 +1506,42 @@
           <section>
             <h3>Current Version</h3>
             <ul>
-              <li>Refreshed the interface styling with cleaner grouped toolbars, softer cards, sharper inputs, and a more polished AKNES-style workspace hierarchy.</li>
-              <li>Turned the top control area into an open-by-default disclosure panel and removed the old Fit view button for a cleaner header.</li>
-              <li>Made the sidebar sections collapsible too, so Legend, Image, Board Image, Keycap, and Links can be folded away while you focus on one area.</li>
-              <li>Changed the sidebar sections to start closed by default, so the page opens with a cleaner, less overwhelming settings column.</li>
-              <li>Removed the internal scrollbar from the main keyboard stage so the board area no longer shows its own scroll bar.</li>
-              <li>Moved the export and preview controls into a persistent toolbar under the collapsible header so those actions always stay visible.</li>
-              <li>Let the workspace height respond to the real sticky header size, so opening the top controls no longer shoves the keyboard underneath them.</li>
-              <li>Made the keyboard workspace reserve the real header height dynamically, so scrolling the right settings column keeps the board in view instead of sliding under the top controls.</li>
-              <li>Added Ctrl+A and Cmd+A to select all visible keys when you're not typing in a field.</li>
-              <li>Added a Circle face slider under Image so key artwork can display and export inside a true circular face for round-top keycaps.</li>
-              <li>Added printer-profile image bounds for corner radius, corner scale, and circle face so the main Image controls can be locked to print-safe limits per profile.</li>
-              <li>Allowed corner scale to go down to 0, including profile bounds, so rounded artwork scaling can be completely flattened when needed.</li>
-              <li>Corrected the ISO Enter silhouette so the stepped shape matches a proper ISO enter key and still responds to corner radius and corner scale.</li>
-              <li>Fixed ISO Enter preview and export rendering so the stepped shape stays visible in Export Preview, keeps its full bounds, and uses a better-aligned text box.</li>
-              <li>Kept the ISO Enter outline visible during Export Preview fallback and matched the canvas Enter path to the same stepped proportions as the on-page SVG shape.</li>
-              <li>Made ISO Enter notch depth and notch height profile-based printer settings, so each keycap profile can save its own real Enter measurements and drive the Enter shape directly.</li>
-              <li>Fixed ISO Enter corner controls so the outer corners still round while the inner notch stays tight instead of growing into a six-corner blob.</li>
-              <li>Further constrained ISO Enter corner radius to the real stepped body dimensions, so large corner values cannot turn the whole key into an over-rounded pill shape.</li>
-              <li>Separated the ISO Enter outer body shape from the tunable artwork mask so the key keeps its proper rounded stepped outline while the image corners still remain adjustable.</li>
-              <li>Added Shift/Ctrl multi-select and Selected ZIP export for exporting only chosen keys.</li>
-              <li>Changed artwork corner radius to use circular pixel corners instead of stretched/oblong percentage corners.</li>
-              <li>Fixed narrow side-panel sliders so the value boxes no longer overlap the slider controls.</li>
-              <li>Added printer profile Image and Board X/Y/Z calibration so profiles can globally nudge and scale artwork placement.</li>
-              <li>Added a draggable and resizable board-image overlay so board art can be positioned directly on the keyboard.</li>
-              <li>Changed image drag-and-drop so dropping on a key loads that key, while dropping on the board/stage loads the board image.</li>
-              <li>Board image direct resize can now scale down to 0, Fit keyboard resets board art across the full keyboard, and clicking away flattens the edit overlay.</li>
-              <li>Added a Move board image checkbox so board art only captures drag/move clicks when you explicitly turn board editing on.</li>
-              <li>Keycap profile switching now drives the Printer Settings key-size table directly, so changing the selected profile swaps the mm values to that exact profile's saved key-face sizes.</li>
-              <li>Printer profile name, DPI, and key-size mm fields now auto-save while you type, so a page refresh keeps the latest values for each profile.</li>
-              <li>Added keyboard shortcuts so Delete or Backspace clears images from the selected key or keys, and Ctrl+Z or Cmd+Z runs Undo when you're not typing in a field.</li>
-              <li>Set the default Corner radius to 0 and Corner scale to 100 for a clean square starting point.</li>
-              <li>Fixed live and exported image placement so Fill and Stretch use the full visible key area instead of the smaller inner artwork box.</li>
-              <li>Added per-key Corner radius, Corner scale, and Image area X/Y/Z controls so selected keys can each have their own artwork shape and face size.</li>
-              <li>Moved Printer Settings into the sidebar so profile settings can be changed live without a popup covering the keyboard.</li>
-              <li>Fixed ISO Enter board-image placement so the live preview uses the full L-shaped area instead of the old inset rectangle.</li>
-              <li>Fixed ISO Enter corner radius and corner scale so the Enter artwork mask, outline, and board slice now respond to those sliders in live preview and export.</li>
-              <li>Improved ISO Enter corner rounding so the outside corners can round fully without being limited by the smaller inner notch radius.</li>
-              <li>Constrained ISO Enter artwork back inside the key bounds so larger corner-scale values can no longer spill outside the Enter key box.</li>
-              <li>Fixed the printer profile reference image so it no longer blocks key selection, per-key image uploads, or drag-and-drop images.</li>
-              <li>Fixed hosted profile HTML so Printer Settings always starts closed after refresh or redeploy.</li>
-              <li>Added Undo for recent edits, layout changes, imports, clears, images, and custom layout moves.</li>
-              <li>Added larger PNG export scales up to 12x.</li>
-              <li>ZIP exports now preserve raw per-key source images for better reload quality.</li>
-              <li>Preview image placement and export cropping now use matching placement logic.</li>
-              <li>Added Export Preview mode to show keys using the same canvas renderer as PNG export.</li>
-              <li>Export Preview hides the normal HTML preview layers so transparent exports do not show helper key labels underneath.</li>
-              <li>Added a support link under the Discord and AKNES links.</li>
-              <li>Improved Export Preview sharpness with higher-resolution rendering and high-quality canvas image smoothing.</li>
-              <li>Board images now keep the original upload for Export Preview and PNG/ZIP output while using the smaller copy for the normal live editor.</li>
-              <li>Live preview labels now shrink to fit single words instead of splitting labels like Pause and Delete across lines.</li>
-              <li>Increased the artwork corner radius in live preview and PNG export so printed key images have rounder corners.</li>
-              <li>Moved the Corner radius slider into the Image section and made it round only the printed artwork/image area, not the visible key body.</li>
-              <li>Changed Corner radius to a 0-100 scale so printer tuning is proportional to each key face.</li>
-              <li>Added locked Printer Settings with three local keycap profiles for mm face sizes and DPI-based export sizing.</li>
-              <li>Re-added Corner scale so the rounded artwork face can be resized separately from the image scale.</li>
-              <li>Printer Settings now re-lock every time they open, and text fitting follows the same printer profile face area as images.</li>
-              <li>Printer Settings now require the password before the settings window opens.</li>
-              <li>Added main-page printer profile selection, per-profile reference images, and hashed password checking for Printer Settings.</li>
-              <li>Added session unlock for Printer Settings and a Download HTML with Profiles button for baking hosted profile settings into the HTML file.</li>
+              <li>Polished the interface with cleaner grouped controls, collapsible sections, and a persistent export toolbar.</li>
+              <li>Kept the keyboard workspace visible while the right settings panel scrolls, removed the stage scrollbar, and tightened slider/input spacing.</li>
+              <li>Added focused single-key preview mode with saved preview-key lists, plus a toggle to bring the full keyboard preview back when needed.</li>
+              <li>Expanded keyboard shortcuts with Ctrl/Cmd+A for visible-key selection, Delete/Backspace for clearing images, and Ctrl/Cmd+Z for Undo.</li>
+              <li>Added multi-select editing, Selected ZIP export, and a stronger Undo system for images, layout changes, imports, clears, and custom moves.</li>
+              <li>Built locked Printer Settings with per-profile mm face sizes, DPI export sizing, profile names, reference images, calibration, and baked HTML profile export.</li>
+              <li>Added profile-based print bounds for image corner radius, corner scale, and circle face so public editing can stay inside safe limits.</li>
+              <li>Added multi-image layers per key, active-layer selection, direct layer dragging, and ZIP persistence for layered artwork.</li>
+              <li>Improved key and board image handling with drag-and-drop upload, draggable board art, fit keyboard, export-quality source preservation, and sharper Export Preview rendering.</li>
+              <li>Cleaned up image shaping with circular pixel corner math, circle-face artwork support, default corner radius 0 / corner scale 100, and per-key artwork area X/Y/Z controls.</li>
+              <li>Reworked ISO Enter so its stepped outline, profile-driven notch measurements, artwork mask, and export preview behave like a proper ISO return key.</li>
+              <li>Added support links, branded labels, transparent/colored export backgrounds, and hosted-settings quality-of-life fixes.</li>
             </ul>
           </section>
           <section>
             <h3>Layouts</h3>
             <ul>
-              <li>Improved ANSI and ISO 60%, 60% arrows, 65%, 75%, TKL, Full, and Lemokey P1 Pro ISO layouts.</li>
-              <li>Fixed ISO Enter shape, rounded clipping, ISO extra keys, right shift sizing, and arrow cluster alignment.</li>
-              <li>Added custom layout editing with 0.25u snap, key add/remove, size presets, and custom reset.</li>
+              <li>Expanded the built-in ANSI and ISO layouts, including 40%, 60%, 60% with arrows, 65%, 75%, TKL, Full, and Lemokey P1 Pro ISO variants.</li>
+              <li>Fixed key sizing and placement issues across those layouts, including ISO extras, right-shift sizing, arrow clusters, and ISO Enter placement.</li>
+              <li>Added custom layout editing with 0.25u snap, key add/remove, preset key sizes, and custom-layout reset.</li>
             </ul>
           </section>
           <section>
             <h3>Design Tools</h3>
             <ul>
-              <li>Added board-wide images, per-key images, drag-and-drop images, fit/fill/stretch controls, and source ZIP reload.</li>
+              <li>Added board-wide images, per-key images, drag-and-drop uploads, layered key artwork, and source-image ZIP reload.</li>
               <li>Added text alignment, text X/Y movement, legend gap, font loading, text opacity, and shine-through cutout controls.</li>
-              <li>Added select-all editing for applying text opacity and cutout settings across the whole board.</li>
+              <li>Added select-all styling so text opacity, cutout settings, and other key styling changes can be applied across the board more quickly.</li>
             </ul>
           </section>
           <section>
             <h3>Export And Project Files</h3>
             <ul>
-              <li>ZIP load/save restores layout settings, key text, images, font settings, colors, and board images.</li>
-              <li>Added transparent or colored key backgrounds for print-friendly exports.</li>
-              <li>Added page background color, AKNES branding, Discord/AKNES links, and this changelog.</li>
+              <li>ZIP load/save restores layout settings, key text, image layers, font settings, colors, board images, and other saved project state.</li>
+              <li>Added transparent or colored key backgrounds for print-friendly exports, plus larger PNG export scales and Export Preview.</li>
+              <li>Added page background color, branding links, support links, and this changelog.</li>
             </ul>
           </section>
         </div>
@@ -1599,6 +1582,22 @@
           <div class="field">
             <label for="printerProfileName">Profile name</label>
             <input id="printerProfileName" type="text" value="Keycap 1">
+          </div>
+          <div class="check-row">
+            <span>Show full keyboard preview</span>
+            <input id="showFullKeyboardPreview" type="checkbox">
+          </div>
+          <div class="field">
+            <label for="availablePreviewKeySelect">Available keys</label>
+            <select id="availablePreviewKeySelect"></select>
+          </div>
+          <div class="field">
+            <label for="activePreviewKeySelect">Preview keys shown</label>
+            <select id="activePreviewKeySelect" multiple size="8"></select>
+          </div>
+          <div class="row">
+            <button class="button" id="addPreviewKeyButton" type="button">Add Key To Preview</button>
+            <button class="button danger" id="removePreviewKeyButton" type="button">Remove Selected Preview Key</button>
           </div>
           <div class="field">
             <label>Profile image</label>
@@ -1856,6 +1855,8 @@
       textVAlign: "middle",
       autoText: true,
       image: "",
+      images: [],
+      activeImageLayer: 0,
       imageScale: 90,
       imageOpacity: 100,
       imageX: 0,
@@ -1910,6 +1911,9 @@
     const textVAlign = document.getElementById("textVAlign");
     const autoText = document.getElementById("autoText");
     const imageInput = document.getElementById("imageInput");
+    const imageLayerSelect = document.getElementById("imageLayerSelect");
+    const addImageLayerButton = document.getElementById("addImageLayerButton");
+    const removeImageLayerButton = document.getElementById("removeImageLayerButton");
     const imageScale = document.getElementById("imageScale");
     const imageOpacity = document.getElementById("imageOpacity");
     const imageX = document.getElementById("imageX");
@@ -1960,6 +1964,11 @@
     const activePrinterProfile = document.getElementById("activePrinterProfile");
     const printerDpi = document.getElementById("printerDpi");
     const printerProfileName = document.getElementById("printerProfileName");
+    const showFullKeyboardPreview = document.getElementById("showFullKeyboardPreview");
+    const availablePreviewKeySelect = document.getElementById("availablePreviewKeySelect");
+    const activePreviewKeySelect = document.getElementById("activePreviewKeySelect");
+    const addPreviewKeyButton = document.getElementById("addPreviewKeyButton");
+    const removePreviewKeyButton = document.getElementById("removePreviewKeyButton");
     const profileImageInput = document.getElementById("profileImageInput");
     const pickProfileImageButton = document.getElementById("pickProfileImageButton");
     const removeProfileImageButton = document.getElementById("removeProfileImageButton");
@@ -1994,8 +2003,9 @@
     let selectedIds = new Set();
     let editAllKeys = false;
     let editLayoutMode = false;
-    let boardImageEditing = false;
-    let exportPreviewMode = false;
+      let boardImageEditing = false;
+      let imageLayerDragMoved = false;
+      let exportPreviewMode = false;
     let previewRenderToken = 0;
     let clipboardStyle = null;
     const state = {};
@@ -2145,6 +2155,8 @@
 
     let printerProfiles = {
       active: "keycap1",
+      previewFull: false,
+      previewKeys: ["Esc"],
       keycap1: defaultProfile("Keycap 1"),
       keycap2: defaultProfile("Keycap 2"),
       keycap3: defaultProfile("Keycap 3")
@@ -2306,6 +2318,10 @@
       ["keycap1", "keycap2", "keycap3"].forEach((id) => {
         printerProfiles[id] = normalizePrinterProfile(id, printerProfiles[id]);
       });
+      printerProfiles.previewFull = !!printerProfiles.previewFull;
+      printerProfiles.previewKeys = Array.isArray(printerProfiles.previewKeys) && printerProfiles.previewKeys.length
+        ? [...new Set(printerProfiles.previewKeys.map((name) => String(name)))]
+        : ["Esc"];
       if (!printerProfiles.active || !printerProfiles[printerProfiles.active]) {
         printerProfiles.active = "keycap1";
       }
@@ -2348,6 +2364,50 @@
       mainProfilePreview.style.display = image ? "block" : "none";
       mainProfilePreview.setAttribute("aria-hidden", image ? "false" : "true");
       mainProfileImage.src = image;
+    }
+
+    function ensurePreviewKeyState() {
+      const available = currentLayoutData().keys.map((key) => key[0]);
+      const saved = Array.isArray(printerProfiles.previewKeys) ? printerProfiles.previewKeys : [];
+      const normalized = saved.filter((name) => available.includes(name));
+      if (!normalized.length) normalized.push(available[0] || "Esc");
+      printerProfiles.previewKeys = [...new Set(normalized)];
+    }
+
+    function previewKeyDisplayLabel(key) {
+      const width = Number(key[3]) || 1;
+      const height = Number(key[4] || 1);
+      const sizeLabel = height > 1 ? `${width}u x ${height}u` : `${width}u`;
+      return `${keyLabel(key[0])} - ${sizeLabel}`;
+    }
+
+    function syncPreviewKeyControls() {
+      ensurePreviewKeyState();
+      const availableKeys = currentLayoutData().keys;
+      const available = availableKeys.map((key) => key[0]);
+      const previousAvailable = availablePreviewKeySelect.value;
+      const previousActive = new Set([...activePreviewKeySelect.selectedOptions].map((option) => option.value));
+      availablePreviewKeySelect.innerHTML = "";
+      availableKeys.forEach((key) => {
+        const option = document.createElement("option");
+        option.value = key[0];
+        option.textContent = previewKeyDisplayLabel(key);
+        availablePreviewKeySelect.appendChild(option);
+      });
+      activePreviewKeySelect.innerHTML = "";
+      printerProfiles.previewKeys.forEach((name) => {
+        const sourceKey = availableKeys.find((key) => key[0] === name) || [name, 0, 0, 1, 1];
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = previewKeyDisplayLabel(sourceKey);
+        option.selected = previousActive.has(name);
+        activePreviewKeySelect.appendChild(option);
+      });
+      if (![...activePreviewKeySelect.selectedOptions].length && activePreviewKeySelect.options.length) {
+        activePreviewKeySelect.options[0].selected = true;
+      }
+      availablePreviewKeySelect.value = available.includes(previousAvailable) ? previousAvailable : (available[0] || "");
+      removePreviewKeyButton.disabled = printerProfiles.previewKeys.length <= 1;
     }
 
     function keyProfileSizeId(key) {
@@ -2440,6 +2500,8 @@
       printerSettingsProfileId = id;
       printerProfiles[id] = profile;
       printerProfileName.value = settings.name;
+      showFullKeyboardPreview.checked = !!printerProfiles.previewFull;
+      syncPreviewKeyControls();
       printerDpi.value = settings.dpi;
       const image = profile.image || "";
       profileImagePreview.hidden = !image;
@@ -2489,6 +2551,7 @@
       const profileId = id || activePrinterProfile.value || printerSettingsProfileId || printerProfiles.active;
       const profile = normalizePrinterProfile(profileId, printerProfiles[profileId]);
       printerSettingsProfileId = profileId;
+      printerProfiles.previewFull = !!showFullKeyboardPreview.checked;
       const nextSettings = {
         name: printerProfileName.value.trim() || profile.name,
         dpi: Math.max(72, Math.min(2400, Number(printerDpi.value) || 600)),
@@ -2716,6 +2779,37 @@
       return buildLayout(currentLayout, currentSpace, currentForm);
     }
 
+    function previewLayoutData() {
+      if (printerProfiles.previewFull) return currentLayoutData();
+      ensurePreviewKeyState();
+      const sourceKeys = currentLayoutData().keys.filter((key) => printerProfiles.previewKeys.includes(key[0]));
+      let cursorX = 0.25;
+      let cursorY = 0.25;
+      let rowHeight = 0;
+      let maxW = 1.5;
+      const gap = 0.25;
+      const wrapAt = 6;
+      const keys = sourceKeys.map((key) => {
+        const width = key[3];
+        const height = key[4] || 1;
+        if (cursorX > 0.25 && cursorX + width > wrapAt) {
+          cursorX = 0.25;
+          cursorY += rowHeight + gap;
+          rowHeight = 0;
+        }
+        const placed = [key[0], cursorX, cursorY, width, height];
+        cursorX += width + gap;
+        rowHeight = Math.max(rowHeight, height);
+        maxW = Math.max(maxW, cursorX);
+        return placed;
+      });
+      return {
+        w: Math.max(1.5, maxW + 0.25),
+        h: Math.max(1.5, cursorY + rowHeight + 0.25),
+        keys
+      };
+    }
+
     function cloneLayout(layout) {
       return {
         w: layout.w,
@@ -2821,17 +2915,167 @@
     }
 
     function keyState(id) {
-      const name = keyNameFromId(id);
-      const rawName = (() => {
-        const key = getKeyData(id);
+        const name = keyNameFromId(id);
+        const rawName = (() => {
+          const key = getKeyData(id);
         if (key) return key[0];
         const prefix = `${layoutKey()}-`;
         return String(id || "").startsWith(prefix) ? String(id).slice(prefix.length) : String(id || "");
-      })();
-      if (!persistentState[name] && persistentState[rawName]) persistentState[name] = persistentState[rawName];
-      if (!persistentState[name]) persistentState[name] = { ...defaults };
-      return persistentState[name];
-    }
+        })();
+        if (!persistentState[name] && persistentState[rawName]) persistentState[name] = persistentState[rawName];
+        if (!persistentState[name]) persistentState[name] = { ...defaults };
+        normalizeKeyImageLayers(persistentState[name]);
+        return persistentState[name];
+      }
+
+      function defaultImageLayer() {
+        return {
+          image: "",
+          imageSource: "",
+          imageMime: "",
+          imageName: "",
+          imageScale: 100,
+          imageOpacity: 100,
+          imageX: 0,
+          imageY: 0,
+          imageContain: true,
+          imageFit: "contain",
+          imageCornerRadius: 0,
+          imageCornerScale: 100,
+          imageCircle: 0,
+          imageAreaScaleX: 100,
+          imageAreaScaleY: 100,
+          imageAreaScaleZ: 100
+        };
+      }
+
+      function normalizeImageLayer(layer) {
+        return {
+          ...defaultImageLayer(),
+          ...(layer || {})
+        };
+      }
+
+      function normalizeKeyImageLayers(data) {
+        if (!data) return;
+        const layers = Array.isArray(data.images) ? data.images.map(normalizeImageLayer) : [];
+        if ((!layers.length) && (data.image || data.imageSource)) {
+          layers.push(normalizeImageLayer({
+            image: data.image || "",
+            imageSource: data.imageSource || "",
+            imageMime: data.imageMime || "",
+            imageName: data.imageName || "",
+            imageScale: data.imageScale ?? 100,
+            imageOpacity: data.imageOpacity ?? 100,
+            imageX: data.imageX ?? 0,
+            imageY: data.imageY ?? 0,
+            imageContain: data.imageContain ?? true,
+            imageFit: data.imageFit || ((data.imageContain ?? true) ? "contain" : "cover"),
+            imageCornerRadius: data.imageCornerRadius ?? 0,
+            imageCornerScale: data.imageCornerScale ?? 100,
+            imageCircle: data.imageCircle ?? 0,
+            imageAreaScaleX: data.imageAreaScaleX ?? data.imageFaceScale ?? 100,
+            imageAreaScaleY: data.imageAreaScaleY ?? data.imageFaceScale ?? 100,
+            imageAreaScaleZ: data.imageAreaScaleZ ?? data.imageFaceScale ?? 100
+          }));
+        }
+        data.images = layers;
+        if (!Number.isInteger(data.activeImageLayer)) data.activeImageLayer = 0;
+        data.activeImageLayer = Math.max(0, Math.min(data.activeImageLayer, Math.max(0, data.images.length - 1)));
+        const active = data.images[data.activeImageLayer] || defaultImageLayer();
+        data.image = active.image || "";
+        data.imageSource = active.imageSource || "";
+        data.imageMime = active.imageMime || "";
+        data.imageName = active.imageName || "";
+        data.imageScale = active.imageScale;
+        data.imageOpacity = active.imageOpacity;
+        data.imageX = active.imageX;
+        data.imageY = active.imageY;
+        data.imageContain = active.imageContain;
+        data.imageFit = active.imageFit;
+        data.imageCornerRadius = active.imageCornerRadius;
+        data.imageCornerScale = active.imageCornerScale;
+        data.imageCircle = active.imageCircle;
+        data.imageAreaScaleX = active.imageAreaScaleX;
+        data.imageAreaScaleY = active.imageAreaScaleY;
+        data.imageAreaScaleZ = active.imageAreaScaleZ;
+      }
+
+      function activeImageLayerData(data, createIfMissing = false) {
+        normalizeKeyImageLayers(data);
+        if (!data.images.length && createIfMissing) {
+          data.images.push(defaultImageLayer());
+          data.activeImageLayer = 0;
+        }
+        return data.images[data.activeImageLayer] || null;
+      }
+
+      function syncLegacyImageFields(data) {
+        normalizeKeyImageLayers(data);
+      }
+
+      function keyImageViewportMetrics(layerData, availableW, availableH, fitOverride = "") {
+        const fit = fitOverride || layerData.imageFit || (layerData.imageContain ? "contain" : "cover");
+        const fullW = Math.max(1, availableW);
+        const fullH = Math.max(1, availableH);
+        const containW = Math.max(1, fullW - 12);
+        const containH = Math.max(1, fullH - 12);
+        const baseBoxW = fit === "contain" ? containW : fullW;
+        const baseBoxH = fit === "contain" ? containH : fullH;
+        const circleView = circleViewport(baseBoxW, baseBoxH, clampImageSettingValue("imageCircle", layerData.imageCircle ?? 0));
+        const imageBoxW = circleView.active ? circleView.width : baseBoxW;
+        const imageBoxH = circleView.active ? circleView.height : baseBoxH;
+        const baseLeft = (fit === "contain" ? 6 : 0) + (circleView.active ? circleView.left : 0);
+        const baseTop = (fit === "contain" ? 6 : 0) + (circleView.active ? circleView.top : 0);
+        return {
+          fit,
+          baseLeft,
+          baseTop,
+          imageBoxW,
+          imageBoxH,
+          circleView
+        };
+      }
+
+      function keyImagePoint(event, keyEl, availableW, availableH) {
+        const bounds = keyEl.getBoundingClientRect();
+        const scaleX = bounds.width / Math.max(1, availableW);
+        const scaleY = bounds.height / Math.max(1, availableH);
+        return {
+          x: (event.clientX - bounds.left) / (scaleX || 1),
+          y: (event.clientY - bounds.top) / (scaleY || 1)
+        };
+      }
+
+      function layoutLegendImageLayer(legendImageBox, legendImg, layerData, availableW, availableH) {
+        if (!legendImageBox || !legendImg || !layerData) return;
+        const viewport = keyImageViewportMetrics(layerData, availableW, availableH);
+        const { fit, baseLeft, baseTop, imageBoxW, imageBoxH, circleView } = viewport;
+        const calibration = profileCalibration("image");
+        const rect = imagePlacement(
+          legendImg.naturalWidth || imageBoxW,
+          legendImg.naturalHeight || imageBoxH,
+          imageBoxW,
+          imageBoxH,
+          fit,
+          layerData.imageScale * (calibration.z / 100),
+          (layerData.imageX || 0) + calibration.x,
+          (layerData.imageY || 0) + calibration.y
+        );
+        legendImageBox.style.left = `${baseLeft}px`;
+        legendImageBox.style.top = `${baseTop}px`;
+        legendImageBox.style.width = `${imageBoxW}px`;
+        legendImageBox.style.height = `${imageBoxH}px`;
+        legendImageBox.style.borderRadius = circleView.active ? "999px" : "0";
+        legendImg.style.width = `${rect.width}px`;
+        legendImg.style.height = `${rect.height}px`;
+        legendImg.style.left = `${rect.x}px`;
+        legendImg.style.top = `${rect.y}px`;
+        legendImg.style.opacity = layerData.imageOpacity / 100;
+        legendImg.style.objectFit = fit === "stretch" ? "fill" : "cover";
+        legendImg.style.transform = "none";
+      }
+
 
     function getKeyData(id) {
       return currentLayoutData().keys.find((key) => keyId(layoutKey(), key) === id) || null;
@@ -3107,7 +3351,9 @@
     }
 
     function renderKeyboard() {
-      const layout = currentLayoutData();
+      const layout = previewLayoutData();
+      const sourceLayout = currentLayoutData();
+      const previewMode = !printerProfiles.previewFull;
       const token = ++previewRenderToken;
       keyboard.style.setProperty("--layout-w", layout.w);
       keyboard.style.setProperty("--layout-h", layout.h);
@@ -3115,12 +3361,16 @@
       keyboard.innerHTML = "";
 
       layout.keys.forEach((key) => {
+        const sourceKey = previewMode
+          ? (sourceLayout.keys.find((candidate) => candidate[0] === key[0]) || key)
+          : key;
+        const renderName = sourceKey[0];
         const [name, x, y, w, h = 1] = key;
-        const id = keyId(layoutKey(), key);
+        const id = keyId(layoutKey(), sourceKey);
         const data = keyState(id);
         const el = document.createElement("button");
         el.className = "key";
-        if (name === "ISOEnter") el.classList.add("iso-enter");
+        if (renderName === "ISOEnter") el.classList.add("iso-enter");
         if (exportPreviewMode) el.classList.add("export-previewing");
         if (data.textCutout && (data.textCutoutOpacity ?? 100) > 0) el.classList.add("text-cutout");
         if (data.capBackground === "transparent") el.classList.add("transparent-cap");
@@ -3140,30 +3390,30 @@
         const faceScaleZ = Math.max(0.5, Math.min(1.5, Number(data.imageAreaScaleZ ?? data.imageFaceScale ?? 100) / 100));
         const cornerScale = Math.max(0, Math.min(1.5, clampImageSettingValue("imageCornerScale", data.imageCornerScale ?? keyCornerScaleValue) / 100));
         const cornerRadius = clampImageSettingValue("imageCornerRadius", Number(data.imageCornerRadius ?? keyCornerRadius) || 0);
-        const textArtworkSize = name === "ISOEnter" ? isoEnterTextBox(availableW, availableH) : keyArtworkCssSize(key);
-        const imageArtworkSize = name === "ISOEnter"
+        const textArtworkSize = renderName === "ISOEnter" ? isoEnterTextBox(availableW, availableH) : keyArtworkCssSize(sourceKey);
+        const imageArtworkSize = renderName === "ISOEnter"
           ? { w: availableW, h: availableH }
           : { w: availableW * faceScaleX * faceScaleZ, h: availableH * faceScaleY * faceScaleZ };
         el.style.setProperty("--artwork-w", `${imageArtworkSize.w}px`);
         el.style.setProperty("--artwork-h", `${imageArtworkSize.h}px`);
-        el.style.setProperty("--image-radius-px", `${name === "ISOEnter" ? 0 : Math.min(imageArtworkSize.w, imageArtworkSize.h) * cornerScale * (cornerRadius / 100) / 2}px`);
+        el.style.setProperty("--image-radius-px", `${renderName === "ISOEnter" ? 0 : Math.min(imageArtworkSize.w, imageArtworkSize.h) * cornerScale * (cornerRadius / 100) / 2}px`);
         if (data.capBackground === "color") el.style.background = data.capColor;
-        applyBoardSlice(el, key);
-        el.setAttribute("aria-label", keyLabel(name));
+        applyBoardSlice(el, sourceKey);
+        el.setAttribute("aria-label", keyLabel(renderName));
         normalizeSelection();
         if (selectedIds.has(id) || editAllKeys) el.classList.add("selected");
         const hasLegendText = String(data.text || "").trim();
         const showKeyId = !hasLegendText && !data.textCutout;
         el.innerHTML = `
-          ${name === "ISOEnter" ? "<div class=\"iso-checker\"></div><svg class=\"iso-outline\" viewBox=\"0 0 150 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"iso-fill\" d=\"M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 35 Q 28 99 28 92 V 49 Q 28 42 21 42 H 8 Q 1 42 1 35 V 8 Q 1 1 8 1 Z\"></path></svg>" : ""}
+          ${renderName === "ISOEnter" ? "<div class=\"iso-checker\"></div><svg class=\"iso-outline\" viewBox=\"0 0 150 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"iso-fill\" d=\"M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 35 Q 28 99 28 92 V 49 Q 28 42 21 42 H 8 Q 1 42 1 35 V 8 Q 1 1 8 1 Z\"></path></svg>" : ""}
           ${boardImage.src ? `<div class="board-slice"><img src="${boardImage.src}" alt=""></div>` : ""}
           <div class="legend">
-            ${data.image ? `<div class="legend-image-box"><img src="${data.image}" alt=""></div>` : ""}
+            ${(data.images || []).map((layer, index) => layer.image ? `<div class="legend-image-box" data-layer-index="${index}"><img src="${layer.image}" alt=""></div>` : "").join("")}
             <div class="legend-text"></div>
           </div>
-          ${showKeyId ? `<div class="key-id">${keyLabel(name)}</div>` : ""}
+          ${showKeyId ? `<div class="key-id">${keyLabel(renderName)}</div>` : ""}
         `;
-        if (name === "ISOEnter") {
+        if (renderName === "ISOEnter") {
           const isoOuterMask = isoEnterMaskUrl(availableW, availableH, 28);
           const isoMask = isoEnterMaskUrl(availableW, availableH, Math.max(0, Math.min(100, cornerRadius * cornerScale)));
           const maskLeft = 0;
@@ -3196,7 +3446,7 @@
           }
         }
         const textEl = el.querySelector(".legend-text");
-        const displayText = (data.textVisible === false && !data.textCutout) ? "" : (hasLegendText ? data.text : (data.textCutout ? keyLabel(name) : ""));
+        const displayText = (data.textVisible === false && !data.textCutout) ? "" : (hasLegendText ? data.text : (data.textCutout ? keyLabel(renderName) : ""));
         textEl.textContent = displayText;
         textEl.style.color = data.textColor;
         textEl.style.fontFamily = data.fontFamily;
@@ -3209,7 +3459,7 @@
         textEl.style.justifyItems = data.textAlign === "left" ? "start" : data.textAlign === "right" ? "end" : "center";
         textEl.style.alignItems = data.textVAlign === "top" ? "start" : data.textVAlign === "bottom" ? "end" : "center";
         textEl.style.transform = `translate(${data.textX || 0}%, ${data.textY || 0}%)`;
-        if (name === "ISOEnter") {
+        if (renderName === "ISOEnter") {
           textEl.style.left = `${textArtworkSize.left}px`;
           textEl.style.top = `${textArtworkSize.top}px`;
           textEl.style.width = `${textArtworkSize.right - textArtworkSize.left}px`;
@@ -3221,53 +3471,112 @@
           textEl.style.height = "";
         }
 
-        const legendImageBox = el.querySelector(".legend-image-box");
-        const legendImg = legendImageBox?.querySelector("img");
-        if (legendImg && legendImageBox) {
+        const legendImageBoxes = [...el.querySelectorAll(".legend-image-box")];
+        legendImageBoxes.forEach((legendImageBox) => {
+          const legendImg = legendImageBox.querySelector("img");
+          const layerIndex = Number(legendImageBox.dataset.layerIndex || 0);
+          const layerData = data.images?.[layerIndex];
+          if (!legendImg || !layerData) return;
           const placeLegendImage = () => {
-            const fit = data.imageFit || (data.imageContain ? "contain" : "cover");
-            const fullW = Math.max(1, availableW);
-            const fullH = Math.max(1, availableH);
-            const containW = Math.max(1, fullW - 12);
-            const containH = Math.max(1, fullH - 12);
-            const baseBoxW = fit === "contain" ? containW : fullW;
-            const baseBoxH = fit === "contain" ? containH : fullH;
-            const circleView = circleViewport(baseBoxW, baseBoxH, clampImageSettingValue("imageCircle", data.imageCircle ?? 0));
-            const imageBoxW = circleView.active ? circleView.width : baseBoxW;
-            const imageBoxH = circleView.active ? circleView.height : baseBoxH;
-            const calibration = profileCalibration("image");
-            const rect = imagePlacement(
-              legendImg.naturalWidth || imageBoxW,
-              legendImg.naturalHeight || imageBoxH,
-              imageBoxW,
-              imageBoxH,
-              fit,
-              data.imageScale * (calibration.z / 100),
-              (data.imageX || 0) + calibration.x,
-              (data.imageY || 0) + calibration.y
-            );
-            const baseLeft = (fit === "contain" ? 6 : 0) + (circleView.active ? circleView.left : 0);
-            const baseTop = (fit === "contain" ? 6 : 0) + (circleView.active ? circleView.top : 0);
-            legendImageBox.style.left = `${baseLeft}px`;
-            legendImageBox.style.top = `${baseTop}px`;
-            legendImageBox.style.width = `${imageBoxW}px`;
-            legendImageBox.style.height = `${imageBoxH}px`;
-            legendImageBox.style.borderRadius = circleView.active ? "999px" : "0";
-            legendImg.style.width = `${rect.width}px`;
-            legendImg.style.height = `${rect.height}px`;
-            legendImg.style.left = `${rect.x}px`;
-            legendImg.style.top = `${rect.y}px`;
-            legendImg.style.opacity = data.imageOpacity / 100;
-            legendImg.style.objectFit = fit === "stretch" ? "fill" : "cover";
-            legendImg.style.transform = "none";
+            layoutLegendImageLayer(legendImageBox, legendImg, layerData, availableW, availableH);
+            legendImageBox.classList.toggle("active", selectedId === id && data.activeImageLayer === layerIndex);
+            legendImageBox.style.zIndex = selectedId === id && data.activeImageLayer === layerIndex ? "100" : String(1 + layerIndex);
           };
           if (legendImg.complete) placeLegendImage();
           else legendImg.addEventListener("load", placeLegendImage, { once: true });
-        }
+          if (!exportPreviewMode) {
+            legendImageBox.addEventListener("click", (event) => {
+              if (imageLayerDragMoved) {
+                imageLayerDragMoved = false;
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+              }
+              event.preventDefault();
+              event.stopPropagation();
+              selectedId = id;
+              selectedIds = new Set([id]);
+              const layerCount = data.images?.length || 0;
+              if (layerCount > 1) {
+                const clickedLayerIndex = Number(legendImageBox.dataset.layerIndex || layerIndex);
+                data.activeImageLayer = clickedLayerIndex === data.activeImageLayer
+                  ? (data.activeImageLayer + 1) % layerCount
+                  : clickedLayerIndex;
+              } else {
+                data.activeImageLayer = Number(legendImageBox.dataset.layerIndex || layerIndex);
+              }
+              syncLegacyImageFields(data);
+              syncPanel();
+              renderKeyboard();
+            });
+            legendImageBox.addEventListener("pointerdown", (event) => {
+              if (event.button !== 0) return;
+              event.preventDefault();
+              event.stopPropagation();
+              selectedId = id;
+              selectedIds = new Set([id]);
+              if (data.activeImageLayer !== layerIndex) {
+                data.activeImageLayer = layerIndex;
+                syncLegacyImageFields(data);
+                syncPanel();
+                renderKeyboard();
+                return;
+              }
+              syncLegacyImageFields(data);
+              let dragLayer = activeImageLayerData(data);
+              if (!dragLayer) return;
+              const dragFit = dragLayer.imageFit || (dragLayer.imageContain ? "contain" : "cover");
+              const dragViewport = keyImageViewportMetrics(dragLayer, availableW, availableH, dragFit);
+              pushUndo();
+              const startPoint = keyImagePoint(event, el, availableW, availableH);
+              const startXValue = Number(dragLayer.imageX || 0);
+              const startYValue = Number(dragLayer.imageY || 0);
+              imageLayerDragMoved = false;
+              legendImageBox.classList.add("dragging");
+              legendImageBox.setPointerCapture?.(event.pointerId);
+              const move = (moveEvent) => {
+                const point = keyImagePoint(moveEvent, el, availableW, availableH);
+                const dx = point.x - startPoint.x;
+                const dy = point.y - startPoint.y;
+                if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+                  imageLayerDragMoved = true;
+                }
+                dragLayer = activeImageLayerData(data, true);
+                dragLayer.imageX = Math.max(-100, Math.min(100, startXValue + (dx / Math.max(1, dragViewport.imageBoxW)) * 100));
+                dragLayer.imageY = Math.max(-100, Math.min(100, startYValue + (dy / Math.max(1, dragViewport.imageBoxH)) * 100));
+                syncLegacyImageFields(data);
+                dragLayer = activeImageLayerData(data, true);
+                imageX.value = String(Math.round(dragLayer.imageX));
+                imageY.value = String(Math.round(dragLayer.imageY));
+                syncRangeNumbers();
+                layoutLegendImageLayer(legendImageBox, legendImg, dragLayer, availableW, availableH);
+              };
+              const finish = () => {
+                legendImageBox.classList.remove("dragging");
+                window.removeEventListener("pointermove", move);
+                window.removeEventListener("pointerup", finish);
+                window.removeEventListener("pointercancel", finish);
+                syncLegacyImageFields(data);
+                dragLayer = activeImageLayerData(data, true);
+                persistentState[keyNameFromId(id)] = clonePlain(data);
+                imageFit.value = dragLayer.imageFit;
+                imageContain.checked = dragLayer.imageContain;
+                imageX.value = String(Math.round(dragLayer.imageX));
+                imageY.value = String(Math.round(dragLayer.imageY));
+                syncRangeNumbers();
+                syncPanel();
+                renderKeyboard();
+              };
+              window.addEventListener("pointermove", move);
+              window.addEventListener("pointerup", finish, { once: true });
+              window.addEventListener("pointercancel", finish, { once: true });
+            });
+          }
+        });
 
         const boardImg = el.querySelector(".board-slice img");
         if (boardImg) {
-          positionBoardImage(boardImg, key);
+          positionBoardImage(boardImg, sourceKey);
           const boardSlice = boardImg.closest(".board-slice");
           boardSlice.addEventListener("pointerdown", (event) => {
             if (!boardImage.src || exportPreviewMode || !boardImageEditing) return;
@@ -3282,15 +3591,15 @@
           });
         }
 
-        if (exportPreviewMode) renderExportPreviewImage(el, key, data, token);
+        if (exportPreviewMode) renderExportPreviewImage(el, sourceKey, data, token);
 
-        if (editLayoutMode && currentForm === "custom") {
+        if (!previewMode && editLayoutMode && currentForm === "custom") {
           el.addEventListener("pointerdown", (event) => beginKeyDrag(event, key));
         }
         el.addEventListener("click", (event) => selectKey(id, event));
         keyboard.appendChild(el);
       });
-      renderBoardEditorOverlay();
+      if (printerProfiles.previewFull) renderBoardEditorOverlay();
     }
 
     function updateBoardEditorOverlay() {
@@ -3453,20 +3762,20 @@
       img.style.opacity = boardImage.opacity / 100;
     }
 
-    function imagePlacement(imgW, imgH, boxW, boxH, mode, scalePercent, xPercent, yPercent) {
-      let drawW = boxW * (scalePercent / 100);
-      let drawH = boxH * (scalePercent / 100);
-      if (mode !== "stretch") {
-        const fit = mode === "contain" ? Math.min(boxW / imgW, boxH / imgH) : Math.max(boxW / imgW, boxH / imgH);
-        const drawScale = fit * (scalePercent / 100);
-        drawW = imgW * drawScale;
-        drawH = imgH * drawScale;
-      }
-      return {
-        width: drawW,
-        height: drawH,
-        x: (boxW - drawW) / 2 + (xPercent / 100) * boxW,
-        y: (boxH - drawH) / 2 + (yPercent / 100) * boxH
+      function imagePlacement(imgW, imgH, boxW, boxH, mode, scalePercent, xPercent, yPercent) {
+        let drawW = boxW * (scalePercent / 100);
+        let drawH = boxH * (scalePercent / 100);
+        if (mode !== "stretch") {
+          const fit = mode === "contain" ? Math.min(boxW / imgW, boxH / imgH) : Math.max(boxW / imgW, boxH / imgH);
+          const drawScale = fit * (scalePercent / 100);
+          drawW = imgW * drawScale;
+          drawH = imgH * drawScale;
+        }
+        return {
+          width: drawW,
+          height: drawH,
+          x: (boxW - drawW) / 2 + (xPercent / 100) * boxW,
+          y: (boxH - drawH) / 2 + (yPercent / 100) * boxH
       };
     }
 
@@ -3515,11 +3824,30 @@
       selectedSize.textContent = `${key[3]}u${key[4] ? ` x ${key[4]}u` : ""}`;
       addKeyButton.disabled = currentForm !== "custom" || !editLayoutMode;
       removeKeyButton.disabled = currentForm !== "custom" || !editLayoutMode || selectedCustomKeyIndex() < 0 || currentLayoutData().keys.length <= 1;
-      resetCustomButton.disabled = currentForm !== "custom";
-      legendText.value = data.text;
-      if (![...fontFamily.options].some((option) => option.value === data.fontFamily)) {
-        const option = document.createElement("option");
-        option.value = data.fontFamily;
+        resetCustomButton.disabled = currentForm !== "custom";
+        legendText.value = data.text;
+        normalizeKeyImageLayers(data);
+        imageLayerSelect.innerHTML = "";
+        if (data.images.length) {
+          data.images.forEach((layer, index) => {
+            const option = document.createElement("option");
+            option.value = String(index);
+            option.textContent = layer.imageName ? `Layer ${index + 1} - ${layer.imageName}` : `Layer ${index + 1}`;
+            imageLayerSelect.appendChild(option);
+          });
+          imageLayerSelect.value = String(data.activeImageLayer);
+        } else {
+          const option = document.createElement("option");
+          option.value = "0";
+          option.textContent = "No image layers";
+          imageLayerSelect.appendChild(option);
+          imageLayerSelect.value = "0";
+        }
+        imageLayerSelect.disabled = !data.images.length;
+        removeImageLayerButton.disabled = !data.images.length;
+        if (![...fontFamily.options].some((option) => option.value === data.fontFamily)) {
+          const option = document.createElement("option");
+          option.value = data.fontFamily;
         option.textContent = data.fontFamily.replaceAll("\"", "").split(",")[0];
         option.style.fontFamily = data.fontFamily;
         fontFamily.appendChild(option);
@@ -3535,65 +3863,83 @@
       textCutout.checked = !!data.textCutout;
       textCutoutOpacity.value = data.textCutoutOpacity ?? 100;
       textAlign.value = data.textAlign || "center";
-      textVAlign.value = data.textVAlign || "middle";
-      autoText.checked = data.autoText;
-      imageScale.value = data.imageScale;
-      imageOpacity.value = data.imageOpacity;
-      imageX.value = data.imageX;
-      imageY.value = data.imageY;
-      imageContain.checked = data.imageContain;
-      imageFit.value = data.imageFit || (data.imageContain ? "contain" : "cover");
-      const imageBounds = activeImageBounds();
-      keyRadius.min = 0;
-      keyRadius.max = imageBounds.cornerRadiusMax;
-      keyCornerScale.min = imageBounds.cornerScaleMin;
-      keyCornerScale.max = imageBounds.cornerScaleMax;
-      imageCircle.min = 0;
-      imageCircle.max = imageBounds.circleMax;
-      keyRadius.value = clampImageSettingValue("imageCornerRadius", data.imageCornerRadius ?? keyCornerRadius);
-      keyCornerScale.value = clampImageSettingValue("imageCornerScale", data.imageCornerScale ?? keyCornerScaleValue);
-      imageCircle.value = clampImageSettingValue("imageCircle", data.imageCircle ?? 0);
-      imageAreaScaleX.value = data.imageAreaScaleX ?? data.imageFaceScale ?? 100;
-      imageAreaScaleY.value = data.imageAreaScaleY ?? data.imageFaceScale ?? 100;
-      imageAreaScaleZ.value = data.imageAreaScaleZ ?? data.imageFaceScale ?? 100;
+        textVAlign.value = data.textVAlign || "middle";
+        autoText.checked = data.autoText;
+        const activeLayer = activeImageLayerData(data);
+        imageScale.value = activeLayer?.imageScale ?? 100;
+        imageOpacity.value = activeLayer?.imageOpacity ?? 100;
+        imageX.value = activeLayer?.imageX ?? 0;
+        imageY.value = activeLayer?.imageY ?? 0;
+        imageContain.checked = activeLayer?.imageContain ?? true;
+        imageFit.value = activeLayer?.imageFit || ((activeLayer?.imageContain ?? true) ? "contain" : "cover");
+        const imageBounds = activeImageBounds();
+        keyRadius.min = 0;
+        keyRadius.max = imageBounds.cornerRadiusMax;
+        keyCornerScale.min = imageBounds.cornerScaleMin;
+        keyCornerScale.max = imageBounds.cornerScaleMax;
+        imageCircle.min = 0;
+        imageCircle.max = imageBounds.circleMax;
+        keyRadius.value = clampImageSettingValue("imageCornerRadius", activeLayer?.imageCornerRadius ?? 0);
+        keyCornerScale.value = clampImageSettingValue("imageCornerScale", activeLayer?.imageCornerScale ?? 100);
+        imageCircle.value = clampImageSettingValue("imageCircle", activeLayer?.imageCircle ?? 0);
+        imageAreaScaleX.value = activeLayer?.imageAreaScaleX ?? 100;
+        imageAreaScaleY.value = activeLayer?.imageAreaScaleY ?? 100;
+        imageAreaScaleZ.value = activeLayer?.imageAreaScaleZ ?? 100;
       capBackground.value = data.capBackground || "transparent";
       capColor.value = data.capColor;
       updateSwatches(data.capColor);
       syncRangeNumbers();
     }
 
-    function updateSelected(prop, value, recordUndo = true) {
-      if (prop === "imageCornerRadius" || prop === "imageCornerScale" || prop === "imageCircle") {
-        value = clampImageSettingValue(prop, value);
+      function updateSelected(prop, value, recordUndo = true) {
+        if (prop === "imageCornerRadius" || prop === "imageCornerScale" || prop === "imageCircle") {
+          value = clampImageSettingValue(prop, value);
+        }
+        if (recordUndo) pushUndo();
+        const imageProps = new Set([
+          "image", "imageSource", "imageMime", "imageName", "imageScale", "imageOpacity", "imageX", "imageY",
+          "imageContain", "imageFit", "imageCornerRadius", "imageCornerScale", "imageCircle",
+          "imageAreaScaleX", "imageAreaScaleY", "imageAreaScaleZ"
+        ]);
+        selectedTargetIds().forEach((id) => {
+          const data = keyState(id);
+          if (imageProps.has(prop)) {
+            const layer = activeImageLayerData(data, true);
+            layer[prop] = value;
+            syncLegacyImageFields(data);
+          } else {
+            data[prop] = value;
+          }
+        });
+        if (prop === "capBackground" || prop === "imageCornerRadius" || prop === "imageCornerScale" || prop === "imageCircle") syncPanel();
+        renderKeyboard();
       }
-      if (recordUndo) pushUndo();
-      selectedTargetIds().forEach((id) => {
-        keyState(id)[prop] = value;
-      });
-      if (prop === "capBackground" || prop === "imageCornerRadius" || prop === "imageCornerScale" || prop === "imageCircle") syncPanel();
-      renderKeyboard();
-    }
 
-    function clearSelectedKeyImages(recordUndo = true) {
-      const ids = selectedTargetIds();
-      if (!ids.length) return false;
-      const hasAnyImage = ids.some((id) => {
-        const data = keyState(id);
-        return !!(data.image || data.imageSource);
-      });
-      if (!hasAnyImage) return false;
-      if (recordUndo) pushUndo();
-      ids.forEach((id) => {
-        const data = keyState(id);
-        data.image = "";
-        data.imageSource = "";
-        data.imageMime = "";
-        data.imageName = "";
-      });
-      syncPanel();
-      renderKeyboard();
-      return true;
-    }
+      function clearSelectedKeyImages(recordUndo = true) {
+        const ids = selectedTargetIds();
+        if (!ids.length) return false;
+        const hasAnyImage = ids.some((id) => {
+          const data = keyState(id);
+          return data.images?.some((layer) => layer.image || layer.imageSource) || !!(data.image || data.imageSource);
+        });
+        if (!hasAnyImage) return false;
+        if (recordUndo) pushUndo();
+        ids.forEach((id) => {
+          const data = keyState(id);
+          const layer = activeImageLayerData(data);
+          if (layer) {
+            data.images.splice(data.activeImageLayer, 1);
+            data.activeImageLayer = Math.max(0, Math.min(data.activeImageLayer, Math.max(0, data.images.length - 1)));
+          } else {
+            data.images = [];
+            data.activeImageLayer = 0;
+          }
+          syncLegacyImageFields(data);
+        });
+        syncPanel();
+        renderKeyboard();
+        return true;
+      }
 
     function runUndo() {
       const snapshot = undoStack.pop();
@@ -3633,34 +3979,41 @@
       });
     }
 
-    async function applyImageToKeyIds(file, ids) {
-      if (!file || !file.type.startsWith("image/")) return;
-      const targetIds = ids && ids.length ? ids : selectedTargetIds();
-      if (!targetIds.length) return;
-      const rawSrc = await readImage(file);
-      const src = await trimTransparentImage(rawSrc);
-      pushUndo();
-      targetIds.forEach((id) => {
-        const data = keyState(id);
-        data.imageScale = 100;
-        data.imageX = 0;
-        data.imageY = 0;
-        data.imageContain = true;
-        data.imageFit = "contain";
-        data.imageCornerRadius = 0;
-        data.imageCornerScale = 100;
-        data.imageCircle = 0;
-        data.imageAreaScaleX = 100;
-        data.imageAreaScaleY = 100;
-        data.imageAreaScaleZ = 100;
-        data.importedRender = false;
-        data.image = src;
-        data.imageSource = rawSrc;
-        data.imageMime = file.type || imageMime(rawSrc);
-      });
-      syncPanel();
-      renderKeyboard();
-    }
+      async function applyImageToKeyIds(file, ids) {
+        if (!file || !file.type.startsWith("image/")) return;
+        const targetIds = ids && ids.length ? ids : selectedTargetIds();
+        if (!targetIds.length) return;
+        const rawSrc = await readImage(file);
+        const src = await trimTransparentImage(rawSrc);
+        pushUndo();
+        targetIds.forEach((id) => {
+          const data = keyState(id);
+          normalizeKeyImageLayers(data);
+          const newLayer = normalizeImageLayer({
+            imageScale: 100,
+            imageX: 0,
+            imageY: 0,
+            imageContain: true,
+            imageFit: "contain",
+            imageCornerRadius: 0,
+            imageCornerScale: 100,
+            imageCircle: 0,
+            imageAreaScaleX: 100,
+            imageAreaScaleY: 100,
+            imageAreaScaleZ: 100,
+            image: src,
+            imageSource: rawSrc,
+            imageMime: file.type || imageMime(rawSrc),
+            imageName: file.name || ""
+          });
+          data.importedRender = false;
+          data.images.push(newLayer);
+          data.activeImageLayer = data.images.length - 1;
+          syncLegacyImageFields(data);
+        });
+        syncPanel();
+        renderKeyboard();
+      }
 
     async function applyImageToSelectedKey(file) {
       ensureSelectedKey();
@@ -3809,8 +4162,9 @@
       return String(value).replace(/[^a-z0-9_-]+/gi, "_");
     }
 
-    function keyImageFilename(key, data) {
-      return `key-images/${safeFilePart(key[0])}.${imageExtension(data.imageMime || imageMime(data.imageSource || data.image))}`;
+    function keyImageFilename(key, data, layerIndex = null) {
+      const suffix = layerIndex === null ? "" : `-${layerIndex + 1}`;
+      return `key-images/${safeFilePart(key[0])}${suffix}.${imageExtension(data.imageMime || imageMime(data.imageSource || data.image))}`;
     }
 
     async function imageSourceBlob(src) {
@@ -4062,13 +4416,15 @@
         }
       }
 
-      if (data.image) {
-        const img = await loadImage(data.image);
+      normalizeKeyImageLayers(data);
+      for (const layerData of data.images || []) {
+        if (!layerData.image) continue;
+        const img = await loadImage(layerData.image);
         if (img) {
-          const imageMode = data.imageFit || (data.imageContain ? "contain" : "cover");
+          const imageMode = layerData.imageFit || (layerData.imageContain ? "contain" : "cover");
           const baseBoxW = imageMode === "contain" ? Math.max(1, faceW - 12) : faceW;
           const baseBoxH = imageMode === "contain" ? Math.max(1, faceH - 12) : faceH;
-          const circleView = circleViewport(baseBoxW, baseBoxH, clampImageSettingValue("imageCircle", data.imageCircle ?? 0));
+          const circleView = circleViewport(baseBoxW, baseBoxH, clampImageSettingValue("imageCircle", layerData.imageCircle ?? 0));
           const imageBoxW = circleView.active ? circleView.width : baseBoxW;
           const imageBoxH = circleView.active ? circleView.height : baseBoxH;
           const calibration = profileCalibration("image");
@@ -4078,9 +4434,9 @@
             imageBoxW,
             imageBoxH,
             imageMode,
-            data.imageScale * (calibration.z / 100),
-            (data.imageX || 0) + calibration.x,
-            (data.imageY || 0) + calibration.y
+            layerData.imageScale * (calibration.z / 100),
+            (layerData.imageX || 0) + calibration.x,
+            (layerData.imageY || 0) + calibration.y
           );
           const baseLeft = (imageMode === "contain" ? 6 : 0) + (circleView.active ? circleView.left : 0);
           const baseTop = (imageMode === "contain" ? 6 : 0) + (circleView.active ? circleView.top : 0);
@@ -4092,7 +4448,7 @@
             ctx.ellipse(baseLeft + imageBoxW / 2, baseTop + imageBoxH / 2, imageBoxW / 2, imageBoxH / 2, 0, 0, Math.PI * 2);
             ctx.clip();
           }
-          ctx.globalAlpha = data.imageOpacity / 100;
+          ctx.globalAlpha = layerData.imageOpacity / 100;
           ctx.drawImage(img, dx, dy, rect.width, rect.height);
           ctx.globalAlpha = 1;
           if (circleView.active) ctx.restore();
@@ -4165,6 +4521,16 @@
           settings.imageSourceFile = keyImageFilename(key, data);
           settings.imageMime = data.imageMime || imageMime(imageSource || image);
         }
+        settings.imageLayers = (data.images || []).map((layer, index) => {
+          const layerSettings = { ...layer };
+          if (layer.image || layer.imageSource) {
+            layerSettings.imageSourceFile = keyImageFilename(key, layer, index);
+            layerSettings.imageMime = layer.imageMime || imageMime(layer.imageSource || layer.image);
+          }
+          delete layerSettings.image;
+          delete layerSettings.imageSource;
+          return layerSettings;
+        });
         keys[key[0]] = { ...settings };
       });
 
@@ -4327,15 +4693,18 @@
         const blob = boardImage.blob || dataUrlToBlob(boardImage.sourceSrc || boardImage.src);
         files.push({ name: boardImageFilename(), blob });
       }
-      for (const key of keys) {
-        const id = keyId(layoutKey(), key);
-        const data = keyState(id);
-        if (data.image || data.imageSource) {
-          const sourceBlob = await imageSourceBlob(data.imageSource || data.image);
-          if (sourceBlob) files.push({ name: keyImageFilename(key, data), blob: sourceBlob });
-        }
-        const canvas = await drawKeyToCanvas(key, data, Number(exportScale.value));
-        files.push({ name: exportFilename(key), blob: await canvasBlob(canvas) });
+        for (const key of keys) {
+          const id = keyId(layoutKey(), key);
+          const data = keyState(id);
+          normalizeKeyImageLayers(data);
+          for (let index = 0; index < (data.images || []).length; index += 1) {
+            const layer = data.images[index];
+            if (!(layer.image || layer.imageSource)) continue;
+            const sourceBlob = await imageSourceBlob(layer.imageSource || layer.image);
+            if (sourceBlob) files.push({ name: keyImageFilename(key, layer, index), blob: sourceBlob });
+          }
+          const canvas = await drawKeyToCanvas(key, data, Number(exportScale.value));
+          files.push({ name: exportFilename(key), blob: await canvasBlob(canvas) });
         await new Promise((resolve) => setTimeout(resolve, 0));
       }
       downloadBlob(await makeZip(files), filename);
@@ -4416,14 +4785,34 @@
       syncBoardPanel();
     }
 
-    function restoreKeyImageFromSettings(entries, saved) {
-      if (!saved || !saved.imageSourceFile) return "";
-      const sourceName = saved.imageSourceFile.toLowerCase();
-      const entry = entries.find((item) => item.name.toLowerCase() === sourceName || item.name.toLowerCase().endsWith(`/${sourceName}`));
-      if (!entry) return "";
-      const blob = new Blob([entry.bytes], { type: saved.imageMime || "image/png" });
-      return URL.createObjectURL(blob);
-    }
+      function restoreKeyImageFromSettings(entries, saved) {
+        if (!saved || !saved.imageSourceFile) return "";
+        const sourceName = saved.imageSourceFile.toLowerCase();
+        const entry = entries.find((item) => item.name.toLowerCase() === sourceName || item.name.toLowerCase().endsWith(`/${sourceName}`));
+        if (!entry) return "";
+        const blob = new Blob([entry.bytes], { type: saved.imageMime || "image/png" });
+        return URL.createObjectURL(blob);
+      }
+
+      function restoreKeyImageLayersFromSettings(entries, saved) {
+        if (!saved?.imageLayers?.length) {
+          const restored = restoreKeyImageFromSettings(entries, saved);
+          return restored ? [normalizeImageLayer({
+            image: restored,
+            imageSource: restored,
+            imageMime: saved?.imageMime || "image/png",
+            imageName: saved?.imageName || ""
+          })] : [];
+        }
+        return saved.imageLayers.map((layer) => {
+          const restored = restoreKeyImageFromSettings(entries, layer);
+          return normalizeImageLayer({
+            ...layer,
+            image: restored,
+            imageSource: restored
+          });
+        }).filter((layer) => layer.image || layer.imageSource);
+      }
 
     function parseZipEntries(buffer) {
       const view = new DataView(buffer);
@@ -4492,27 +4881,32 @@
             const id = keyId(layoutKey(), key);
             const blob = new Blob([entry.bytes], { type: "image/png" });
             const imageUrl = URL.createObjectURL(blob);
-            const data = keyState(id);
-            const saved = importedSettings && importedSettings.keys ? importedSettings.keys[key[0]] : null;
-            if (saved) {
-              Object.assign(data, { ...saved });
-              data.image = restoreKeyImageFromSettings(entries, saved);
-              data.imageSource = data.image;
-              data.textVisible = true;
-              data.importedRender = false;
-            } else {
-              data.image = imageUrl;
-              data.imageSource = "";
-              data.imageFit = "stretch";
-              data.imageContain = false;
-              data.imageScale = 100;
-              data.imageX = 0;
-              data.imageY = 0;
-              data.text = legendForKey(key[0]);
-              data.textVisible = false;
-              data.importedRender = true;
-              data.capBackground = "transparent";
-            }
+              const data = keyState(id);
+              const saved = importedSettings && importedSettings.keys ? importedSettings.keys[key[0]] : null;
+              if (saved) {
+                Object.assign(data, { ...saved });
+                data.images = restoreKeyImageLayersFromSettings(entries, saved);
+                data.activeImageLayer = Math.max(0, Math.min(saved.activeImageLayer ?? 0, Math.max(0, data.images.length - 1)));
+                syncLegacyImageFields(data);
+                data.textVisible = true;
+                data.importedRender = false;
+              } else {
+                data.images = [normalizeImageLayer({
+                  image: imageUrl,
+                  imageSource: "",
+                  imageFit: "stretch",
+                  imageContain: false,
+                  imageScale: 100,
+                  imageX: 0,
+                  imageY: 0
+                })];
+                data.activeImageLayer = 0;
+                syncLegacyImageFields(data);
+                data.text = legendForKey(key[0]);
+                data.textVisible = false;
+                data.importedRender = true;
+                data.capBackground = "transparent";
+              }
             imported += 1;
           });
 
@@ -4639,29 +5033,33 @@
     imageContain.addEventListener("change", async () => {
       pushUndo();
       const data = keyState(selectedId);
-      data.imageContain = imageContain.checked;
-      data.imageFit = imageContain.checked ? "contain" : "cover";
-      if (data.imageFit === "cover") {
-        if (data.image) data.image = await trimTransparentImage(data.image);
-        if (data.imageScale < 100) data.imageScale = 100;
+      const layer = activeImageLayerData(data, true);
+      layer.imageContain = imageContain.checked;
+      layer.imageFit = imageContain.checked ? "contain" : "cover";
+      if (layer.imageFit === "cover") {
+        if (layer.image) layer.image = await trimTransparentImage(layer.image);
+        if (layer.imageScale < 100) layer.imageScale = 100;
       }
-      imageFit.value = data.imageFit;
-      imageScale.value = data.imageScale;
+      syncLegacyImageFields(data);
+      imageFit.value = layer.imageFit;
+      imageScale.value = layer.imageScale;
       syncRangeNumbers();
       renderKeyboard();
     });
     imageFit.addEventListener("change", async () => {
       pushUndo();
       const data = keyState(selectedId);
-      data.imageFit = imageFit.value;
-      data.imageContain = imageFit.value === "contain";
+      const layer = activeImageLayerData(data, true);
+      layer.imageFit = imageFit.value;
+      layer.imageContain = imageFit.value === "contain";
       if (imageFit.value === "cover") {
-        if (data.image) data.image = await trimTransparentImage(data.image);
-        if (data.imageScale < 100) data.imageScale = 100;
+        if (layer.image) layer.image = await trimTransparentImage(layer.image);
+        if (layer.imageScale < 100) layer.imageScale = 100;
       }
-      if (imageFit.value === "stretch") data.imageScale = 100;
-      imageContain.checked = data.imageContain;
-      imageScale.value = data.imageScale;
+      if (imageFit.value === "stretch") layer.imageScale = 100;
+      syncLegacyImageFields(data);
+      imageContain.checked = layer.imageContain;
+      imageScale.value = layer.imageScale;
       syncRangeNumbers();
       renderKeyboard();
     });
@@ -4687,6 +5085,18 @@
     imageAreaScaleY.addEventListener("input", () => updateSelected("imageAreaScaleY", Number(imageAreaScaleY.value)));
     imageAreaScaleZ.addEventListener("input", () => updateSelected("imageAreaScaleZ", Number(imageAreaScaleZ.value)));
     document.getElementById("pickImageButton").addEventListener("click", () => imageInput.click());
+    imageLayerSelect.addEventListener("change", () => {
+      const data = keyState(selectedId);
+      normalizeKeyImageLayers(data);
+      data.activeImageLayer = Math.max(0, Math.min(Number(imageLayerSelect.value) || 0, Math.max(0, data.images.length - 1)));
+      syncLegacyImageFields(data);
+      syncPanel();
+      renderKeyboard();
+    });
+    addImageLayerButton.addEventListener("click", () => imageInput.click());
+    removeImageLayerButton.addEventListener("click", () => {
+      clearSelectedKeyImages(true);
+    });
     imageInput.addEventListener("change", async () => {
       const file = imageInput.files[0];
       if (!file) return;
@@ -4963,6 +5373,38 @@
     });
     printerProfileName.addEventListener("input", () => {
       persistActivePrinterProfileForm({ rerender: false, refreshPreview: false, refreshLabels: true });
+    });
+    showFullKeyboardPreview.addEventListener("change", () => {
+      printerProfiles.previewFull = !!showFullKeyboardPreview.checked;
+      savePrinterProfiles();
+      syncPreviewKeyControls();
+      renderKeyboard();
+    });
+    availablePreviewKeySelect.addEventListener("change", () => {
+      savePrinterProfiles();
+    });
+    addPreviewKeyButton.addEventListener("click", () => {
+      const sourceName = availablePreviewKeySelect.value || (getKeyData(selectedId)?.[0]) || firstKey()?.[0];
+      if (!sourceName) return;
+      ensurePreviewKeyState();
+      if (!printerProfiles.previewKeys.includes(sourceName)) {
+        printerProfiles.previewKeys.push(sourceName);
+      }
+      savePrinterProfiles();
+      syncPreviewKeyControls();
+      renderKeyboard();
+    });
+    removePreviewKeyButton.addEventListener("click", () => {
+      ensurePreviewKeyState();
+      if (printerProfiles.previewKeys.length <= 1) return;
+      const selectedNames = [...activePreviewKeySelect.selectedOptions].map((option) => option.value);
+      if (!selectedNames.length) return;
+      const remaining = printerProfiles.previewKeys.filter((name) => !selectedNames.includes(name));
+      printerProfiles.previewKeys = remaining.length ? remaining : [printerProfiles.previewKeys[0]];
+      if (!printerProfiles.previewKeys.length) printerProfiles.previewKeys = ["Esc"];
+      savePrinterProfiles();
+      syncPreviewKeyControls();
+      renderKeyboard();
     });
     printerDpi.addEventListener("input", () => {
       persistActivePrinterProfileForm({ rerender: true, refreshPreview: false, refreshLabels: false });
