@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en">
-<head>
+<html lang="en" style="--bg: #f4f6f8; --image-radius: 0%; --image-mask-scale: 1; --topbar-height: 495px;"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Keycap Designer</title>
@@ -1052,7 +1051,7 @@
         <div class="mark">K</div>
         <h1>AKNES (Volanaro) Keycap Designer</h1>
       </div>
-      <details class="top-controls" id="topControls" open>
+      <details class="top-controls" id="topControls" open="">
         <summary>
           <div class="top-controls-label">
             <strong>Design Controls</strong>
@@ -1084,21 +1083,21 @@
             <option value="custom">Custom</option>
           </select>
           <select id="mainPrinterProfile" title="Printer profile">
-            <option value="keycap1">Keycap 1</option>
+            <option value="keycap1">Test square</option>
             <option value="keycap2">Keycap 2</option>
             <option value="keycap3">Keycap 3</option>
           </select>
         </div>
         <div class="toolbar-divider" aria-hidden="true"></div>
         <div class="toolbar-cluster">
-          <button class="button" id="undoButton" type="button" title="Undo last action" disabled>Undo</button>
+          <button class="button" id="undoButton" type="button" title="Undo last action" disabled="">Undo</button>
           <label class="check-row" title="Drag keys on a snap grid">
             <span>Edit layout</span>
             <input id="editLayout" type="checkbox">
           </label>
           <select id="newKeyPreset" title="New key size">
           <optgroup label="ANSI">
-            <option value="Custom|1|1" selected>Standard letter/number - 1u</option>
+            <option value="Custom|1|1" selected="">Standard letter/number - 1u</option>
             <option value="Tab|1.5|1">Tab - 1.5u</option>
             <option value="Caps|1.75|1">Caps Lock - 1.75u</option>
             <option value="LShift|2.25|1">Left Shift - 2.25u</option>
@@ -1136,9 +1135,9 @@
             <option value="RCtrl|1.25|1">Right Ctrl - 1.25u</option>
           </optgroup>
           </select>
-          <button class="button" id="addKeyButton" type="button" title="Add key in custom layout">Add Key</button>
-          <button class="button danger" id="removeKeyButton" type="button" title="Remove selected custom key">Remove Key</button>
-          <button class="button" id="resetCustomButton" type="button" title="Reset custom layout to its default shape">Reset Custom</button>
+          <button class="button" id="addKeyButton" type="button" title="Add key in custom layout" disabled="">Add Key</button>
+          <button class="button danger" id="removeKeyButton" type="button" title="Remove selected custom key" disabled="">Remove Key</button>
+          <button class="button" id="resetCustomButton" type="button" title="Reset custom layout to its default shape" disabled="">Reset Custom</button>
           <button class="button" id="printerSettingsButton" type="button" title="Printer keycap profile settings">Settings</button>
         </div>
       </div>
@@ -1163,11 +1162,835 @@
 
     <main class="workspace">
       <section class="stage-wrap" id="stageWrap">
-        <div class="profile-preview" id="mainProfilePreview" aria-hidden="true">
-          <img id="mainProfileImage" alt="">
+        <div class="profile-preview" id="mainProfilePreview" aria-hidden="true" style="display: none;">
+          <img id="mainProfileImage" alt="" src="">
         </div>
         <div class="keyboard-stage">
-          <div class="keyboard" id="keyboard" aria-label="Keyboard keycaps"></div>
+          <div class="keyboard" id="keyboard" aria-label="Keyboard keycaps" style="--layout-w: 23.25; --layout-h: 6.25;"><button class="key transparent-cap selected" type="button" data-id="full-ansi-standard-Grave" aria-label="`" style="--x: 0; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">`</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-1" aria-label="1" style="--x: 1; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">1</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-2" aria-label="2" style="--x: 2; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">2</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-3" aria-label="3" style="--x: 3; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">3</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-4" aria-label="4" style="--x: 4; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">4</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-5" aria-label="5" style="--x: 5; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">5</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-6" aria-label="6" style="--x: 6; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">6</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-7" aria-label="7" style="--x: 7; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">7</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-8" aria-label="8" style="--x: 8; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">8</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-9" aria-label="9" style="--x: 9; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">9</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-0" aria-label="0" style="--x: 10; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">0</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Minus" aria-label="-" style="--x: 11; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">-</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Equals" aria-label="=" style="--x: 12; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">=</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Backspace" aria-label="Backspace" style="--x: 13; --y: 1.25; --w: 2; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 102px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Backspace</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Tab" aria-label="Tab" style="--x: 0; --y: 2.25; --w: 1.5; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 75px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Tab</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Q" aria-label="Q" style="--x: 1.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Q</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-W" aria-label="W" style="--x: 2.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">W</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-E" aria-label="E" style="--x: 3.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">E</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-R" aria-label="R" style="--x: 4.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">R</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-T" aria-label="T" style="--x: 5.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">T</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Y" aria-label="Y" style="--x: 6.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Y</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-U" aria-label="U" style="--x: 7.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">U</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-I" aria-label="I" style="--x: 8.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">I</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-O" aria-label="O" style="--x: 9.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">O</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-P" aria-label="P" style="--x: 10.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">P</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-LBracket" aria-label="[" style="--x: 11.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">[</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-RBracket" aria-label="]" style="--x: 12.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">]</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Caps" aria-label="Caps" style="--x: 0; --y: 3.25; --w: 1.75; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 88.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Caps</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-A" aria-label="A" style="--x: 1.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">A</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-S" aria-label="S" style="--x: 2.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">S</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-D" aria-label="D" style="--x: 3.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">D</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F" aria-label="F" style="--x: 4.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-G" aria-label="G" style="--x: 5.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">G</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-H" aria-label="H" style="--x: 6.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">H</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-J" aria-label="J" style="--x: 7.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">J</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-K" aria-label="K" style="--x: 8.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">K</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-L" aria-label="L" style="--x: 9.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">L</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Semicolon" aria-label=";" style="--x: 10.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">;</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Quote" aria-label="'" style="--x: 11.75; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">'</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Backslash" aria-label="\" style="--x: 13.5; --y: 2.25; --w: 1.5; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 75px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">\</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Enter" aria-label="Enter" style="--x: 12.75; --y: 3.25; --w: 2.25; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 115.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Enter</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-LShift" aria-label="Shift" style="--x: 0; --y: 4.25; --w: 2.25; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 115.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Shift</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Z" aria-label="Z" style="--x: 2.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Z</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-X" aria-label="X" style="--x: 3.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">X</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-C" aria-label="C" style="--x: 4.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">C</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-V" aria-label="V" style="--x: 5.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">V</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-B" aria-label="B" style="--x: 6.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">B</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-N" aria-label="N" style="--x: 7.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">N</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-M" aria-label="M" style="--x: 8.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">M</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Comma" aria-label="," style="--x: 9.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">,</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Period" aria-label="." style="--x: 10.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">.</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Slash" aria-label="/" style="--x: 11.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">/</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-RShift" aria-label="Shift" style="--x: 12.25; --y: 4.25; --w: 2.75; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 142.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Shift</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-LCtrl" aria-label="Ctrl" style="--x: 0; --y: 5.25; --w: 1.25; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 61.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Ctrl</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-LWin" aria-label="Win" style="--x: 1.25; --y: 5.25; --w: 1.25; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 61.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Win</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-LAlt" aria-label="Alt" style="--x: 2.5; --y: 5.25; --w: 1.25; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 61.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Alt</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Space" aria-label="Space" style="--x: 3.75; --y: 5.25; --w: 6.25; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 331.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Space</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-RAlt" aria-label="Alt" style="--x: 10; --y: 5.25; --w: 1.25; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 61.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Alt</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Fn" aria-label="Fn" style="--x: 11.25; --y: 5.25; --w: 1.25; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 61.5px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Fn</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-RCtrl" aria-label="Ctrl" style="--x: 12.5; --y: 5.25; --w: 2.5; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 129px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Ctrl</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Esc" aria-label="Esc" style="--x: 0; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Esc</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F1" aria-label="F1" style="--x: 2; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F1</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F2" aria-label="F2" style="--x: 3; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F2</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F3" aria-label="F3" style="--x: 4; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F3</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F4" aria-label="F4" style="--x: 5; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F4</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F5" aria-label="F5" style="--x: 6.5; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F5</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F6" aria-label="F6" style="--x: 7.5; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F6</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F7" aria-label="F7" style="--x: 8.5; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F7</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F8" aria-label="F8" style="--x: 9.5; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F8</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F9" aria-label="F9" style="--x: 11; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F9</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F10" aria-label="F10" style="--x: 12; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F10</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F11" aria-label="F11" style="--x: 13; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F11</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-F12" aria-label="F12" style="--x: 14; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">F12</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Print" aria-label="Prt" style="--x: 15.5; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Prt</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Scroll" aria-label="Scr" style="--x: 16.5; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Scr</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Pause" aria-label="Pause" style="--x: 17.5; --y: 0; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Pause</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-NumLock" aria-label="Num" style="--x: 19.25; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Num</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-NumSlash" aria-label="/" style="--x: 20.25; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">/</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-NumStar" aria-label="*" style="--x: 21.25; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">*</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-NumMinus" aria-label="-" style="--x: 22.25; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">-</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Insert" aria-label="Insert" style="--x: 15.5; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Insert</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Home" aria-label="Home" style="--x: 16.5; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Home</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-PageUp" aria-label="PgUp" style="--x: 17.5; --y: 1.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">PgUp</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Delete" aria-label="Delete" style="--x: 15.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Delete</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-End" aria-label="End" style="--x: 16.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">End</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-PageDown" aria-label="PgDn" style="--x: 17.5; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">PgDn</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num7" aria-label="7" style="--x: 19.25; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">7</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num8" aria-label="8" style="--x: 20.25; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">8</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num9" aria-label="9" style="--x: 21.25; --y: 2.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">9</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-NumPlus" aria-label="+" style="--x: 22.25; --y: 2.25; --w: 1; --h: 2; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 102px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 42px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">+</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num4" aria-label="4" style="--x: 19.25; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">4</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num5" aria-label="5" style="--x: 20.25; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">5</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num6" aria-label="6" style="--x: 21.25; --y: 3.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">6</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num1" aria-label="1" style="--x: 19.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">1</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num2" aria-label="2" style="--x: 20.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">2</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num3" aria-label="3" style="--x: 21.25; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">3</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-NumEnter" aria-label="Enter" style="--x: 22.25; --y: 4.25; --w: 1; --h: 2; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 102px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 42px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">Enter</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Up" aria-label="^" style="--x: 16.5; --y: 4.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">^</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Left" aria-label="&lt;" style="--x: 15.5; --y: 5.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">&lt;</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Down" aria-label="v" style="--x: 16.5; --y: 5.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">v</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Right" aria-label="&gt;" style="--x: 17.5; --y: 5.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">&gt;</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-Num0" aria-label="0" style="--x: 19.25; --y: 5.25; --w: 2; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 102px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">0</div>
+        </button><button class="key transparent-cap" type="button" data-id="full-ansi-standard-NumDot" aria-label="." style="--x: 21.25; --y: 5.25; --w: 1; --h: 1; --cap-color: #ffffff; --text-opacity: 1; --cutout-opacity: 1; --artwork-w: 48px; --artwork-h: 48px; --image-radius-px: 0px;">
+          
+          
+          <div class="legend">
+            
+            <div class="legend-text" style="color: rgb(23, 32, 42); font-family: Inter, Arial, sans-serif; font-weight: 700; font-size: 34.44px; line-height: 1.16; text-align: center; place-items: center; transform: translate(0%, 0%);"></div>
+          </div>
+          <div class="key-id">.</div>
+        </button></div>
         </div>
       </section>
 
@@ -1179,7 +2002,7 @@
           </summary>
           <div class="section-body">
             <div class="key-meta">
-              <span id="selectedName">Esc</span>
+              <span id="selectedName">`</span>
               <span id="selectedSize">1u</span>
             </div>
           </div>
@@ -1202,15 +2025,14 @@
           <div class="inline">
             <div class="field">
               <label for="fontFamily">Font</label>
-              <select id="fontFamily">
-              </select>
+              <select id="fontFamily"><option value="&quot;Aptos&quot;, sans-serif" style="font-family: Aptos, sans-serif;">Aptos</option><option value="&quot;Arial&quot;, sans-serif" style="font-family: Arial, sans-serif;">Arial</option><option value="&quot;Arial Black&quot;, sans-serif" style="font-family: &quot;Arial Black&quot;, sans-serif;">Arial Black</option><option value="&quot;Bahnschrift&quot;, sans-serif" style="font-family: Bahnschrift, sans-serif;">Bahnschrift</option><option value="&quot;Book Antiqua&quot;, sans-serif" style="font-family: &quot;Book Antiqua&quot;, sans-serif;">Book Antiqua</option><option value="&quot;Bookman Old Style&quot;, sans-serif" style="font-family: &quot;Bookman Old Style&quot;, sans-serif;">Bookman Old Style</option><option value="&quot;Bradley Hand ITC&quot;, sans-serif" style="font-family: &quot;Bradley Hand ITC&quot;, sans-serif;">Bradley Hand ITC</option><option value="&quot;Brush Script MT&quot;, sans-serif" style="font-family: &quot;Brush Script MT&quot;, sans-serif;">Brush Script MT</option><option value="&quot;Calibri&quot;, sans-serif" style="font-family: Calibri, sans-serif;">Calibri</option><option value="&quot;Cambria&quot;, sans-serif" style="font-family: Cambria, sans-serif;">Cambria</option><option value="&quot;Candara&quot;, sans-serif" style="font-family: Candara, sans-serif;">Candara</option><option value="&quot;Century Gothic&quot;, sans-serif" style="font-family: &quot;Century Gothic&quot;, sans-serif;">Century Gothic</option><option value="&quot;Comic Sans MS&quot;, sans-serif" style="font-family: &quot;Comic Sans MS&quot;, sans-serif;">Comic Sans MS</option><option value="&quot;Consolas&quot;, sans-serif" style="font-family: Consolas, sans-serif;">Consolas</option><option value="&quot;Constantia&quot;, sans-serif" style="font-family: Constantia, sans-serif;">Constantia</option><option value="&quot;Copperplate Gothic Light&quot;, sans-serif" style="font-family: &quot;Copperplate Gothic Light&quot;, sans-serif;">Copperplate Gothic Light</option><option value="&quot;Corbel&quot;, sans-serif" style="font-family: Corbel, sans-serif;">Corbel</option><option value="&quot;Courier New&quot;, monospace" style="font-family: &quot;Courier New&quot;, monospace;">Courier New</option><option value="cursive" style="font-family: cursive;">cursive</option><option value="&quot;Dubai&quot;, sans-serif" style="font-family: Dubai, sans-serif;">Dubai</option><option value="&quot;Ebrima&quot;, sans-serif" style="font-family: Ebrima, sans-serif;">Ebrima</option><option value="fantasy" style="font-family: fantasy;">fantasy</option><option value="&quot;Franklin Gothic Medium&quot;, sans-serif" style="font-family: &quot;Franklin Gothic Medium&quot;, sans-serif;">Franklin Gothic Medium</option><option value="&quot;Gabriola&quot;, sans-serif" style="font-family: Gabriola, sans-serif;">Gabriola</option><option value="&quot;Gadugi&quot;, sans-serif" style="font-family: Gadugi, sans-serif;">Gadugi</option><option value="&quot;Garamond&quot;, sans-serif" style="font-family: Garamond, sans-serif;">Garamond</option><option value="&quot;Georgia&quot;, sans-serif" style="font-family: Georgia, sans-serif;">Georgia</option><option value="&quot;Gill Sans&quot;, sans-serif" style="font-family: &quot;Gill Sans&quot;, sans-serif;">Gill Sans</option><option value="&quot;Helvetica&quot;, sans-serif" style="font-family: Helvetica, sans-serif;">Helvetica</option><option value="&quot;Impact&quot;, sans-serif" style="font-family: Impact, sans-serif;">Impact</option><option value="&quot;Ink Free&quot;, sans-serif" style="font-family: &quot;Ink Free&quot;, sans-serif;">Ink Free</option><option value="&quot;Inter&quot;, sans-serif" style="font-family: Inter, sans-serif;">Inter</option><option value="&quot;Javanese Text&quot;, sans-serif" style="font-family: &quot;Javanese Text&quot;, sans-serif;">Javanese Text</option><option value="&quot;Leelawadee UI&quot;, sans-serif" style="font-family: &quot;Leelawadee UI&quot;, sans-serif;">Leelawadee UI</option><option value="&quot;Lucida Console&quot;, monospace" style="font-family: &quot;Lucida Console&quot;, monospace;">Lucida Console</option><option value="&quot;Lucida Sans Unicode&quot;, sans-serif" style="font-family: &quot;Lucida Sans Unicode&quot;, sans-serif;">Lucida Sans Unicode</option><option value="&quot;Malgun Gothic&quot;, sans-serif" style="font-family: &quot;Malgun Gothic&quot;, sans-serif;">Malgun Gothic</option><option value="&quot;Marlett&quot;, sans-serif" style="font-family: Marlett, sans-serif;">Marlett</option><option value="&quot;Microsoft Sans Serif&quot;, sans-serif" style="font-family: &quot;Microsoft Sans Serif&quot;, sans-serif;">Microsoft Sans Serif</option><option value="&quot;Mongolian Baiti&quot;, sans-serif" style="font-family: &quot;Mongolian Baiti&quot;, sans-serif;">Mongolian Baiti</option><option value="monospace" style="font-family: monospace;">monospace</option><option value="&quot;MS Gothic&quot;, sans-serif" style="font-family: &quot;MS Gothic&quot;, sans-serif;">MS Gothic</option><option value="&quot;MV Boli&quot;, sans-serif" style="font-family: &quot;MV Boli&quot;, sans-serif;">MV Boli</option><option value="&quot;Nirmala UI&quot;, sans-serif" style="font-family: &quot;Nirmala UI&quot;, sans-serif;">Nirmala UI</option><option value="&quot;Palatino Linotype&quot;, sans-serif" style="font-family: &quot;Palatino Linotype&quot;, sans-serif;">Palatino Linotype</option><option value="&quot;Rockwell&quot;, sans-serif" style="font-family: Rockwell, sans-serif;">Rockwell</option><option value="sans-serif" style="font-family: sans-serif;">sans-serif</option><option value="&quot;Segoe UI&quot;, sans-serif" style="font-family: &quot;Segoe UI&quot;, sans-serif;">Segoe UI</option><option value="&quot;Segoe UI Black&quot;, sans-serif" style="font-family: &quot;Segoe UI Black&quot;, sans-serif;">Segoe UI Black</option><option value="&quot;Segoe UI Emoji&quot;, sans-serif" style="font-family: &quot;Segoe UI Emoji&quot;, sans-serif;">Segoe UI Emoji</option><option value="&quot;Segoe UI Symbol&quot;, sans-serif" style="font-family: &quot;Segoe UI Symbol&quot;, sans-serif;">Segoe UI Symbol</option><option value="serif" style="font-family: serif;">serif</option><option value="&quot;Sitka Text&quot;, sans-serif" style="font-family: &quot;Sitka Text&quot;, sans-serif;">Sitka Text</option><option value="&quot;Sylfaen&quot;, sans-serif" style="font-family: Sylfaen, sans-serif;">Sylfaen</option><option value="&quot;Symbol&quot;, sans-serif" style="font-family: Symbol, sans-serif;">Symbol</option><option value="system-ui" style="font-family: system-ui;">system-ui</option><option value="&quot;Tahoma&quot;, sans-serif" style="font-family: Tahoma, sans-serif;">Tahoma</option><option value="&quot;Times New Roman&quot;, sans-serif" style="font-family: &quot;Times New Roman&quot;, sans-serif;">Times New Roman</option><option value="&quot;Trebuchet MS&quot;, sans-serif" style="font-family: &quot;Trebuchet MS&quot;, sans-serif;">Trebuchet MS</option><option value="&quot;Verdana&quot;, sans-serif" style="font-family: Verdana, sans-serif;">Verdana</option><option value="&quot;Yu Gothic&quot;, sans-serif" style="font-family: &quot;Yu Gothic&quot;, sans-serif;">Yu Gothic</option><option value="Inter, Arial, sans-serif" style="font-family: Inter, Arial, sans-serif;">Inter</option></select>
             </div>
             <div class="field">
               <label for="fontWeight">Weight</label>
               <select id="fontWeight">
                 <option value="400">Regular</option>
                 <option value="600">Semi</option>
-                <option value="700" selected>Bold</option>
+                <option value="700" selected="">Bold</option>
                 <option value="900">Black</option>
               </select>
             </div>
@@ -1218,7 +2040,7 @@
           <div class="inline">
             <div class="field">
               <label for="textScale">Text Z / Scale</label>
-              <input id="textScale" type="range" min="25" max="130" value="82">
+              <div class="range-pair"><input id="textScale" type="range" min="25" max="130" value="82"><input type="number" min="25" max="130" step="1" aria-label="textScale value"></div>
             </div>
             <div class="field">
               <label for="textColor">Color</label>
@@ -1227,7 +2049,7 @@
           </div>
           <div class="field">
             <label for="textOpacity">Text opacity</label>
-            <input id="textOpacity" type="range" min="0" max="100" value="100">
+            <div class="range-pair"><input id="textOpacity" type="range" min="0" max="100" value="100"><input type="number" min="0" max="100" step="1" aria-label="textOpacity value"></div>
           </div>
           <div class="check-row">
             <span>Cut out text</span>
@@ -1235,28 +2057,28 @@
           </div>
           <div class="field">
             <label for="textCutoutOpacity">Cutout amount</label>
-            <input id="textCutoutOpacity" type="range" min="0" max="100" value="100">
+            <div class="range-pair"><input id="textCutoutOpacity" type="range" min="0" max="100" value="100"><input type="number" min="0" max="100" step="1" aria-label="textCutoutOpacity value"></div>
           </div>
           <div class="inline">
             <div class="field">
               <label for="textX">Text X</label>
-              <input id="textX" type="range" min="-50" max="50" value="0">
+              <div class="range-pair"><input id="textX" type="range" min="-50" max="50" value="0"><input type="number" min="-50" max="50" step="1" aria-label="textX value"></div>
             </div>
             <div class="field">
               <label for="textY">Text Y</label>
-              <input id="textY" type="range" min="-50" max="50" value="0">
+              <div class="range-pair"><input id="textY" type="range" min="-50" max="50" value="0"><input type="number" min="-50" max="50" step="1" aria-label="textY value"></div>
             </div>
           </div>
           <div class="field">
             <label for="textGap">Legend Gap</label>
-            <input id="textGap" type="range" min="0" max="120" value="10">
+            <div class="range-pair"><input id="textGap" type="range" min="0" max="120" value="10"><input type="number" min="0" max="120" step="1" aria-label="textGap value"></div>
           </div>
           <div class="inline">
             <div class="field">
               <label for="textAlign">Align</label>
               <select id="textAlign">
                 <option value="left">Left</option>
-                <option value="center" selected>Center</option>
+                <option value="center" selected="">Center</option>
                 <option value="right">Right</option>
               </select>
             </div>
@@ -1264,14 +2086,14 @@
               <label for="textVAlign">Vertical</label>
               <select id="textVAlign">
                 <option value="top">Top</option>
-                <option value="middle" selected>Middle</option>
+                <option value="middle" selected="">Middle</option>
                 <option value="bottom">Bottom</option>
               </select>
             </div>
           </div>
           <div class="check-row">
             <span>Auto fit text</span>
-            <input id="autoText" type="checkbox" checked>
+            <input id="autoText" type="checkbox" checked="">
           </div>
           <div class="field">
             <label for="customFont">Custom font name</label>
@@ -1299,35 +2121,35 @@
             </div>
             <div class="field">
               <label for="imageLayerSelect">Image layer</label>
-              <select id="imageLayerSelect"></select>
+              <select id="imageLayerSelect" disabled=""><option value="0">No image layers</option></select>
             </div>
             <div class="row">
               <button class="button" id="addImageLayerButton" type="button" title="Add image layer">Add Layer</button>
-              <button class="button danger" id="removeImageLayerButton" type="button" title="Remove selected image layer">Remove Layer</button>
+              <button class="button danger" id="removeImageLayerButton" type="button" title="Remove selected image layer" disabled="">Remove Layer</button>
             </div>
             <div class="inline">
               <div class="field">
                 <label for="imageScale">Scale</label>
-                <input id="imageScale" type="range" min="20" max="500" value="100">
+                <div class="range-pair"><input id="imageScale" type="range" min="20" max="500" value="100"><input type="number" min="20" max="500" step="1" aria-label="imageScale value"></div>
               </div>
             <div class="field">
               <label for="imageOpacity">Opacity</label>
-              <input id="imageOpacity" type="range" min="5" max="100" value="100">
+              <div class="range-pair"><input id="imageOpacity" type="range" min="5" max="100" value="100"><input type="number" min="5" max="100" step="1" aria-label="imageOpacity value"></div>
             </div>
           </div>
           <div class="inline">
             <div class="field">
               <label for="imageX">X</label>
-              <input id="imageX" type="range" min="-100" max="100" value="0">
+              <div class="range-pair"><input id="imageX" type="range" min="-100" max="100" value="0"><input type="number" min="-100" max="100" step="1" aria-label="imageX value"></div>
             </div>
             <div class="field">
               <label for="imageY">Y</label>
-              <input id="imageY" type="range" min="-100" max="100" value="0">
+              <div class="range-pair"><input id="imageY" type="range" min="-100" max="100" value="0"><input type="number" min="-100" max="100" step="1" aria-label="imageY value"></div>
             </div>
           </div>
           <div class="check-row">
             <span>Contain image</span>
-            <input id="imageContain" type="checkbox" checked>
+            <input id="imageContain" type="checkbox" checked="">
           </div>
           <div class="field">
             <label for="imageFit">Fit</label>
@@ -1339,29 +2161,29 @@
             </div>
           <div class="field">
             <label for="keyRadius">Corner radius</label>
-              <input id="keyRadius" type="range" min="0" max="100" value="0">
+              <div class="range-pair"><input id="keyRadius" type="range" min="0" max="100" value="0"><input type="number" min="0" max="100" step="1" aria-label="keyRadius value"></div>
           </div>
           <div class="field">
             <label for="keyCornerScale">Corner scale</label>
-            <input id="keyCornerScale" type="range" min="0" max="150" value="100">
+            <div class="range-pair"><input id="keyCornerScale" type="range" min="0" max="150" value="100"><input type="number" min="0" max="150" step="1" aria-label="keyCornerScale value"></div>
           </div>
           <div class="field">
             <label for="imageCircle">Circle face</label>
-            <input id="imageCircle" type="range" min="0" max="100" value="0">
+            <div class="range-pair"><input id="imageCircle" type="range" min="0" max="100" value="0"><input type="number" min="0" max="100" step="1" aria-label="imageCircle value"></div>
           </div>
           <div class="inline">
             <div class="field">
               <label for="imageAreaScaleX">Image area X</label>
-              <input id="imageAreaScaleX" type="range" min="50" max="150" value="100">
+              <div class="range-pair"><input id="imageAreaScaleX" type="range" min="50" max="150" value="100"><input type="number" min="50" max="150" step="1" aria-label="imageAreaScaleX value"></div>
             </div>
             <div class="field">
               <label for="imageAreaScaleY">Image area Y</label>
-              <input id="imageAreaScaleY" type="range" min="50" max="150" value="100">
+              <div class="range-pair"><input id="imageAreaScaleY" type="range" min="50" max="150" value="100"><input type="number" min="50" max="150" step="1" aria-label="imageAreaScaleY value"></div>
             </div>
           </div>
           <div class="field">
             <label for="imageAreaScaleZ">Image area Z</label>
-            <input id="imageAreaScaleZ" type="range" min="50" max="150" value="100">
+            <div class="range-pair"><input id="imageAreaScaleZ" type="range" min="50" max="150" value="100"><input type="number" min="50" max="150" step="1" aria-label="imageAreaScaleZ value"></div>
           </div>
           </div>
         </details>
@@ -1384,36 +2206,36 @@
           <div class="inline">
             <div class="field">
               <label for="boardImageScale">Size Z</label>
-              <input id="boardImageScale" type="range" min="0" max="500" value="100">
+              <div class="range-pair"><input id="boardImageScale" type="range" min="0" max="500" value="100"><input type="number" min="0" max="500" step="1" aria-label="boardImageScale value"></div>
             </div>
             <div class="field">
               <label for="boardImageOpacity">Opacity</label>
-              <input id="boardImageOpacity" type="range" min="5" max="100" value="100">
+              <div class="range-pair"><input id="boardImageOpacity" type="range" min="5" max="100" value="100"><input type="number" min="5" max="100" step="1" aria-label="boardImageOpacity value"></div>
             </div>
           </div>
           <div class="inline">
             <div class="field">
               <label for="boardImageScaleX">Size X</label>
-              <input id="boardImageScaleX" type="range" min="0" max="500" value="100">
+              <div class="range-pair"><input id="boardImageScaleX" type="range" min="0" max="500" value="100"><input type="number" min="0" max="500" step="1" aria-label="boardImageScaleX value"></div>
             </div>
             <div class="field">
               <label for="boardImageScaleY">Size Y</label>
-              <input id="boardImageScaleY" type="range" min="0" max="500" value="100">
+              <div class="range-pair"><input id="boardImageScaleY" type="range" min="0" max="500" value="100"><input type="number" min="0" max="500" step="1" aria-label="boardImageScaleY value"></div>
             </div>
           </div>
           <div class="inline">
             <div class="field">
               <label for="boardImageX">X</label>
-              <input id="boardImageX" type="range" min="-100" max="100" value="0">
+              <div class="range-pair"><input id="boardImageX" type="range" min="-100" max="100" value="0"><input type="number" min="-100" max="100" step="1" aria-label="boardImageX value"></div>
             </div>
             <div class="field">
               <label for="boardImageY">Y</label>
-              <input id="boardImageY" type="range" min="-100" max="100" value="0">
+              <div class="range-pair"><input id="boardImageY" type="range" min="-100" max="100" value="0"><input type="number" min="-100" max="100" step="1" aria-label="boardImageY value"></div>
             </div>
           </div>
           <div class="check-row">
             <span>Use in exports</span>
-            <input id="boardImageExport" type="checkbox" checked>
+            <input id="boardImageExport" type="checkbox" checked="">
           </div>
           <div class="field">
             <label for="boardImageFit">Fit</label>
@@ -1433,12 +2255,12 @@
             <span class="section-chevron" aria-hidden="true"></span>
           </summary>
           <div class="section-body">
-          <div class="swatches" id="swatches"></div>
+          <div class="swatches" id="swatches"><button class="swatch" type="button" title="#fbfcfe" style="background: rgb(251, 252, 254);"></button><button class="swatch" type="button" title="#f4eee2" style="background: rgb(244, 238, 226);"></button><button class="swatch" type="button" title="#ece7ff" style="background: rgb(236, 231, 255);"></button><button class="swatch" type="button" title="#d9f3ef" style="background: rgb(217, 243, 239);"></button><button class="swatch" type="button" title="#ffe4df" style="background: rgb(255, 228, 223);"></button><button class="swatch" type="button" title="#222831" style="background: rgb(34, 40, 49);"></button><button class="swatch" type="button" title="#254e58" style="background: rgb(37, 78, 88);"></button><button class="swatch" type="button" title="#9a3412" style="background: rgb(154, 52, 18);"></button></div>
           <div class="inline">
             <div class="field">
               <label for="capBackground">Background</label>
               <select id="capBackground">
-                <option value="transparent" selected>Transparent</option>
+                <option value="transparent" selected="">Transparent</option>
                 <option value="color">Color</option>
               </select>
             </div>
@@ -1452,7 +2274,7 @@
               <label for="exportScale">Export scale</label>
               <select id="exportScale">
                 <option value="2">2x</option>
-                <option value="3" selected>3x</option>
+                <option value="3" selected="">3x</option>
                 <option value="4">4x</option>
                 <option value="6">6x</option>
                 <option value="8">8x</option>
@@ -1468,7 +2290,7 @@
           <div class="field">
             <label for="outlineExport">Outline</label>
             <select id="outlineExport">
-              <option value="none" selected>No outline</option>
+              <option value="none" selected="">No outline</option>
               <option value="stroke">Stroke</option>
             </select>
           </div>
@@ -1480,7 +2302,143 @@
           </div>
         </details>
 
-        <div id="printerSettingsInlineMount"></div>
+        <div id="printerSettingsInlineMount"><div class="changelog-panel" id="printerSettingsPanel" aria-hidden="true">
+      <div class="changelog-dialog" role="dialog" aria-modal="true" aria-labelledby="printerSettingsTitle">
+        <div class="changelog-head">
+          <h2 id="printerSettingsTitle">Printer Settings</h2>
+          <button class="button" id="closePrinterSettingsButton" type="button">Close</button>
+        </div>
+        <div class="section" id="printerSettingsLock">
+          <h3>Locked</h3>
+          <div class="field">
+            <label for="printerSettingsPassword">Password</label>
+            <input id="printerSettingsPassword" type="password" placeholder="Enter password">
+          </div>
+          <div class="row">
+            <button class="button primary" id="unlockPrinterSettingsButton" type="button">Unlock</button>
+          </div>
+        </div>
+        <div class="settings-grid" id="printerSettingsContent" hidden="">
+          <div class="inline">
+            <div class="field">
+              <label for="activePrinterProfile">Active profile</label>
+              <select id="activePrinterProfile">
+                <option value="keycap1">Test square</option>
+                <option value="keycap2">Keycap 2</option>
+                <option value="keycap3">Keycap 3</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="printerDpi">DPI</label>
+              <input id="printerDpi" type="number" min="72" max="2400" value="600">
+            </div>
+          </div>
+          <div class="field">
+            <label for="printerProfileName">Profile name</label>
+            <input id="printerProfileName" type="text" value="Keycap 1">
+          </div>
+          <div class="check-row">
+            <span>Show full keyboard preview</span>
+            <input id="showFullKeyboardPreview" type="checkbox">
+          </div>
+          <div class="field">
+            <label for="availablePreviewKeySelect">Available keys</label>
+            <select id="availablePreviewKeySelect"><option value="Grave">` - 1u</option><option value="1">1 - 1u</option><option value="2">2 - 1u</option><option value="3">3 - 1u</option><option value="4">4 - 1u</option><option value="5">5 - 1u</option><option value="6">6 - 1u</option><option value="7">7 - 1u</option><option value="8">8 - 1u</option><option value="9">9 - 1u</option><option value="0">0 - 1u</option><option value="Minus">- - 1u</option><option value="Equals">= - 1u</option><option value="Backspace">Backspace - 2u</option><option value="Tab">Tab - 1.5u</option><option value="Q">Q - 1u</option><option value="W">W - 1u</option><option value="E">E - 1u</option><option value="R">R - 1u</option><option value="T">T - 1u</option><option value="Y">Y - 1u</option><option value="U">U - 1u</option><option value="I">I - 1u</option><option value="O">O - 1u</option><option value="P">P - 1u</option><option value="LBracket">[ - 1u</option><option value="RBracket">] - 1u</option><option value="Caps">Caps - 1.75u</option><option value="A">A - 1u</option><option value="S">S - 1u</option><option value="D">D - 1u</option><option value="F">F - 1u</option><option value="G">G - 1u</option><option value="H">H - 1u</option><option value="J">J - 1u</option><option value="K">K - 1u</option><option value="L">L - 1u</option><option value="Semicolon">; - 1u</option><option value="Quote">' - 1u</option><option value="Backslash">\ - 1.5u</option><option value="Enter">Enter - 2.25u</option><option value="LShift">Shift - 2.25u</option><option value="Z">Z - 1u</option><option value="X">X - 1u</option><option value="C">C - 1u</option><option value="V">V - 1u</option><option value="B">B - 1u</option><option value="N">N - 1u</option><option value="M">M - 1u</option><option value="Comma">, - 1u</option><option value="Period">. - 1u</option><option value="Slash">/ - 1u</option><option value="RShift">Shift - 2.75u</option><option value="LCtrl">Ctrl - 1.25u</option><option value="LWin">Win - 1.25u</option><option value="LAlt">Alt - 1.25u</option><option value="Space">Space - 6.25u</option><option value="RAlt">Alt - 1.25u</option><option value="Fn">Fn - 1.25u</option><option value="RCtrl">Ctrl - 2.5u</option><option value="Esc">Esc - 1u</option><option value="F1">F1 - 1u</option><option value="F2">F2 - 1u</option><option value="F3">F3 - 1u</option><option value="F4">F4 - 1u</option><option value="F5">F5 - 1u</option><option value="F6">F6 - 1u</option><option value="F7">F7 - 1u</option><option value="F8">F8 - 1u</option><option value="F9">F9 - 1u</option><option value="F10">F10 - 1u</option><option value="F11">F11 - 1u</option><option value="F12">F12 - 1u</option><option value="Print">Prt - 1u</option><option value="Scroll">Scr - 1u</option><option value="Pause">Pause - 1u</option><option value="NumLock">Num - 1u</option><option value="NumSlash">/ - 1u</option><option value="NumStar">* - 1u</option><option value="NumMinus">- - 1u</option><option value="Insert">Insert - 1u</option><option value="Home">Home - 1u</option><option value="PageUp">PgUp - 1u</option><option value="Delete">Delete - 1u</option><option value="End">End - 1u</option><option value="PageDown">PgDn - 1u</option><option value="Num7">7 - 1u</option><option value="Num8">8 - 1u</option><option value="Num9">9 - 1u</option><option value="NumPlus">+ - 1u x 2u</option><option value="Num4">4 - 1u</option><option value="Num5">5 - 1u</option><option value="Num6">6 - 1u</option><option value="Num1">1 - 1u</option><option value="Num2">2 - 1u</option><option value="Num3">3 - 1u</option><option value="NumEnter">Enter - 1u x 2u</option><option value="Up">^ - 1u</option><option value="Left">&lt; - 1u</option><option value="Down">v - 1u</option><option value="Right">&gt; - 1u</option><option value="Num0">0 - 2u</option><option value="NumDot">. - 1u</option></select>
+          </div>
+          <div class="field">
+            <label for="activePreviewKeySelect">Preview keys shown</label>
+            <select id="activePreviewKeySelect" multiple="" size="8"><option value="Esc">Esc - 1u</option></select>
+          </div>
+          <div class="row">
+            <button class="button" id="addPreviewKeyButton" type="button">Add Key To Preview</button>
+            <button class="button danger" id="removePreviewKeyButton" type="button" disabled="">Remove Selected Preview Key</button>
+          </div>
+          <div class="field">
+            <label>Profile image</label>
+            <input class="hidden-file" id="profileImageInput" type="file" accept="image/*">
+            <div class="row">
+              <button class="button" id="pickProfileImageButton" type="button">Upload Image</button>
+              <button class="button danger" id="removeProfileImageButton" type="button">Delete Image</button>
+            </div>
+            <div class="profile-image-preview" id="profileImagePreview" hidden="">
+              <img id="profileImagePreviewImg" alt="" src="">
+            </div>
+          </div>
+          <div class="section">
+            <h3>Image calibration</h3>
+            <div class="inline">
+              <div class="field">
+                <label for="profileImageX">Image X</label>
+                <input id="profileImageX" type="number" min="-100" max="100" step="1" value="0">
+              </div>
+              <div class="field">
+                <label for="profileImageY">Image Y</label>
+                <input id="profileImageY" type="number" min="-100" max="100" step="1" value="0">
+              </div>
+              <div class="field">
+                <label for="profileImageZ">Image Z / Scale</label>
+                <input id="profileImageZ" type="number" min="25" max="500" step="1" value="100">
+              </div>
+            </div>
+            <div class="inline">
+              <div class="field">
+                <label for="profileBoardX">Board X</label>
+                <input id="profileBoardX" type="number" min="-100" max="100" step="1" value="0">
+              </div>
+              <div class="field">
+                <label for="profileBoardY">Board Y</label>
+                <input id="profileBoardY" type="number" min="-100" max="100" step="1" value="0">
+              </div>
+              <div class="field">
+                <label for="profileBoardZ">Board Z / Scale</label>
+                <input id="profileBoardZ" type="number" min="25" max="500" step="1" value="100">
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <h3>Image bounds</h3>
+            <div class="inline">
+              <div class="field">
+                <label for="profileCornerRadiusMax">Corner radius max</label>
+                <input id="profileCornerRadiusMax" type="number" min="0" max="100" step="1" value="100">
+              </div>
+              <div class="field">
+                <label for="profileCircleMax">Circle face max</label>
+                <input id="profileCircleMax" type="number" min="0" max="100" step="1" value="100">
+              </div>
+            </div>
+            <div class="inline">
+              <div class="field">
+                <label for="profileCornerScaleMin">Corner scale min</label>
+                <input id="profileCornerScaleMin" type="number" min="0" max="150" step="1" value="0">
+              </div>
+              <div class="field">
+                <label for="profileCornerScaleMax">Corner scale max</label>
+                <input id="profileCornerScaleMax" type="number" min="0" max="150" step="1" value="150">
+              </div>
+            </div>
+          </div>
+          <div class="profile-grid" id="profileSizeGrid"><strong>Key size</strong><strong>Width mm</strong><strong>Height mm</strong><div>1u</div><input type="number" step="0.1" min="1" data-profile-size="1" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="1" data-axis="h"><div>1.25u</div><input type="number" step="0.1" min="1" data-profile-size="1.25" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="1.25" data-axis="h"><div>1.5u</div><input type="number" step="0.1" min="1" data-profile-size="1.5" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="1.5" data-axis="h"><div>1.75u</div><input type="number" step="0.1" min="1" data-profile-size="1.75" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="1.75" data-axis="h"><div>2u</div><input type="number" step="0.1" min="1" data-profile-size="2" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="2" data-axis="h"><div>2.25u</div><input type="number" step="0.1" min="1" data-profile-size="2.25" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="2.25" data-axis="h"><div>2.75u</div><input type="number" step="0.1" min="1" data-profile-size="2.75" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="2.75" data-axis="h"><div>6.25u Space</div><input type="number" step="0.1" min="1" data-profile-size="6.25" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="6.25" data-axis="h"><div>7u Space</div><input type="number" step="0.1" min="1" data-profile-size="7" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="7" data-axis="h"><div>2u vertical</div><input type="number" step="0.1" min="1" data-profile-size="1x2" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="1x2" data-axis="h"><div>ISO Enter</div><input type="number" step="0.1" min="1" data-profile-size="1.5x2" data-axis="w"><input type="number" step="0.1" min="1" data-profile-size="1.5x2" data-axis="h"></div>
+          <div class="section">
+            <h3>ISO Enter shape</h3>
+            <div class="profile-grid" id="isoEnterProfileGrid">
+              <strong>Measurement</strong><strong>Value mm</strong><strong>Notes</strong>
+              <div>Notch depth</div>
+              <input id="isoEnterStepDepth" type="number" min="1" step="0.1" value="4.3">
+              <div>Red "leg"</div>
+              <div>Notch height</div>
+              <input id="isoEnterStepHeight" type="number" min="1" step="0.1" value="13.38">
+              <div>Yellow height</div>
+            </div>
+          </div>
+          <div class="row">
+            <button class="button primary" id="savePrinterProfileButton" type="button">Save and Apply</button>
+            <button class="button" id="resetPrinterProfileButton" type="button">Reset Profile</button>
+            <button class="button" id="downloadProfileHtmlButton" type="button">Download HTML with Profiles</button>
+          </div>
+        </div>
+      </div>
+    </div></div>
 
         <details class="section-fold">
           <summary>
@@ -1548,144 +2506,8 @@
       </div>
     </div>
 
-    <div class="changelog-panel" id="printerSettingsPanel" aria-hidden="true">
-      <div class="changelog-dialog" role="dialog" aria-modal="true" aria-labelledby="printerSettingsTitle">
-        <div class="changelog-head">
-          <h2 id="printerSettingsTitle">Printer Settings</h2>
-          <button class="button" id="closePrinterSettingsButton" type="button">Close</button>
-        </div>
-        <div class="section" id="printerSettingsLock">
-          <h3>Locked</h3>
-          <div class="field">
-            <label for="printerSettingsPassword">Password</label>
-            <input id="printerSettingsPassword" type="password" placeholder="Enter password">
-          </div>
-          <div class="row">
-            <button class="button primary" id="unlockPrinterSettingsButton" type="button">Unlock</button>
-          </div>
-        </div>
-        <div class="settings-grid" id="printerSettingsContent" hidden>
-          <div class="inline">
-            <div class="field">
-              <label for="activePrinterProfile">Active profile</label>
-              <select id="activePrinterProfile">
-                <option value="keycap1">Keycap 1</option>
-                <option value="keycap2">Keycap 2</option>
-                <option value="keycap3">Keycap 3</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="printerDpi">DPI</label>
-              <input id="printerDpi" type="number" min="72" max="2400" value="600">
-            </div>
-          </div>
-          <div class="field">
-            <label for="printerProfileName">Profile name</label>
-            <input id="printerProfileName" type="text" value="Keycap 1">
-          </div>
-          <div class="check-row">
-            <span>Show full keyboard preview</span>
-            <input id="showFullKeyboardPreview" type="checkbox">
-          </div>
-          <div class="field">
-            <label for="availablePreviewKeySelect">Available keys</label>
-            <select id="availablePreviewKeySelect"></select>
-          </div>
-          <div class="field">
-            <label for="activePreviewKeySelect">Preview keys shown</label>
-            <select id="activePreviewKeySelect" multiple size="8"></select>
-          </div>
-          <div class="row">
-            <button class="button" id="addPreviewKeyButton" type="button">Add Key To Preview</button>
-            <button class="button danger" id="removePreviewKeyButton" type="button">Remove Selected Preview Key</button>
-          </div>
-          <div class="field">
-            <label>Profile image</label>
-            <input class="hidden-file" id="profileImageInput" type="file" accept="image/*">
-            <div class="row">
-              <button class="button" id="pickProfileImageButton" type="button">Upload Image</button>
-              <button class="button danger" id="removeProfileImageButton" type="button">Delete Image</button>
-            </div>
-            <div class="profile-image-preview" id="profileImagePreview" hidden>
-              <img id="profileImagePreviewImg" alt="">
-            </div>
-          </div>
-          <div class="section">
-            <h3>Image calibration</h3>
-            <div class="inline">
-              <div class="field">
-                <label for="profileImageX">Image X</label>
-                <input id="profileImageX" type="number" min="-100" max="100" step="1" value="0">
-              </div>
-              <div class="field">
-                <label for="profileImageY">Image Y</label>
-                <input id="profileImageY" type="number" min="-100" max="100" step="1" value="0">
-              </div>
-              <div class="field">
-                <label for="profileImageZ">Image Z / Scale</label>
-                <input id="profileImageZ" type="number" min="25" max="500" step="1" value="100">
-              </div>
-            </div>
-            <div class="inline">
-              <div class="field">
-                <label for="profileBoardX">Board X</label>
-                <input id="profileBoardX" type="number" min="-100" max="100" step="1" value="0">
-              </div>
-              <div class="field">
-                <label for="profileBoardY">Board Y</label>
-                <input id="profileBoardY" type="number" min="-100" max="100" step="1" value="0">
-              </div>
-              <div class="field">
-                <label for="profileBoardZ">Board Z / Scale</label>
-                <input id="profileBoardZ" type="number" min="25" max="500" step="1" value="100">
-              </div>
-            </div>
-          </div>
-          <div class="section">
-            <h3>Image bounds</h3>
-            <div class="inline">
-              <div class="field">
-                <label for="profileCornerRadiusMax">Corner radius max</label>
-                <input id="profileCornerRadiusMax" type="number" min="0" max="100" step="1" value="100">
-              </div>
-              <div class="field">
-                <label for="profileCircleMax">Circle face max</label>
-                <input id="profileCircleMax" type="number" min="0" max="100" step="1" value="100">
-              </div>
-            </div>
-            <div class="inline">
-              <div class="field">
-                <label for="profileCornerScaleMin">Corner scale min</label>
-                <input id="profileCornerScaleMin" type="number" min="0" max="150" step="1" value="0">
-              </div>
-              <div class="field">
-                <label for="profileCornerScaleMax">Corner scale max</label>
-                <input id="profileCornerScaleMax" type="number" min="0" max="150" step="1" value="150">
-              </div>
-            </div>
-          </div>
-          <div class="profile-grid" id="profileSizeGrid"></div>
-          <div class="section">
-            <h3>ISO Enter shape</h3>
-            <div class="profile-grid" id="isoEnterProfileGrid">
-              <strong>Measurement</strong><strong>Value mm</strong><strong>Notes</strong>
-              <div>Notch depth</div>
-              <input id="isoEnterStepDepth" type="number" min="1" step="0.1" value="4.3">
-              <div>Red "leg"</div>
-              <div>Notch height</div>
-              <input id="isoEnterStepHeight" type="number" min="1" step="0.1" value="13.38">
-              <div>Yellow height</div>
-            </div>
-          </div>
-          <div class="row">
-            <button class="button primary" id="savePrinterProfileButton" type="button">Save and Apply</button>
-            <button class="button" id="resetPrinterProfileButton" type="button">Reset Profile</button>
-            <button class="button" id="downloadProfileHtmlButton" type="button">Download HTML with Profiles</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script id="defaultPrinterProfiles" type="application/json"></script>
+    
+    <script id="defaultPrinterProfiles" type="application/json">{"active":"keycap1","keycap1":{"name":"Test square","image":"","dpi":600,"calibration":{"image":{"x":0,"y":0,"z":100},"board":{"x":0,"y":0,"z":100}},"isoEnter":{"stepDepth":4.3,"stepHeight":13.38},"sizes":{"1":{"w":12.7,"h":13.5},"2":{"w":25,"h":14.6},"7":{"w":87.5,"h":14.6},"1.25":{"w":15.6,"h":14.6},"1.5":{"w":18.8,"h":14.6},"1.75":{"w":21.9,"h":14.6},"2.25":{"w":28.1,"h":14.6},"2.75":{"w":34.4,"h":14.6},"6.25":{"w":78.1,"h":14.6},"1x2":{"w":12.5,"h":29.2},"1.5x2":{"w":18.8,"h":29.2}},"settingsPanel":{"name":"Test square","dpi":600,"calibration":{"image":{"x":0,"y":0,"z":100},"board":{"x":0,"y":0,"z":100}},"imageBounds":{"cornerRadiusMax":100,"circleMax":100,"cornerScaleMin":0,"cornerScaleMax":150},"sizes":{"1":{"w":12.7,"h":13.5},"2":{"w":25,"h":14.6},"7":{"w":87.5,"h":14.6},"1.25":{"w":15.6,"h":14.6},"1.5":{"w":18.8,"h":14.6},"1.75":{"w":21.9,"h":14.6},"2.25":{"w":28.1,"h":14.6},"2.75":{"w":34.4,"h":14.6},"6.25":{"w":78.1,"h":14.6},"1x2":{"w":12.5,"h":29.2},"1.5x2":{"w":18.8,"h":29.2}},"isoEnter":{"stepDepth":4.3,"stepHeight":13.38}},"imageBounds":{"cornerRadiusMax":100,"circleMax":100,"cornerScaleMin":0,"cornerScaleMax":150}},"keycap2":{"name":"Keycap 2","image":"","dpi":600,"calibration":{"image":{"x":0,"y":0,"z":100},"board":{"x":0,"y":0,"z":100}},"isoEnter":{"stepDepth":4.3,"stepHeight":13.38},"sizes":{"1":{"w":12.5,"h":13.15},"2":{"w":25,"h":14.6},"7":{"w":87.5,"h":14.6},"1.25":{"w":15.6,"h":14.6},"1.5":{"w":18.8,"h":14.6},"1.75":{"w":21.9,"h":14.6},"2.25":{"w":28.1,"h":14.6},"2.75":{"w":34.4,"h":14.6},"6.25":{"w":78.1,"h":14.6},"1x2":{"w":12.5,"h":29.2},"1.5x2":{"w":18.8,"h":29.2}},"settingsPanel":{"name":"Keycap 2","dpi":600,"calibration":{"image":{"x":0,"y":0,"z":100},"board":{"x":0,"y":0,"z":100}},"imageBounds":{"cornerRadiusMax":100,"circleMax":100,"cornerScaleMin":0,"cornerScaleMax":150},"sizes":{"1":{"w":12.5,"h":13.15},"2":{"w":25,"h":14.6},"7":{"w":87.5,"h":14.6},"1.25":{"w":15.6,"h":14.6},"1.5":{"w":18.8,"h":14.6},"1.75":{"w":21.9,"h":14.6},"2.25":{"w":28.1,"h":14.6},"2.75":{"w":34.4,"h":14.6},"6.25":{"w":78.1,"h":14.6},"1x2":{"w":12.5,"h":29.2},"1.5x2":{"w":18.8,"h":29.2}},"isoEnter":{"stepDepth":4.3,"stepHeight":13.38}},"imageBounds":{"cornerRadiusMax":100,"circleMax":100,"cornerScaleMin":0,"cornerScaleMax":150}},"keycap3":{"name":"Keycap 3","image":"","dpi":600,"calibration":{"image":{"x":0,"y":0,"z":100},"board":{"x":0,"y":0,"z":100}},"isoEnter":{"stepDepth":4.3,"stepHeight":13.38},"sizes":{"1":{"w":12.5,"h":14.6},"2":{"w":25,"h":14.6},"7":{"w":87.5,"h":14.6},"1.25":{"w":15.6,"h":14.6},"1.5":{"w":18.8,"h":14.6},"1.75":{"w":21.9,"h":14.6},"2.25":{"w":28.1,"h":14.6},"2.75":{"w":34.4,"h":14.6},"6.25":{"w":78.1,"h":14.6},"1x2":{"w":12.5,"h":29.2},"1.5x2":{"w":18.8,"h":29.2}},"settingsPanel":{"name":"Keycap 3","dpi":600,"calibration":{"image":{"x":0,"y":0,"z":100},"board":{"x":0,"y":0,"z":100}},"imageBounds":{"cornerRadiusMax":100,"circleMax":100,"cornerScaleMin":0,"cornerScaleMax":150},"sizes":{"1":{"w":12.5,"h":14.6},"2":{"w":25,"h":14.6},"7":{"w":87.5,"h":14.6},"1.25":{"w":15.6,"h":14.6},"1.5":{"w":18.8,"h":14.6},"1.75":{"w":21.9,"h":14.6},"2.25":{"w":28.1,"h":14.6},"2.75":{"w":34.4,"h":14.6},"6.25":{"w":78.1,"h":14.6},"1x2":{"w":12.5,"h":29.2},"1.5x2":{"w":18.8,"h":29.2}},"isoEnter":{"stepDepth":4.3,"stepHeight":13.38}},"imageBounds":{"cornerRadiusMax":100,"circleMax":100,"cornerScaleMin":0,"cornerScaleMax":150}},"settingsActive":"keycap1","previewFull":true,"previewKeys":["Esc"]}</script>
   </div>
 
   <script>
@@ -5595,5 +6417,6 @@
     syncPanel();
     renderKeyboard();
   </script>
-</body>
-</html>
+
+
+</body></html>
