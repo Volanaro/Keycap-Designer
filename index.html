@@ -1069,6 +1069,7 @@
           </div>
           <select id="spaceVariant" title="Spacebar row">
             <option value="standard">6.25u space</option>
+            <option value="sixFive">6.5u space</option>
             <option value="tsangan">7u space</option>
             <option value="split">Split space</option>
           </select>
@@ -1108,6 +1109,7 @@
             <option value="LCtrl|1.25|1">Left Ctrl - 1.25u</option>
             <option value="LWin|1.25|1">Left Win - 1.25u</option>
             <option value="LAlt|1.25|1">Left Alt - 1.25u</option>
+            <option value="Space|6.5|1">Spacebar - 6.5u</option>
             <option value="Space|6.25|1">Spacebar - 6.25u</option>
             <option value="RAlt|1.25|1">Right Alt - 1.25u</option>
             <option value="Fn|1.25|1">Fn - 1.25u</option>
@@ -1129,6 +1131,7 @@
             <option value="LCtrl|1.25|1">Left Ctrl - 1.25u</option>
             <option value="LWin|1.25|1">Left Win - 1.25u</option>
             <option value="LAlt|1.25|1">Left Alt - 1.25u</option>
+            <option value="Space|6.5|1">Spacebar - 6.5u</option>
             <option value="Space|6.25|1">Spacebar - 6.25u</option>
             <option value="RAlt|1.25|1">Right Alt - 1.25u</option>
             <option value="Fn|1.25|1">Fn - 1.25u</option>
@@ -1709,6 +1712,7 @@
       }
       const rows = {
         standard: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space", 3.75, y, 6.25], ["RAlt", 10, y, 1.25], ["Fn", 11.25, y, 1.25], ["RCtrl", 12.5, y, 2.5]],
+        sixFive: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space65", 3.75, y, 6.5], ["RAlt", 10.25, y, 1.25], ["Fn", 11.5, y, 1.25], ["RCtrl", 12.75, y, 2.25]],
         tsangan: [["LCtrl", 0, y, 1.5], ["LWin", 1.5, y, 1], ["LAlt", 2.5, y, 1.5], ["Space7u", 4, y, 7], ["RAlt", 11, y, 1.5], ["Fn", 12.5, y, 1], ["RCtrl", 13.5, y, 1.5]],
         split: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["SpaceL", 3.75, y, 2.25], ["SpaceM", 6, y, 1.25], ["SpaceR", 7.25, y, 2.75], ["RAlt", 10, y, 1.25], ["Fn", 11.25, y, 1.25], ["RCtrl", 12.5, y, 2.5]]
       };
@@ -2034,6 +2038,7 @@
       "2": "2u",
       "2.25": "2.25u",
       "2.75": "2.75u",
+      "6.5": "6.5u Space",
       "6.25": "6.25u Space",
       "7": "7u Space",
       "1x2": "2u vertical",
@@ -3973,6 +3978,31 @@
       return true;
     }
 
+    function removeSelectedCustomKeys(recordUndo = true) {
+      if (!editLayoutMode || currentForm !== "custom" || !customLayout || customLayout.keys.length <= 1) return false;
+      const selectedSet = new Set(selectedTargetIds());
+      if (!selectedSet.size) return false;
+      const removable = customLayout.keys
+        .map((key, index) => ({ key, index, id: keyId(layoutKey(), key) }))
+        .filter((entry) => selectedSet.has(entry.id));
+      if (!removable.length) return false;
+      if (removable.length >= customLayout.keys.length) return false;
+      if (recordUndo) pushUndo();
+      removable
+        .sort((a, b) => b.index - a.index)
+        .forEach(({ key, index }) => {
+          customLayout.keys.splice(index, 1);
+          delete persistentState[canonicalKeyName(key[0])];
+        });
+      updateCustomLayoutSize();
+      const nextKey = customLayout.keys[0] || null;
+      selectedId = nextKey ? keyId(layoutKey(), nextKey) : "";
+      selectedIds = new Set(selectedId ? [selectedId] : []);
+      syncPanel();
+      renderKeyboard();
+      return true;
+    }
+
     function activateEditableText() {
       selectedTargetIds().forEach((id) => {
         const data = keyState(id);
@@ -5279,6 +5309,10 @@
       }
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key !== "Delete" && event.key !== "Backspace") return;
+      if (removeSelectedCustomKeys(true)) {
+        event.preventDefault();
+        return;
+      }
       if (clearSelectedKeyImages(true)) event.preventDefault();
     });
     exportPreviewToggle.addEventListener("change", () => {
@@ -5513,17 +5547,7 @@
     });
 
     removeKeyButton.addEventListener("click", () => {
-      if (!editLayoutMode || currentForm !== "custom" || !customLayout || customLayout.keys.length <= 1) return;
-      const index = selectedCustomKeyIndex();
-      if (index < 0) return;
-      pushUndo();
-      const [removed] = customLayout.keys.splice(index, 1);
-      delete persistentState[canonicalKeyName(removed[0])];
-      updateCustomLayoutSize();
-      selectedId = keyId(layoutKey(), customLayout.keys[Math.min(index, customLayout.keys.length - 1)]);
-      selectedIds = new Set(selectedId ? [selectedId] : []);
-      syncPanel();
-      renderKeyboard();
+      removeSelectedCustomKeys(true);
     });
 
     resetCustomButton.addEventListener("click", () => {
