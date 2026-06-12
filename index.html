@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Keycap Designer</title>
+  <title>Keycap Designer v1.1</title>
   <style>
     :root {
       --bg: #eef3f7;
@@ -1050,7 +1050,7 @@
     <header class="topbar">
       <div class="brand">
         <div class="mark">K</div>
-        <h1>AKNES (Volanaro) Keycap Designer</h1>
+        <h1>AKNES (Volanaro) Keycap Designer v1.1</h1>
       </div>
       <details class="top-controls" id="topControls" open>
         <summary>
@@ -1507,7 +1507,7 @@
         </div>
         <div class="changelog-list">
           <section>
-            <h3>Current Version</h3>
+            <h3>Current Version 1.1</h3>
             <ul>
               <li>Polished the interface with cleaner grouped controls, collapsible sections, and a persistent export toolbar.</li>
               <li>Kept the keyboard workspace visible while the right settings panel scrolls, removed the stage scrollbar, and tightened slider/input spacing.</li>
@@ -1517,6 +1517,7 @@
               <li>Built locked Printer Settings with per-profile mm face sizes, DPI export sizing, profile names, reference images, calibration, and baked HTML profile export.</li>
               <li>Added profile-based print bounds for image corner radius, corner scale, and circle face so public editing can stay inside safe limits.</li>
               <li>Added multi-image layers per key, active-layer selection, direct layer dragging, and ZIP persistence for layered artwork.</li>
+              <li>Fixed Remove Layer so deleting the final image layer fully clears the image instead of restoring it from legacy image data.</li>
               <li>Improved key and board image handling with drag-and-drop upload, draggable board art, fit keyboard, export-quality source preservation, and sharper Export Preview rendering.</li>
               <li>Cleaned up image shaping with circular pixel corner math, circle-face artwork support, default corner radius 0 / corner scale 100, and per-key artwork area X/Y/Z controls.</li>
               <li>Reworked ISO Enter so its stepped outline, profile-driven notch measurements, artwork mask, and export preview behave like a proper ISO return key.</li>
@@ -1708,11 +1709,14 @@
 
     function spaceRow(y, spaceVariant, compact = false) {
       if (compact) {
+        if (spaceVariant === "sixFive") {
+          return [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space65", 3.75, y, 6.5], ["RAlt", 10.25, y, 1.25], ["Fn", 11.5, y, 1.25], ["Menu", 12.75, y, 1.25], ["RCtrl", 14, y, 1.25]];
+        }
         return [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space", 3.75, y, 6.25], ["RAlt", 10, y, 1.25], ["Fn", 11.25, y, 1.25], ["RCtrl", 12.5, y, 2.5]];
       }
       const rows = {
         standard: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space", 3.75, y, 6.25], ["RAlt", 10, y, 1.25], ["Fn", 11.25, y, 1.25], ["RCtrl", 12.5, y, 2.5]],
-        sixFive: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space65", 3.75, y, 6.5], ["RAlt", 10.25, y, 1.25], ["Fn", 11.5, y, 1.25], ["RCtrl", 12.75, y, 2.25]],
+        sixFive: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["Space65", 3.75, y, 6.5], ["RAlt", 10.25, y, 1.25], ["Fn", 11.5, y, 1.25], ["Menu", 12.75, y, 1.25], ["RCtrl", 14, y, 1.25]],
         tsangan: [["LCtrl", 0, y, 1.5], ["LWin", 1.5, y, 1], ["LAlt", 2.5, y, 1.5], ["Space7u", 4, y, 7], ["RAlt", 11, y, 1.5], ["Fn", 12.5, y, 1], ["RCtrl", 13.5, y, 1.5]],
         split: [["LCtrl", 0, y, 1.25], ["LWin", 1.25, y, 1.25], ["LAlt", 2.5, y, 1.25], ["SpaceL", 3.75, y, 2.25], ["SpaceM", 6, y, 1.25], ["SpaceR", 7.25, y, 2.75], ["RAlt", 10, y, 1.25], ["Fn", 11.25, y, 1.25], ["RCtrl", 12.5, y, 2.5]]
       };
@@ -2842,6 +2846,17 @@
       return customLayout;
     }
 
+    function cloneCurrentLayoutIntoCustom(sourceLayout = null) {
+      const source = sourceLayout || currentLayoutData();
+      customLayout = cloneLayout(source);
+      customDefaultLayout = cloneLayout(source);
+      updateCustomLayoutSize();
+      const first = customLayout.keys[0] || null;
+      selectedId = first ? keyId("custom", first) : "";
+      selectedIds = new Set(selectedId ? [selectedId] : []);
+      return customLayout;
+    }
+
     function resetCustomLayout() {
       const source = customDefaultLayout || buildLayout(currentLayout, currentSpace, "full");
       customLayout = cloneLayout(source);
@@ -3928,23 +3943,28 @@
       function clearSelectedKeyImages(recordUndo = true) {
         const ids = selectedTargetIds();
         if (!ids.length) return false;
-        const hasAnyImage = ids.some((id) => {
+        const hasAnyLayer = ids.some((id) => {
           const data = keyState(id);
-          return data.images?.some((layer) => layer.image || layer.imageSource) || !!(data.image || data.imageSource);
+          normalizeKeyImageLayers(data);
+          return data.images.length > 0 || !!(data.image || data.imageSource);
         });
-        if (!hasAnyImage) return false;
+        if (!hasAnyLayer) return false;
         if (recordUndo) pushUndo();
         ids.forEach((id) => {
           const data = keyState(id);
-          const layer = activeImageLayerData(data);
-          if (layer) {
+          normalizeKeyImageLayers(data);
+          if (data.images.length) {
             data.images.splice(data.activeImageLayer, 1);
             data.activeImageLayer = Math.max(0, Math.min(data.activeImageLayer, Math.max(0, data.images.length - 1)));
           } else {
             data.images = [];
             data.activeImageLayer = 0;
           }
-          syncLegacyImageFields(data);
+          if (!data.images.length) {
+            Object.assign(data, defaultImageLayer(), { images: [], activeImageLayer: 0 });
+          } else {
+            syncLegacyImageFields(data);
+          }
         });
         syncPanel();
         renderKeyboard();
@@ -5511,11 +5531,9 @@
       editLayoutMode = editLayout.checked;
       if (editLayoutMode && currentForm !== "custom") {
         carryVisibleKeyState();
-        ensureCustomLayout(currentLayoutData());
+        cloneCurrentLayoutIntoCustom(currentLayoutData());
         currentForm = "custom";
         formFactor.value = "custom";
-        selectedId = keyId(layoutKey(), firstKey());
-        selectedIds = new Set(selectedId ? [selectedId] : []);
         syncPanel();
       }
       renderKeyboard();
