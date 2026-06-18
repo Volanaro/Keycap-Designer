@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Keycap Designer v1.1</title>
+  <title>Keycap Designer v1.2</title>
   <style>
     :root {
       --bg: #eef3f7;
@@ -1050,7 +1050,7 @@
     <header class="topbar">
       <div class="brand">
         <div class="mark">K</div>
-        <h1>AKNES (Volanaro) Keycap Designer v1.1</h1>
+        <h1>AKNES (Volanaro) Keycap Designer v1.2</h1>
       </div>
       <details class="top-controls" id="topControls" open>
         <summary>
@@ -1507,7 +1507,7 @@
         </div>
         <div class="changelog-list">
           <section>
-            <h3>Current Version 1.1</h3>
+            <h3>Current Version 1.2</h3>
             <ul>
               <li>Polished the interface with cleaner grouped controls, collapsible sections, and a persistent export toolbar.</li>
               <li>Kept the keyboard workspace visible while the right settings panel scrolls, removed the stage scrollbar, and tightened slider/input spacing.</li>
@@ -1517,6 +1517,7 @@
               <li>Built locked Printer Settings with per-profile mm face sizes, DPI export sizing, profile names, reference images, calibration, and baked HTML profile export.</li>
               <li>Added profile-based print bounds for image corner radius, corner scale, and circle face so public editing can stay inside safe limits.</li>
               <li>Added multi-image layers per key, active-layer selection, direct layer dragging, and ZIP persistence for layered artwork.</li>
+              <li>Fixed ZIP reload sizing for key image layers by saving the trimmed/display artwork instead of restoring the original padded upload.</li>
               <li>Fixed Remove Layer so deleting the final image layer fully clears the image instead of restoring it from legacy image data.</li>
               <li>Improved key and board image handling with drag-and-drop upload, draggable board art, fit keyboard, export-quality source preservation, and sharper Export Preview rendering.</li>
               <li>Cleaned up image shaping with circular pixel corner math, circle-face artwork support, default corner radius 0 / corner scale 100, and per-key artwork area X/Y/Z controls.</li>
@@ -4755,7 +4756,10 @@
           for (let index = 0; index < (data.images || []).length; index += 1) {
             const layer = data.images[index];
             if (!(layer.image || layer.imageSource)) continue;
-            const sourceBlob = await imageSourceBlob(layer.imageSource || layer.image);
+            // Save the display image first, not the original untrimmed upload.
+            // The editor trims transparent padding when an image is placed; using imageSource here
+            // made reloaded ZIP projects restore the padded original, so artwork appeared tiny.
+            const sourceBlob = await imageSourceBlob(layer.image || layer.imageSource);
             if (sourceBlob) files.push({ name: keyImageFilename(key, layer, index), blob: sourceBlob });
           }
           const canvas = await drawKeyToCanvas(key, data, Number(exportScale.value));
