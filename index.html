@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Keycap Designer v1.2</title>
+  <title>Keycap Designer v2.3</title>
   <style>
     :root {
       --bg: #eef3f7;
@@ -352,7 +352,7 @@
       min-width: 0;
       min-height: 0;
       max-height: calc(100vh - var(--topbar-height) - 36px);
-      overflow: hidden;
+      overflow: auto;
       padding: 26px;
       border: 1px solid var(--line);
       border-radius: 22px;
@@ -363,7 +363,7 @@
     .keyboard-stage {
       width: max-content;
       min-width: 100%;
-      padding: 18px 0 28px;
+      padding: 18px 0 80px;
     }
 
     .stage-wrap.dragging-image .keyboard {
@@ -391,6 +391,9 @@
       box-shadow: 0 8px 18px var(--shadow), inset 0 -5px 0 rgba(23, 32, 42, 0.08);
       cursor: pointer;
       overflow: hidden;
+      isolation: isolate;
+      contain: paint;
+      z-index: 0;
       transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
     }
 
@@ -412,6 +415,7 @@
 
     .key.selected {
       border: 2px solid var(--accent);
+      z-index: 2;
       box-shadow: 0 0 0 3px rgba(31, 122, 140, 0.18), 0 10px 22px var(--shadow), inset 0 -5px 0 rgba(23, 32, 42, 0.08);
     }
 
@@ -571,6 +575,7 @@
       height: calc(var(--artwork-h, 100%) * var(--image-mask-scale, 1));
       transform: translate(-50%, -50%);
       overflow: hidden;
+      contain: paint;
       border-radius: var(--image-radius-px, 13px);
       pointer-events: none;
       z-index: 2;
@@ -581,6 +586,7 @@
       left: 0;
       top: 0;
       overflow: hidden;
+      contain: paint;
       pointer-events: auto;
       touch-action: none;
       cursor: grab;
@@ -991,6 +997,98 @@
       display: none;
     }
 
+    .set-includes-title {
+      position: absolute;
+      left: 0;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .set-includes-title::after {
+      content: "unused compatibility keys from the 135-key set";
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .set-includes-group-title {
+      position: absolute;
+      left: 0;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .set-includes-group-title::after {
+      content: "";
+      width: 60px;
+      height: 1px;
+      margin-left: 10px;
+      background: var(--line-strong);
+    }
+
+    .key.set-extra-key {
+      background-color: rgba(255, 255, 255, 0.72);
+    }
+
+    .selection-summary-panel {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+      box-shadow: 0 12px 28px rgba(16, 32, 51, 0.07);
+    }
+
+    .selection-summary-panel h2 {
+      margin: 0 0 10px;
+      font-size: 13px;
+    }
+
+    .selection-summary-card {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fbfd;
+    }
+
+    .selection-summary-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .selection-summary-size {
+      display: inline-flex;
+      width: max-content;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+
     @media (max-width: 980px) {
       .workspace {
         grid-template-columns: 1fr;
@@ -1050,7 +1148,7 @@
     <header class="topbar">
       <div class="brand">
         <div class="mark">K</div>
-        <h1>AKNES (Volanaro) Keycap Designer v1.2</h1>
+        <h1>AKNES (Volanaro) Keycap Designer v2.3</h1>
       </div>
       <details class="top-controls" id="topControls" open>
         <summary>
@@ -1064,8 +1162,8 @@
       <div class="top-actions">
         <div class="toolbar-cluster">
           <div class="layout-tabs" role="tablist" aria-label="Layout">
-            <button class="active" type="button" data-layout="ansi">ANSI</button>
-            <button type="button" data-layout="iso">ISO</button>
+            <button type="button" data-layout="ansi">ANSI</button>
+            <button class="active" type="button" data-layout="iso">ISO</button>
           </div>
           <select id="spaceVariant" title="Spacebar row">
             <option value="standard">6.25u space</option>
@@ -1496,6 +1594,14 @@
             <a href="https://paypal.me/Volanaro" target="_blank" rel="noopener noreferrer">help me buy more controllers</a>
           </div>
         </details>
+
+        <div class="selection-summary-panel" aria-live="polite">
+          <h2>Selected Key</h2>
+          <div class="selection-summary-card">
+            <span class="selection-summary-name" id="selectedNameLarge">Esc</span>
+            <span class="selection-summary-size" id="selectedSizeLarge">1u</span>
+          </div>
+        </div>
       </aside>
     </main>
 
@@ -1507,8 +1613,19 @@
         </div>
         <div class="changelog-list">
           <section>
-            <h3>Current Version 1.2</h3>
+            <h3>Current Version 3.1</h3>
             <ul>
+              <li>Stopped board/key images being shared by unused main-key leftovers by turning them into unique physical stock keys.</li>
+              <li>Stopped board images appearing on all unused inventory keys; board art now only slices across the main keyboard view.</li>
+              <li>Kept spare/extra keys as independent design targets, so applying artwork to one Shift spare does not update another Shift or main-layout key.</li>
+              <li>Rebuilt the Pinewood Sea extras from the clear extras photo, with stable separate physical IDs so ISO Enter, ANSI Enter, and duplicate spare keys can all have different artwork.</li>
+              <li>Changed layout switching to subtract the active layout from the full physical set inventory, leaving only the actual unused caps supplied in the set.</li>
+              <li>Fixed the unused extras inventory so the stepped ISO Enter can only appear once, even if it exists in saved extra-key settings or both inventory groups.</li>
+              <li>Kept smaller layouts showing all unused keys from the full set, but deduplicated by physical key shape instead of just legend text.</li>
+              <li>Deduplicated the 135-key inventory before filtering unused keys, so ISO Enter and other full-set keys only appear once.</li>
+              <li>Kept smaller layouts such as 40% showing all unused keys from the whole set, without creating duplicate ISO compatibility keys.</li>
+              <li>Changed the extra-key filter so if the selected layout already contains that key, all matching extras are hidden from the unused extras section.</li>
+              <li>Organised the 135-key unused extras into grouped sections and made the extra ISO Enter use the proper stepped ISO shape.</li>
               <li>Polished the interface with cleaner grouped controls, collapsible sections, and a persistent export toolbar.</li>
               <li>Kept the keyboard workspace visible while the right settings panel scrolls, removed the stage scrollbar, and tightened slider/input spacing.</li>
               <li>Added focused single-key preview mode with saved preview-key lists, plus a toggle to bring the full keyboard preview back when needed.</li>
@@ -1518,6 +1635,9 @@
               <li>Added profile-based print bounds for image corner radius, corner scale, and circle face so public editing can stay inside safe limits.</li>
               <li>Added multi-image layers per key, active-layer selection, direct layer dragging, and ZIP persistence for layered artwork.</li>
               <li>Fixed ZIP reload sizing for key image layers by saving the trimmed/display artwork instead of restoring the original padded upload.</li>
+              <li>Made the 135-key set section show only unused matching-size compatibility keys for the selected layout, and fixed vertical scrolling so the extra keys are reachable.</li>
+              <li>Added safer web-image drag/drop handling for keys and board art, including URL/HTML drops that stop the browser navigating away.</li>
+              <li>Changed the default startup layout to Full ISO.</li>
               <li>Fixed Remove Layer so deleting the final image layer fully clears the image instead of restoring it from legacy image data.</li>
               <li>Improved key and board image handling with drag-and-drop upload, draggable board art, fit keyboard, export-quality source preservation, and sharper Export Preview rendering.</li>
               <li>Cleaned up image shaping with circular pixel corner math, circle-face artwork support, default corner radius 0 / corner scale 100, and per-key artwork area X/Y/Z controls.</li>
@@ -1613,6 +1733,19 @@
             </div>
             <div class="profile-image-preview" id="profileImagePreview" hidden>
               <img id="profileImagePreviewImg" alt="">
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>What the set includes - extra keys</h3>
+            <p class="hint">Edit the actual physical leftover caps supplied with the Pinewood Sea 135-key set. The app combines these with the main 100% ANSI inventory, then subtracts the selected layout by name + size so only unused caps from the set are shown.</p>
+            <div class="field">
+              <label for="extraKeysConfig">Extra key groups JSON</label>
+              <textarea id="extraKeysConfig" spellcheck="false" style="min-height: 220px; font-family: Consolas, 'Courier New', monospace; font-size: 12px;"></textarea>
+            </div>
+            <div class="row">
+              <button class="button primary" id="saveExtraKeysConfigButton" type="button">Save Extra Keys</button>
+              <button class="button" id="resetExtraKeysConfigButton" type="button">Reset 28 Keys</button>
             </div>
           </div>
           <div class="section">
@@ -1847,6 +1980,342 @@
       return { w: 15, h: 5, keys };
     }
 
+
+    function baseLayoutData() {
+      if (currentForm === "custom") ensureCustomLayout();
+      return buildLayout(currentLayout, currentSpace, currentForm);
+    }
+
+    function extraKeyEquivalentName(name) {
+      const raw = String(name || "");
+      const stockMatch = raw.match(/^SetStock_Main_\d+_(.+)$/);
+      if (stockMatch) return canonicalKeyName(stockMatch[1]);
+      const map = {
+        SetExtra_1uEsc: "Esc",
+        SetExtra_1uTab: "Tab",
+        SetExtra_1uCaps: "Caps",
+        SetExtra_1uShift: "LShift",
+        SetExtra_1uCtrl: "LCtrl",
+        SetExtra_1uWin: "LWin",
+        SetExtra_1uAlt: "LAlt",
+        SetExtra_1uFn: "Fn",
+        SetExtra_Insert: "Insert",
+        SetExtra_Home: "Home",
+        SetExtra_PageUp: "PageUp",
+        SetExtra_Delete: "Delete",
+        SetExtra_End: "End",
+        SetExtra_PageDown: "PageDown",
+        SetExtra_ISOEnter: "ISOEnter",
+        SetExtra_NumEnter: "NumEnter",
+        SetExtra_NumPlus: "NumPlus",
+        SetExtra_Num0: "Num0",
+        SetExtra_NumDot: "NumDot",
+        SetExtra_125Ctrl: "LCtrl",
+        SetExtra_125Win: "LWin",
+        SetExtra_125Alt: "LAlt",
+        SetExtra_125Fn: "Fn",
+        SetExtra_125Menu: "Menu",
+        SetExtra_175Shift: "RShift",
+        SetExtra_225Shift: "LShift",
+        SetExtra_275Shift: "RShift",
+        SetExtra_2Backspace: "Backspace",
+        SetExtra_225Enter: "Enter",
+        SetExtra_ISOHash: "ISOHash",
+        SetExtra_ISOExtra: "ISOExtra",
+        SetExtra_Backslash: "Backslash",
+        SetExtra_RAlt: "RAlt",
+        SetExtra_RCtrl: "RCtrl",
+        SetExtra_RWin: "RWin",
+        SetExtra_6uSpace: "Space",
+        SetExtra_625Space: "Space",
+        SetExtra_7uSpace: "Space",
+        SetExtra_SpaceL: "Space",
+        SetExtra_SpaceM: "Space",
+        SetExtra_SpaceR: "Space",
+        SetExtra_Up: "Up",
+        SetExtra_Left: "Left",
+        SetExtra_Down: "Down",
+        SetExtra_Right: "Right",
+        // v2.8 physical Pinewood extras, each kept as a unique designable cap.
+        SetExtra_Top_PageUp: "PageUp",
+        SetExtra_Top_PageDown: "PageDown",
+        SetExtra_Top_Insert: "Insert",
+        SetExtra_Top_Home: "Home",
+        SetExtra_Top_Delete: "Delete",
+        SetExtra_Top_End: "End",
+        SetExtra_Left_ISOHash: "ISOHash",
+        SetExtra_Left_End: "End",
+        SetExtra_Physical_ISOEnter: "ISOEnter",
+        SetExtra_Mid_PageUp_A: "PageUp",
+        SetExtra_Mid_Home: "Home",
+        SetExtra_Mid_ISOExtra: "ISOExtra",
+        SetExtra_Mid_PageUp_B: "PageUp",
+        SetExtra_Mid_PageDown: "PageDown",
+        SetExtra_Mod_Ctrl_A: "LCtrl",
+        SetExtra_Mod_Shift_125: "LShift",
+        SetExtra_Mod_Shift_225: "LShift",
+        SetExtra_Mod_Shift_275: "RShift",
+        SetExtra_Mod_End: "End",
+        SetExtra_Mod_PageDown: "PageDown",
+        SetExtra_Mod_Delete: "Delete",
+        SetExtra_Mod_Menu: "Menu",
+        SetExtra_Mod_Backslash: "Backslash",
+        SetExtra_Bottom_Fn: "Fn",
+        SetExtra_Bottom_Menu: "Menu",
+        SetExtra_Bottom_Win: "LWin",
+        SetExtra_Bottom_Ctrl: "LCtrl",
+        SetExtra_Bottom_Alt: "LAlt"
+      };
+      return map[name] || canonicalKeyName(name);
+    }
+
+    function keySizeSignature(key, forcedName = null) {
+      const name = forcedName || canonicalKeyName(key[0]);
+      const w = Number(key[3] || 1).toFixed(2);
+      const h = Number(key[4] || 1).toFixed(2);
+      return `${name}|${w}|${h}`;
+    }
+
+    function keyPresenceSignature(name) {
+      return canonicalKeyName(name);
+    }
+
+    function setInventorySignature(key) {
+      const equivalentName = extraKeyEquivalentName(key[0]);
+      return keySizeSignature(key, canonicalKeyName(equivalentName));
+    }
+
+    function physicalStockSignature(key) {
+      const rawName = String(key?.[0] || "");
+      const equivalentName = String(extraKeyEquivalentName(rawName) || rawName);
+      const w = Number(key?.[3] || 1).toFixed(2);
+      const h = Number(key?.[4] || 1).toFixed(2);
+
+      // Keep the spare section as a physical set inventory, not a legend list.
+      // ISO Enter can be reached as ISOEnter, SetExtra_ISOEnter, or saved user JSON,
+      // but the set only has one stepped ISO Enter cap of this shape.
+      if ((rawName.includes("ISOEnter") || equivalentName === "ISOEnter") && w === "1.50" && h === "2.00") {
+        return `ISOEnterPhysical|${w}|${h}`;
+      }
+
+      return keySizeSignature(key, canonicalKeyName(equivalentName));
+    }
+
+    function subtractUsedKeycapsFromStock(stockKeys, usedKeys) {
+      // v2.4: treat the 135-key set as an inventory, then subtract the selected layout.
+      // This means smaller layouts such as 40% show all remaining unused full-set keys,
+      // while a full layout only leaves the compatibility/spare keys that are still unused.
+      const usedCounts = new Map();
+      usedKeys.forEach((key) => {
+        const sig = setInventorySignature(key);
+        usedCounts.set(sig, (usedCounts.get(sig) || 0) + 1);
+      });
+      return stockKeys.filter((key) => {
+        const sig = setInventorySignature(key);
+        const count = usedCounts.get(sig) || 0;
+        if (count > 0) {
+          usedCounts.set(sig, count - 1);
+          return false;
+        }
+        return true;
+      });
+    }
+
+    function filterUnusedSetExtraKeys(mainKeys, extraKeys) {
+      return subtractUsedKeycapsFromStock(extraKeys, mainKeys);
+    }
+
+    const SET_EXTRA_CONFIG_STORAGE = "keycapDesignerSetExtraConfigV28";
+
+    function defaultSetExtraKeyConfig() {
+      // Pinewood Sea / Gradient Cyan 135-key set: actual physical extra caps
+      // visible in the supplied extras photo. Every duplicate has a unique ID
+      // so artwork on ISO Enter / spare keys never shares with ANSI Enter or
+      // with another duplicate cap.
+      return [
+        {
+          title: "Top-row navigation leftovers",
+          keys: [
+            ["SetExtra_Top_PageUp", 1, 1],
+            ["SetExtra_Top_PageDown", 1, 1],
+            ["SetExtra_Top_Insert", 1, 1],
+            ["SetExtra_Top_Home", 1, 1],
+            ["SetExtra_Top_Delete", 1, 1],
+            ["SetExtra_Top_End", 1, 1]
+          ]
+        },
+        {
+          title: "ISO / ANSI compatibility",
+          keys: [
+            ["SetExtra_Left_ISOHash", 1, 1],
+            ["SetExtra_Left_End", 1, 1],
+            ["SetExtra_Physical_ISOEnter", 1.5, 2],
+            ["SetExtra_Mid_PageUp_A", 1, 1],
+            ["SetExtra_Mid_Home", 1, 1],
+            ["SetExtra_Mid_ISOExtra", 1, 1],
+            ["SetExtra_Mid_PageUp_B", 1, 1],
+            ["SetExtra_Mid_PageDown", 1, 1]
+          ]
+        },
+        {
+          title: "Shift / modifier compatibility",
+          keys: [
+            ["SetExtra_Mod_Ctrl_A", 1.25, 1],
+            ["SetExtra_Mod_Shift_125", 1.25, 1],
+            ["SetExtra_Mod_Shift_225", 2.25, 1],
+            ["SetExtra_Mod_Shift_275", 2.75, 1],
+            ["SetExtra_Mod_End", 1, 1],
+            ["SetExtra_Mod_PageDown", 1, 1],
+            ["SetExtra_Mod_Delete", 1, 1],
+            ["SetExtra_Mod_Menu", 1.25, 1],
+            ["SetExtra_Mod_Backslash", 1, 1]
+          ]
+        },
+        {
+          title: "Bottom-row compatibility",
+          keys: [
+            ["SetExtra_Bottom_Fn", 1.25, 1],
+            ["SetExtra_Bottom_Menu", 1.25, 1],
+            ["SetExtra_Bottom_Win", 1.25, 1],
+            ["SetExtra_Bottom_Ctrl", 1.25, 1],
+            ["SetExtra_Bottom_Alt", 1.25, 1]
+          ]
+        }
+      ];
+    }
+
+    function normaliseSetExtraConfig(config) {
+      if (!Array.isArray(config)) return defaultSetExtraKeyConfig();
+      return config.map((group, groupIndex) => {
+        const title = String(group?.title || `Extra group ${groupIndex + 1}`);
+        const keys = Array.isArray(group?.keys) ? group.keys : [];
+        return {
+          title,
+          keys: keys.map((entry) => {
+            if (Array.isArray(entry)) {
+              return [String(entry[0] || "SetExtra_Custom"), Number(entry[1] || 1), Number(entry[2] || 1)];
+            }
+            return [String(entry?.name || "SetExtra_Custom"), Number(entry?.w || 1), Number(entry?.h || 1)];
+          }).filter((entry) => entry[0] && Number.isFinite(entry[1]) && Number.isFinite(entry[2]))
+        };
+      }).filter((group) => group.keys.length > 0);
+    }
+
+    function getSetExtraKeyConfig() {
+      try {
+        const saved = localStorage.getItem(SET_EXTRA_CONFIG_STORAGE);
+        if (saved) return normaliseSetExtraConfig(JSON.parse(saved));
+      } catch (error) {}
+      return defaultSetExtraKeyConfig();
+    }
+
+    function saveSetExtraKeyConfig(config) {
+      localStorage.setItem(SET_EXTRA_CONFIG_STORAGE, JSON.stringify(normaliseSetExtraConfig(config)));
+    }
+
+    function syncExtraKeysConfigEditor() {
+      if (!extraKeysConfig) return;
+      extraKeysConfig.value = JSON.stringify(getSetExtraKeyConfig(), null, 2);
+    }
+
+    function applyExtraKeysConfigFromEditor() {
+      if (!extraKeysConfig) return;
+      try {
+        const parsed = normaliseSetExtraConfig(JSON.parse(extraKeysConfig.value));
+        saveSetExtraKeyConfig(parsed);
+        syncExtraKeysConfigEditor();
+        renderKeyboard();
+      } catch (error) {
+        alert("Extra key JSON is not valid. Please check commas and quotes.");
+      }
+    }
+
+    function fullSetInventoryConfig() {
+      // Main-layout leftovers are also physical stock caps. Give each one a unique
+      // SetStock_ ID so artwork on an unused Shift/Enter/etc. does not share with
+      // the same legend on the main keyboard, while filtering still compares by
+      // the real equivalent key name and size.
+      const fullAnsi = buildLayout("ansi", "standard", "full").keys.map((key, index) => [`SetStock_Main_${index}_${key[0]}`, key[3] || 1, key[4] || 1]);
+      return [
+        { title: "Unused main keyboard keys", keys: fullAnsi },
+        ...getSetExtraKeyConfig()
+      ];
+    }
+
+    function layoutSetExtraGroups(startY, inventoryGroups, mainKeys) {
+      const headerGap = 0.62;
+      const keyGap = 0.18;
+      const groupGap = 0.72;
+      const maxRowWidth = 18.5;
+      const groups = [];
+      let y = startY + 0.55;
+      const usedCounts = new Map();
+      mainKeys.forEach((key) => {
+        const sig = setInventorySignature(key);
+        usedCounts.set(sig, (usedCounts.get(sig) || 0) + 1);
+      });
+
+      // v2.7: preserve the physical quantity of duplicate spare caps from the set.
+
+      inventoryGroups.forEach((configGroup) => {
+        const keys = [];
+        let x = 0;
+        let rowY = y + headerGap;
+        let rowHeight = 1;
+
+        (configGroup.keys || []).forEach(([name, w = 1, h = 1]) => {
+          const keyW = Math.max(0.75, Number(w) || 1);
+          const keyH = Math.max(1, Number(h) || 1);
+          const stockKey = [name, 0, 0, keyW, keyH];
+          const sig = setInventorySignature(stockKey);
+          const used = usedCounts.get(sig) || 0;
+          if (used > 0) {
+            usedCounts.set(sig, used - 1);
+            return;
+          }
+          if (x > 0 && x + keyW > maxRowWidth) {
+            x = 0;
+            rowY += rowHeight + keyGap;
+            rowHeight = 1;
+          }
+          keys.push([name, Number(x.toFixed(2)), Number(rowY.toFixed(2)), keyW, keyH]);
+          x += keyW + keyGap;
+          rowHeight = Math.max(rowHeight, keyH);
+        });
+
+        if (keys.length) {
+          groups.push({ title: configGroup.title, titleY: y, keys });
+          const bottom = Math.max(...keys.map((key) => key[2] + (key[4] || 1)));
+          y = bottom + groupGap;
+        }
+      });
+
+      return groups;
+    }
+
+    function setIncludedExtraKeyGroups(startY, mainKeys = []) {
+      return layoutSetExtraGroups(startY, fullSetInventoryConfig(), mainKeys);
+    }
+
+    function setIncludedExtraKeys(startY) {
+      return setIncludedExtraKeyGroups(startY).flatMap((group) => group.keys);
+    }
+
+    function withSetIncludedKeys(layout) {
+      const mainKeys = layout.keys.map((key) => [...key]);
+      const startY = Math.max(layout.h, measureLayout(mainKeys).h) + 0.95;
+      const groups = setIncludedExtraKeyGroups(startY, mainKeys).filter((group) => group.keys.length > 0);
+      const extraKeys = groups.flatMap((group) => group.keys);
+      const size = measureLayout([...mainKeys, ...extraKeys]);
+      return {
+        w: Math.max(layout.w, size.w),
+        h: Math.max(layout.h, size.h),
+        setIncludesY: startY,
+        setIncludeGroups: groups,
+        keys: [...mainKeys, ...extraKeys]
+      };
+    }
+
     const defaults = {
       text: "",
       fontFamily: "Inter, Arial, sans-serif",
@@ -1903,6 +2372,8 @@
     const stageWrap = document.getElementById("stageWrap");
     const selectedName = document.getElementById("selectedName");
     const selectedSize = document.getElementById("selectedSize");
+    const selectedNameLarge = document.getElementById("selectedNameLarge");
+    const selectedSizeLarge = document.getElementById("selectedSizeLarge");
     const legendText = document.getElementById("legendText");
     const selectAllKeys = document.getElementById("selectAllKeys");
     const fontFamily = document.getElementById("fontFamily");
@@ -1996,6 +2467,9 @@
     const profileSizeGrid = document.getElementById("profileSizeGrid");
     const isoEnterStepDepth = document.getElementById("isoEnterStepDepth");
     const isoEnterStepHeight = document.getElementById("isoEnterStepHeight");
+    const extraKeysConfig = document.getElementById("extraKeysConfig");
+    const saveExtraKeysConfigButton = document.getElementById("saveExtraKeysConfigButton");
+    const resetExtraKeysConfigButton = document.getElementById("resetExtraKeysConfigButton");
     const savePrinterProfileButton = document.getElementById("savePrinterProfileButton");
     const resetPrinterProfileButton = document.getElementById("resetPrinterProfileButton");
     const downloadProfileHtmlButton = document.getElementById("downloadProfileHtmlButton");
@@ -2005,7 +2479,7 @@
     const closeChangelogButton = document.getElementById("closeChangelogButton");
     const zipInput = document.getElementById("zipInput");
 
-    let currentLayout = "ansi";
+    let currentLayout = "iso";
     let currentSpace = "standard";
     let currentForm = "full";
     let selectedId = "";
@@ -2785,14 +3259,14 @@
     }
 
     function currentLayoutData() {
-      if (currentForm === "custom") ensureCustomLayout();
-      return buildLayout(currentLayout, currentSpace, currentForm);
+      return withSetIncludedKeys(baseLayoutData());
     }
 
     function previewLayoutData() {
       if (printerProfiles.previewFull) return currentLayoutData();
       ensurePreviewKeyState();
-      const sourceKeys = currentLayoutData().keys.filter((key) => printerProfiles.previewKeys.includes(key[0]));
+      const selectedBaseLayout = baseLayoutData();
+      const sourceKeys = selectedBaseLayout.keys.filter((key) => printerProfiles.previewKeys.includes(key[0]));
       let cursorX = 0.25;
       let cursorY = 0.25;
       let rowHeight = 0;
@@ -2848,7 +3322,7 @@
     }
 
     function cloneCurrentLayoutIntoCustom(sourceLayout = null) {
-      const source = sourceLayout || currentLayoutData();
+      const source = sourceLayout || baseLayoutData();
       customLayout = cloneLayout(source);
       customDefaultLayout = cloneLayout(source);
       updateCustomLayoutSize();
@@ -2909,20 +3383,32 @@
       return currentLayoutData().keys[0] || null;
     }
 
+    function isSetIncludedInventoryKeyName(name) {
+      const raw = String(name || "");
+      return raw.startsWith("SetExtra_") || raw.startsWith("SetStock_");
+    }
+
     function keyId(layoutName, key) {
       if (!key) return "";
-      return `${layoutName}-${key[0]}`;
+      const [name, x = 0, y = 0, w = 1, h = 1] = key;
+      // Spare/set-included caps must be independent physical caps.
+      // Without the position/size suffix, duplicate spares and unused main-key leftovers share state.
+      if (isSetIncludedInventoryKeyName(name)) {
+        return `${layoutName}-${name}-${Number(x).toFixed(2)}-${Number(y).toFixed(2)}-${Number(w).toFixed(2)}x${Number(h || 1).toFixed(2)}`;
+      }
+      return `${layoutName}-${name}`;
     }
 
     function canonicalKeyName(name) {
       const aliases = {
-        ISOEnter: "Enter",
+        // Keep ANSI Enter and ISO Enter as separate design targets.
+        ISOEnter: "ISOEnter",
         Space7u: "Space",
         SpaceL: "Space",
         SpaceM: "Space",
         SpaceR: "Space",
-        ISOHash: "Backslash",
-        ISOExtra: "Backslash"
+        ISOHash: "ISOHash",
+        ISOExtra: "ISOExtra"
       };
       return aliases[name] || name;
     }
@@ -2935,15 +3421,22 @@
       return canonicalKeyName(name);
     }
 
+    function stateKeyForId(id) {
+      const key = getKeyData(id);
+      if (key && isSetIncludedInventoryKeyName(key[0])) return id;
+      return keyNameFromId(id);
+    }
+
     function keyState(id) {
-        const name = keyNameFromId(id);
+        const key = getKeyData(id);
         const rawName = (() => {
-          const key = getKeyData(id);
-        if (key) return key[0];
-        const prefix = `${layoutKey()}-`;
-        return String(id || "").startsWith(prefix) ? String(id).slice(prefix.length) : String(id || "");
+          if (key) return key[0];
+          const prefix = `${layoutKey()}-`;
+          return String(id || "").startsWith(prefix) ? String(id).slice(prefix.length) : String(id || "");
         })();
-        if (!persistentState[name] && persistentState[rawName]) persistentState[name] = persistentState[rawName];
+        const isSetExtra = key && isSetIncludedInventoryKeyName(rawName);
+        const name = isSetExtra ? id : keyNameFromId(id);
+        if (!isSetExtra && !persistentState[name] && persistentState[rawName]) persistentState[name] = persistentState[rawName];
         if (!persistentState[name]) persistentState[name] = { ...defaults };
         normalizeKeyImageLayers(persistentState[name]);
         return persistentState[name];
@@ -3140,6 +3633,11 @@
     }
 
     function keyLabel(name) {
+      const rawName = String(name || "");
+      if (/^(SetStock_Main_|SetExtra_)/.test(rawName)) {
+        const equivalent = extraKeyEquivalentName(rawName);
+        if (equivalent && equivalent !== rawName) return keyLabel(equivalent);
+      }
       const labels = {
         Minus: "-",
         Equals: "=",
@@ -3193,6 +3691,80 @@
         SpaceL: "Space",
         SpaceM: "Space",
         SpaceR: "Space",
+        SetExtra_1uEsc: "Esc",
+        SetExtra_1uTab: "Tab",
+        SetExtra_1uCaps: "Caps",
+        SetExtra_1uShift: "LShift",
+        SetExtra_1uCtrl: "LCtrl",
+        SetExtra_1uWin: "LWin",
+        SetExtra_1uAlt: "LAlt",
+        SetExtra_1uFn: "Fn",
+        SetExtra_Insert: "Insert",
+        SetExtra_Home: "Home",
+        SetExtra_PageUp: "PageUp",
+        SetExtra_Delete: "Delete",
+        SetExtra_End: "End",
+        SetExtra_PageDown: "PageDown",
+        SetExtra_ISOEnter: "ISOEnter",
+        SetExtra_NumEnter: "NumEnter",
+        SetExtra_NumPlus: "NumPlus",
+        SetExtra_Num0: "Num0",
+        SetExtra_NumDot: "NumDot",
+        SetExtra_125Ctrl: "LCtrl",
+        SetExtra_125Win: "LWin",
+        SetExtra_125Alt: "LAlt",
+        SetExtra_125Fn: "Fn",
+        SetExtra_125Menu: "Menu",
+        SetExtra_175Shift: "RShift",
+        SetExtra_225Shift: "LShift",
+        SetExtra_275Shift: "RShift",
+        SetExtra_2Backspace: "Backspace",
+        SetExtra_225Enter: "Enter",
+        SetExtra_ISOHash: "ISOHash",
+        SetExtra_ISOExtra: "ISOExtra",
+        SetExtra_Backslash: "Backslash",
+
+        SetExtra_Top_PageUp: "PgUp",
+        SetExtra_Top_PageDown: "PgDn",
+        SetExtra_Top_Insert: "Insert",
+        SetExtra_Top_Home: "Home",
+        SetExtra_Top_Delete: "Delete",
+        SetExtra_Top_End: "End",
+        SetExtra_Left_ISOHash: "\\ |",
+        SetExtra_Left_End: "End",
+        SetExtra_Physical_ISOEnter: "Enter",
+        SetExtra_Mid_PageUp_A: "PgUp",
+        SetExtra_Mid_Home: "Home",
+        SetExtra_Mid_ISOExtra: "\\ |",
+        SetExtra_Mid_PageUp_B: "PgUp",
+        SetExtra_Mid_PageDown: "PgDn",
+        SetExtra_Mod_Ctrl_A: "Ctrl",
+        SetExtra_Mod_Shift_125: "Shift",
+        SetExtra_Mod_Shift_225: "Shift",
+        SetExtra_Mod_Shift_275: "Shift",
+        SetExtra_Mod_End: "End",
+        SetExtra_Mod_PageDown: "PgDn",
+        SetExtra_Mod_Delete: "Delete",
+        SetExtra_Mod_Menu: "Menu",
+        SetExtra_Mod_Backslash: "\\ |",
+        SetExtra_Bottom_Fn: "Fn",
+        SetExtra_Bottom_Menu: "Menu",
+        SetExtra_Bottom_Win: "Win",
+        SetExtra_Bottom_Ctrl: "Ctrl",
+        SetExtra_Bottom_Alt: "Alt",
+        SetExtra_RAlt: "RAlt",
+        SetExtra_RCtrl: "RCtrl",
+        SetExtra_RWin: "RWin",
+        SetExtra_6uSpace: "Space",
+        SetExtra_625Space: "Space",
+        SetExtra_7uSpace: "Space",
+        SetExtra_SpaceL: "Space",
+        SetExtra_SpaceM: "Space",
+        SetExtra_SpaceR: "Space",
+        SetExtra_Up: "Up",
+        SetExtra_Left: "Left",
+        SetExtra_Down: "Down",
+        SetExtra_Right: "Right",
         Lower: "Lower",
         Raise: "Raise"
       };
@@ -3381,6 +3953,22 @@
       keyboard.classList.toggle("editing-layout", editLayoutMode && currentForm === "custom");
       keyboard.innerHTML = "";
 
+      if (layout.setIncludeGroups && layout.setIncludeGroups.length) {
+        const title = document.createElement("div");
+        title.className = "set-includes-title";
+        title.textContent = "What the set includes - unused extras";
+        title.style.top = `${layout.setIncludesY * UNIT}px`;
+        keyboard.appendChild(title);
+
+        layout.setIncludeGroups.forEach((group) => {
+          const groupTitle = document.createElement("div");
+          groupTitle.className = "set-includes-group-title";
+          groupTitle.textContent = group.title;
+          groupTitle.style.top = `${group.titleY * UNIT}px`;
+          keyboard.appendChild(groupTitle);
+        });
+      }
+
       layout.keys.forEach((key) => {
         const sourceKey = previewMode
           ? (sourceLayout.keys.find((candidate) => candidate[0] === key[0]) || key)
@@ -3391,7 +3979,10 @@
         const data = keyState(id);
         const el = document.createElement("button");
         el.className = "key";
-        if (renderName === "ISOEnter") el.classList.add("iso-enter");
+        const isSetExtraKey = isSetIncludedInventoryKeyName(name);
+        const visualRenderName = extraKeyEquivalentName(renderName) === "ISOEnter" ? "ISOEnter" : renderName;
+        if (isSetExtraKey) el.classList.add("set-extra-key");
+        if (visualRenderName === "ISOEnter") el.classList.add("iso-enter");
         if (exportPreviewMode) el.classList.add("export-previewing");
         if (data.textCutout && (data.textCutoutOpacity ?? 100) > 0) el.classList.add("text-cutout");
         if (data.capBackground === "transparent") el.classList.add("transparent-cap");
@@ -3411,30 +4002,30 @@
         const faceScaleZ = Math.max(0.5, Math.min(1.5, Number(data.imageAreaScaleZ ?? data.imageFaceScale ?? 100) / 100));
         const cornerScale = Math.max(0, Math.min(1.5, clampImageSettingValue("imageCornerScale", data.imageCornerScale ?? keyCornerScaleValue) / 100));
         const cornerRadius = clampImageSettingValue("imageCornerRadius", Number(data.imageCornerRadius ?? keyCornerRadius) || 0);
-        const textArtworkSize = renderName === "ISOEnter" ? isoEnterTextBox(availableW, availableH) : keyArtworkCssSize(sourceKey);
-        const imageArtworkSize = renderName === "ISOEnter"
+        const textArtworkSize = visualRenderName === "ISOEnter" ? isoEnterTextBox(availableW, availableH) : keyArtworkCssSize(sourceKey);
+        const imageArtworkSize = visualRenderName === "ISOEnter"
           ? { w: availableW, h: availableH }
           : { w: availableW * faceScaleX * faceScaleZ, h: availableH * faceScaleY * faceScaleZ };
         el.style.setProperty("--artwork-w", `${imageArtworkSize.w}px`);
         el.style.setProperty("--artwork-h", `${imageArtworkSize.h}px`);
-        el.style.setProperty("--image-radius-px", `${renderName === "ISOEnter" ? 0 : Math.min(imageArtworkSize.w, imageArtworkSize.h) * cornerScale * (cornerRadius / 100) / 2}px`);
+        el.style.setProperty("--image-radius-px", `${visualRenderName === "ISOEnter" ? 0 : Math.min(imageArtworkSize.w, imageArtworkSize.h) * cornerScale * (cornerRadius / 100) / 2}px`);
         if (data.capBackground === "color") el.style.background = data.capColor;
-        applyBoardSlice(el, sourceKey);
+        if (!isSetExtraKey) applyBoardSlice(el, sourceKey);
         el.setAttribute("aria-label", keyLabel(renderName));
         normalizeSelection();
         if (selectedIds.has(id) || editAllKeys) el.classList.add("selected");
         const hasLegendText = String(data.text || "").trim();
         const showKeyId = !hasLegendText && !data.textCutout;
         el.innerHTML = `
-          ${renderName === "ISOEnter" ? "<div class=\"iso-checker\"></div><svg class=\"iso-outline\" viewBox=\"0 0 150 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"iso-fill\" d=\"M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 35 Q 28 99 28 92 V 49 Q 28 42 21 42 H 8 Q 1 42 1 35 V 8 Q 1 1 8 1 Z\"></path></svg>" : ""}
-          ${boardImage.src ? `<div class="board-slice"><img src="${boardImage.src}" alt=""></div>` : ""}
+          ${visualRenderName === "ISOEnter" ? "<div class=\"iso-checker\"></div><svg class=\"iso-outline\" viewBox=\"0 0 150 100\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path class=\"iso-fill\" d=\"M 8 1 H 142 Q 149 1 149 8 V 92 Q 149 99 142 99 H 35 Q 28 99 28 92 V 49 Q 28 42 21 42 H 8 Q 1 42 1 35 V 8 Q 1 1 8 1 Z\"></path></svg>" : ""}
+          ${boardImage.src && !isSetExtraKey ? `<div class="board-slice"><img src="${boardImage.src}" alt=""></div>` : ""}
           <div class="legend">
             ${(data.images || []).map((layer, index) => layer.image ? `<div class="legend-image-box" data-layer-index="${index}"><img src="${layer.image}" alt=""></div>` : "").join("")}
             <div class="legend-text"></div>
           </div>
           ${showKeyId ? `<div class="key-id">${keyLabel(renderName)}</div>` : ""}
         `;
-        if (renderName === "ISOEnter") {
+        if (visualRenderName === "ISOEnter") {
           const isoOuterMask = isoEnterMaskUrl(availableW, availableH, 28);
           const isoMask = isoEnterMaskUrl(availableW, availableH, Math.max(0, Math.min(100, cornerRadius * cornerScale)));
           const maskLeft = 0;
@@ -3480,7 +4071,7 @@
         textEl.style.justifyItems = data.textAlign === "left" ? "start" : data.textAlign === "right" ? "end" : "center";
         textEl.style.alignItems = data.textVAlign === "top" ? "start" : data.textVAlign === "bottom" ? "end" : "center";
         textEl.style.transform = `translate(${data.textX || 0}%, ${data.textY || 0}%)`;
-        if (renderName === "ISOEnter") {
+        if (visualRenderName === "ISOEnter") {
           textEl.style.left = `${textArtworkSize.left}px`;
           textEl.style.top = `${textArtworkSize.top}px`;
           textEl.style.width = `${textArtworkSize.right - textArtworkSize.left}px`;
@@ -3584,7 +4175,7 @@
                 window.removeEventListener("pointercancel", finish);
                 syncLegacyImageFields(data);
                 dragLayer = activeImageLayerData(data, true);
-                persistentState[keyNameFromId(id)] = clonePlain(data);
+                persistentState[stateKeyForId(id)] = clonePlain(data);
                 imageFit.value = dragLayer.imageFit;
                 imageContain.checked = dragLayer.imageContain;
                 imageX.value = String(Math.round(dragLayer.imageX));
@@ -3840,14 +4431,32 @@
       renderKeyboard();
     }
 
+    function keySizeLabel(key) {
+      if (!key) return "";
+      const name = extraKeyEquivalentName(key[0]);
+      if (name === "ISOEnter") return "ISO Enter";
+      const w = Number(key[3] || 1);
+      const h = Number(key[4] || 1);
+      const fmt = (value) => Number.isInteger(value) ? `${value}u` : `${value.toFixed(2).replace(/\.?0+$/, "")}u`;
+      return h && h !== 1 ? `${fmt(w)} x ${fmt(h)}` : fmt(w);
+    }
+
+    function syncSelectedKeyLabels(key) {
+      const label = key ? keyLabel(extraKeyEquivalentName(key[0]) || key[0]) : "No key selected";
+      const size = key ? keySizeLabel(key) : "";
+      selectedName.textContent = label;
+      selectedSize.textContent = size;
+      if (selectedNameLarge) selectedNameLarge.textContent = label;
+      if (selectedSizeLarge) selectedSizeLarge.textContent = size;
+    }
+
     function syncPanel() {
       const key = ensureSelectedKey();
       if (!key) return;
       const data = keyState(selectedId);
       editLayout.checked = editLayoutMode;
       selectAllKeys.checked = editAllKeys;
-      selectedName.textContent = keyLabel(key[0]);
-      selectedSize.textContent = `${key[3]}u${key[4] ? ` x ${key[4]}u` : ""}`;
+      syncSelectedKeyLabels(key);
       addKeyButton.disabled = currentForm !== "custom" || !editLayoutMode;
       removeKeyButton.disabled = currentForm !== "custom" || !editLayoutMode || selectedCustomKeyIndex() < 0 || currentLayoutData().keys.length <= 1;
         resetCustomButton.disabled = currentForm !== "custom";
@@ -4107,6 +4716,48 @@
         .map((el) => el.closest?.(".key"))
         .find((el) => el && keyboard.contains(el));
       return keyEl?.dataset.id || "";
+    }
+
+
+    function dragHasImagePayload(dataTransfer) {
+      if (!dataTransfer) return false;
+      const items = [...(dataTransfer.items || [])];
+      if (items.some((item) => item.kind === "file" && item.type.startsWith("image/"))) return true;
+      const types = [...(dataTransfer.types || [])];
+      return types.includes("text/uri-list") || types.includes("text/html") || types.includes("text/plain");
+    }
+
+    function imageUrlFromHtml(html) {
+      if (!html) return "";
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const img = doc.querySelector("img[src]");
+      return img ? img.src : "";
+    }
+
+    function firstUrlFromText(text) {
+      if (!text) return "";
+      return (text.match(/https?:\/\/[^\s"'<>]+/i) || [""])[0];
+    }
+
+    function imageFileFromDrop(event) {
+      return [...(event.dataTransfer?.files || [])].find((item) => item.type.startsWith("image/")) || null;
+    }
+
+    async function imageFileFromDroppedUrl(event) {
+      const dt = event.dataTransfer;
+      const url = imageUrlFromHtml(dt.getData("text/html")) || firstUrlFromText(dt.getData("text/uri-list")) || firstUrlFromText(dt.getData("text/plain"));
+      if (!url) return null;
+      try {
+        const response = await fetch(url, { mode: "cors", credentials: "omit" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        if (!blob.type.startsWith("image/")) throw new Error("Dropped URL was not an image file");
+        const cleanName = decodeURIComponent((new URL(url, location.href).pathname.split("/").pop() || "web-image").split("?")[0]) || "web-image";
+        return new File([blob], cleanName, { type: blob.type || "image/png" });
+      } catch (error) {
+        alert("That website did not allow the image to be copied directly. Right-click/save the sprite, then drag the saved image file in instead.");
+        return null;
+      }
     }
 
     function updateSwatches(activeColor) {
@@ -5164,7 +5815,7 @@
     });
 
     stageWrap.addEventListener("dragover", (event) => {
-      if (![...event.dataTransfer.items].some((item) => item.kind === "file" && item.type.startsWith("image/"))) return;
+      if (!dragHasImagePayload(event.dataTransfer)) return;
       event.preventDefault();
       stageWrap.classList.add("dragging-image");
       event.dataTransfer.dropEffect = "copy";
@@ -5174,10 +5825,14 @@
       stageWrap.classList.remove("dragging-image");
     });
     stageWrap.addEventListener("drop", async (event) => {
-      const file = [...event.dataTransfer.files].find((item) => item.type.startsWith("image/"));
-      if (!file) return;
+      if (!dragHasImagePayload(event.dataTransfer)) return;
       event.preventDefault();
+      event.stopPropagation();
       stageWrap.classList.remove("dragging-image");
+
+      const file = imageFileFromDrop(event) || await imageFileFromDroppedUrl(event);
+      if (!file) return;
+
       const targetId = droppedKeyId(event);
       if (targetId) {
         selectedId = targetId;
@@ -5290,14 +5945,15 @@
     });
     document.getElementById("clearKeyButton").addEventListener("click", () => {
       pushUndo();
-      persistentState[keyNameFromId(selectedId)] = { ...defaults };
+      persistentState[stateKeyForId(selectedId)] = { ...defaults };
       syncPanel();
       renderKeyboard();
     });
     document.getElementById("clearAllButton").addEventListener("click", () => {
       pushUndo();
       currentLayoutData().keys.forEach((key) => {
-        persistentState[canonicalKeyName(key[0])] = { ...defaults };
+        const id = keyId(layoutKey(), key);
+        persistentState[stateKeyForId(id)] = { ...defaults };
       });
       syncPanel();
       renderKeyboard();
@@ -5308,7 +5964,7 @@
     document.getElementById("pasteButton").addEventListener("click", () => {
       if (!clipboardStyle) return;
       pushUndo();
-      persistentState[keyNameFromId(selectedId)] = { ...clipboardStyle };
+      persistentState[stateKeyForId(selectedId)] = { ...clipboardStyle };
       syncPanel();
       renderKeyboard();
     });
@@ -5433,6 +6089,14 @@
     });
     savePrinterProfileButton.addEventListener("click", () => {
       saveActivePrinterProfileFromForm();
+    });
+    saveExtraKeysConfigButton?.addEventListener("click", () => {
+      applyExtraKeysConfigFromEditor();
+    });
+    resetExtraKeysConfigButton?.addEventListener("click", () => {
+      localStorage.removeItem(SET_EXTRA_CONFIG_STORAGE);
+      syncExtraKeysConfigEditor();
+      renderKeyboard();
     });
     printerProfileName.addEventListener("input", () => {
       persistActivePrinterProfileForm({ rerender: false, refreshPreview: false, refreshLabels: true });
